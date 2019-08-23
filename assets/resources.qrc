@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/icon">
+    	<file>folder-open-solid.svg</file>
+    	<file>redo-alt-solid.svg</file>
+    	<file>save-solid.svg</file>
+    </qresource>
+</RCC>
