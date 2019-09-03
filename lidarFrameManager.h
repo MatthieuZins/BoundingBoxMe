@@ -16,7 +16,6 @@ public:
 
 private:
   static std::unique_ptr<LidarFrameManager> m_instance;
-  static bool m_flag;
 
   LidarFrameManager() = default;
   LidarFrameManager(const LidarFrameManager&) = delete;

@@ -36,7 +36,7 @@ public:
 };
 
 MainWindow::MainWindow(QWidget *parent) :
-  QMainWindow(parent), m_framesManager(LidarFrameManager::getInstance()),
+  QMainWindow(parent), m_lidarFramesManager(LidarFrameManager::getInstance()),
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
@@ -60,13 +60,18 @@ MainWindow::MainWindow(QWidget *parent) :
   m_widget->InteractiveOn();
 
   auto reader = vtkSmartPointer<vtkPLYReader>::New();
-  reader->SetFileName("/home/matthieu/dev/CalibrationDepthPose/data/pc_0000.ply");
-  reader->Update();
+//  reader->SetFileName("/home/matthieu/dev/CalibrationDepthPose/data/pc_0000.ply");
+//  reader->Update();
 
-  LidarFrame frame(0, reader->GetOutput());
-  m_framesManager.addFrame(frame);
+  for (int i = 0; i <6; ++i)
+  {
+    reader->SetFileName(std::string("/home/matthieu/dev/CalibrationDepthPose/data/pc_000" + std::to_string(i) + ".ply").c_str());
+    reader->Update();
+//    std::cout << *reader->GetOutput() << "\n";
+    m_lidarFramesManager.addFrame({i, reader->GetOutput()});
+  }
 
-  auto pointsToRender = m_framesManager.getFramesPoints();
+  auto pointsToRender = m_lidarFramesManager.getFramesPoints();
   for (auto* pts : pointsToRender)
   {
     m_mappers.push_back(vtkSmartPointer<vtkPolyDataMapper>::New());
@@ -74,9 +79,11 @@ MainWindow::MainWindow(QWidget *parent) :
     m_actors.push_back(vtkSmartPointer<vtkActor>::New());
 
     m_vertexGlyphFilters.back()->SetInputData(pts);
+    std::cout << pts->GetPoints()->GetNumberOfPoints() << std::endl;
     m_mappers.back()->SetInputConnection(m_vertexGlyphFilters.back()->GetOutputPort());
     m_actors.back()->SetMapper(m_mappers.back());
     m_renderer->AddActor(m_actors.back());
+
   }
   m_renderer->Modified();
 
