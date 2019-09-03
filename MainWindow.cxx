@@ -4,6 +4,7 @@
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkNamedColors.h>
 #include <vtkNew.h>
+
 #include <vtkActor.h>
 #include <vtkSphereSource.h>
 #include <vtkPolyDataMapper.h>
@@ -13,7 +14,7 @@
 #include <vtkProp3D.h>
 #include <vtkTransform.h>
 #include <vtkCommand.h>
-
+#include <vtkPLYReader.h>
 
 class vtkMyCallback : public vtkCommand
 {
@@ -35,7 +36,7 @@ public:
 };
 
 MainWindow::MainWindow(QWidget *parent) :
-  QMainWindow(parent),
+  QMainWindow(parent), m_framesManager(LidarFrameManager::getInstance()),
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
@@ -45,35 +46,39 @@ MainWindow::MainWindow(QWidget *parent) :
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
   this->ui->qvtkWidget->SetRenderWindow(renderWindow);
 
-  // Sphere
-  vtkNew<vtkSphereSource> sphereSource;
-  sphereSource->Update();
-  vtkNew<vtkPolyDataMapper> sphereMapper;
-  sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
-  vtkNew<vtkActor> sphereActor;
-  sphereActor->SetMapper(sphereMapper);
-  sphereActor->GetProperty()->SetColor(colors->GetColor4d("OrangeRed").GetData());
+  m_renderer->SetBackground(colors->GetColor3d("Grey").GetData());
 
-  // VTK Renderer
-  vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(sphereActor);
-  renderer->SetBackground(colors->GetColor3d("Silver").GetData());
+  this->ui->qvtkWidget->GetRenderWindow()->AddRenderer(m_renderer);
 
-  this->ui->qvtkWidget->GetRenderWindow()->AddRenderer(renderer);
+  m_axes = vtkSmartPointer<vtkAxesActor>::New();
+  m_widget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
+  m_widget->SetOutlineColor(0.9300, 0.5700, 0.1300);
+  m_widget->SetOrientationMarker(m_axes);
+  m_widget->SetInteractor(this->ui->qvtkWidget->GetInteractor());
+  m_widget->SetViewport(0.0, 0.0, 0.2, 0.2);
+  m_widget->SetEnabled(1);
+  m_widget->InteractiveOn();
 
-  auto* boxWidget = vtkBoxWidget::New();
-  boxWidget->SetInteractor( renderWindow->GetInteractor() );
+  auto reader = vtkSmartPointer<vtkPLYReader>::New();
+  reader->SetFileName("/home/matthieu/dev/CalibrationDepthPose/data/pc_0000.ply");
+  reader->Update();
 
-  boxWidget->SetProp3D( sphereActor );
-  boxWidget->SetPlaceFactor( 1.25 ); // Make the box 1.25x larger than the actor
-  boxWidget->PlaceWidget();
+  LidarFrame frame(0, reader->GetOutput());
+  m_framesManager.addFrame(frame);
 
-  vtkSmartPointer<vtkMyCallback> callback =
-    vtkSmartPointer<vtkMyCallback>::New();
-  boxWidget->AddObserver( vtkCommand::InteractionEvent, callback );
+  auto pointsToRender = m_framesManager.getFramesPoints();
+  for (auto* pts : pointsToRender)
+  {
+    m_mappers.push_back(vtkSmartPointer<vtkPolyDataMapper>::New());
+    m_vertexGlyphFilters.push_back(vtkSmartPointer<vtkVertexGlyphFilter>::New());
+    m_actors.push_back(vtkSmartPointer<vtkActor>::New());
 
-  boxWidget->On();
-
+    m_vertexGlyphFilters.back()->SetInputData(pts);
+    m_mappers.back()->SetInputConnection(m_vertexGlyphFilters.back()->GetOutputPort());
+    m_actors.back()->SetMapper(m_mappers.back());
+    m_renderer->AddActor(m_actors.back());
+  }
+  m_renderer->Modified();
 
 }
 
