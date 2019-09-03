@@ -31,9 +31,15 @@ add_executable(BoundingBoxMe
     MainWindow.ui
     timeStepsManager.h
     timeStepsManager.cxx
+    timeStepsManager_ui.cxx
+    timeStepsManager_ui.h
+    timeStepsManager_ui.ui
     main.cxx
 )
-target_include_directories(BoundingBoxMe SYSTEM PRIVATE ${VTK_INCLUDE_DIRS})
+target_include_directories(BoundingBoxMe SYSTEM PRIVATE
+    ${VTK_INCLUDE_DIRS}
+    .
+    )
 target_link_libraries(BoundingBoxMe PRIVATE
   Qt5::Widgets
   ${VTK_LIBRARIES}

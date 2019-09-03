@@ -34,10 +34,16 @@ public:
   explicit MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
 
-private:
-  Ui::MainWindow *ui;
   LidarFrameManager& m_lidarFramesManager;
   TimeStepsManager& m_timeStepsManager;
+
+
+  void update();
+  // funciton load dataset
+  // - should update the min max interval
+
+private:
+  Ui::MainWindow *ui;
 
   std::vector<vtkSmartPointer<vtkPolyDataMapper>> m_mappers;
   std::vector<vtkSmartPointer<vtkActor>> m_actors;
