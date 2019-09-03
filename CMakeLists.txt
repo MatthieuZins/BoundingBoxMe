@@ -29,6 +29,8 @@ add_executable(BoundingBoxMe
     MainWindow.cxx
     MainWindow.h
     MainWindow.ui
+    timeStepsManager.h
+    timeStepsManager.cxx
     main.cxx
 )
 target_include_directories(BoundingBoxMe SYSTEM PRIVATE ${VTK_INCLUDE_DIRS})

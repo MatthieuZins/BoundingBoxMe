@@ -20,6 +20,7 @@
 #include <vtkVertexGlyphFilter.h>
 
 #include "lidarFrameManager.h"
+#include "timeStepsManager.h"
 
 namespace Ui {
   class MainWindow;
@@ -36,6 +37,7 @@ public:
 private:
   Ui::MainWindow *ui;
   LidarFrameManager& m_lidarFramesManager;
+  TimeStepsManager& m_timeStepsManager;
 
   std::vector<vtkSmartPointer<vtkPolyDataMapper>> m_mappers;
   std::vector<vtkSmartPointer<vtkActor>> m_actors;

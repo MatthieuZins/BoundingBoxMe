@@ -14,6 +14,10 @@ public:
 
   std::vector<vtkPolyData*> getFramesPoints() const;
 
+  unsigned int getNbFrames() const {
+    return m_frames.size();
+  }
+
 private:
   static std::unique_ptr<LidarFrameManager> m_instance;
 

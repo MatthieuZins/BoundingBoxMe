@@ -37,6 +37,7 @@ public:
 
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent), m_lidarFramesManager(LidarFrameManager::getInstance()),
+  m_timeStepsManager(TimeStepsManager::getInstance(0)),
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
@@ -63,6 +64,11 @@ MainWindow::MainWindow(QWidget *parent) :
 //  reader->SetFileName("/home/matthieu/dev/CalibrationDepthPose/data/pc_0000.ply");
 //  reader->Update();
 
+
+  m_timeStepsManager.setSize(6);
+  m_timeStepsManager.setModeInterval(2, 5);
+
+  auto [first_step, last_step] = m_timeStepsManager.getTimeStepsInterval();
   for (int i = 0; i <6; ++i)
   {
     reader->SetFileName(std::string("/home/matthieu/dev/CalibrationDepthPose/data/pc_000" + std::to_string(i) + ".ply").c_str());
@@ -82,9 +88,17 @@ MainWindow::MainWindow(QWidget *parent) :
     std::cout << pts->GetPoints()->GetNumberOfPoints() << std::endl;
     m_mappers.back()->SetInputConnection(m_vertexGlyphFilters.back()->GetOutputPort());
     m_actors.back()->SetMapper(m_mappers.back());
-    m_renderer->AddActor(m_actors.back());
-
+//    m_renderer->AddActor(m_actors.back());
   }
+
+  for (unsigned int i = 0; i < m_lidarFramesManager.getNbFrames(); ++i)
+  {
+    if (i >= first_step && i <= last_step)
+      m_renderer->AddActor(m_actors[i]);
+    else
+      m_renderer->RemoveActor(m_actors[i]);
+  }
+
   m_renderer->Modified();
 
 }
