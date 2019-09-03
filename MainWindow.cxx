@@ -15,6 +15,7 @@
 #include <vtkTransform.h>
 #include <vtkCommand.h>
 #include <vtkPLYReader.h>
+#include <vtkXMLPolyDataReader.h>
 
 class vtkMyCallback : public vtkCommand
 {
@@ -60,17 +61,18 @@ MainWindow::MainWindow(QWidget *parent) :
   m_widget->SetEnabled(1);
   m_widget->InteractiveOn();
 
-  auto reader = vtkSmartPointer<vtkPLYReader>::New();
+  auto reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
 //  reader->SetFileName("/home/matthieu/dev/CalibrationDepthPose/data/pc_0000.ply");
 //  reader->Update();
 
+  int NB = 60;
 
-  m_timeStepsManager.setSize(6);
+  m_timeStepsManager.setSize(NB);
   m_timeStepsManager.setModeAll();
 
-  for (int i = 0; i <6; ++i)
+  for (int i = 0; i < NB; ++i)
   {
-    reader->SetFileName(std::string("/home/matthieu/dev/CalibrationDepthPose/data/pc_000" + std::to_string(i) + ".ply").c_str());
+    reader->SetFileName(std::string("../data/frame_" + std::to_string(i) + ".vtp").c_str());
     reader->Update();
     m_lidarFramesManager.addFrame({i, reader->GetOutput()});
   }

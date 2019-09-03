@@ -99,6 +99,6 @@ void timeStepsManager_ui::previousFrame()
     auto first = ui->spinBox_intervalFirst->value();
     auto last = ui->spinBox_intervalLast->value();
     ui->spinBox_intervalFirst->setValue(std::max(0, first - 1));
-    ui->spinBox_intervalLast->setValue(std::max(0, last + 1));
+    ui->spinBox_intervalLast->setValue(std::max(0, last - 1));
   }
 }
