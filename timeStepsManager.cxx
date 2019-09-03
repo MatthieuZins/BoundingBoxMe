@@ -1,5 +1,7 @@
 #include "timeStepsManager.h"
 
+#include <iostream>
+
 std::unique_ptr<TimeStepsManager> TimeStepsManager::m_instance = nullptr;
 
 TimeStepsManager &TimeStepsManager::getInstance(int size)
@@ -25,6 +27,12 @@ void TimeStepsManager::setModeSingle(int index)
 
 void TimeStepsManager::setModeInterval(int first, int last)
 {
+  if (last < first)
+  {
+    std::cerr << "Wrong time steps interval" << std::endl;
+  }
+  first = std::max(0, std::min(m_size - 1, first));
+  last = std::max(0, std::min(m_size - 1, last));
   m_first = first;
   m_last = last;
 }
