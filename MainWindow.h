@@ -56,13 +56,16 @@ public:
   void addBoundingNewBox(const Eigen::Translation3d &temp_transl);
 
   void selectBoundingBox(vtkActor* bbActor);
+  int findBoundingBoxFromActor(vtkProp3D *actor);
+
+  void disableBoxWidget();
 
 private:
   Ui::MainWindow *ui;
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;
   vtkSmartPointer<vtkRenderer> m_renderer;
   vtkSmartPointer<vtkAxesActor> m_axes;
-  vtkSmartPointer<vtkOrientationMarkerWidget> m_widget;
+  vtkSmartPointer<vtkOrientationMarkerWidget> m_axesWidget;
 
   std::vector<vtkSmartPointer<vtkPolyDataMapper>> m_pcMappers;
   std::vector<vtkSmartPointer<vtkActor>> m_pcActors;

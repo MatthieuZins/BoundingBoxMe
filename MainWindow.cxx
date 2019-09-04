@@ -24,6 +24,7 @@
 #include <vtkPropPicker.h>
 #include <QDebug>
 
+#include "keyPressInteractorStyle.h"
 
 class vtkMyCallback : public vtkCommand
 {
@@ -39,9 +40,24 @@ public:
     vtkSmartPointer<vtkTransform> t =
       vtkSmartPointer<vtkTransform>::New();
     vtkBoxWidget *widget = reinterpret_cast<vtkBoxWidget*>(caller);
-    widget->GetTransform( t );
-    widget->GetProp3D()->SetUserTransform( t );
+    widget->GetTransform(t);
+    widget->GetProp3D()->SetUserTransform(t);
+    std::cout << *t << std::endl;
+//    if (m_mainwindowPtr)
+//    {
+//      auto index = m_mainwindowPtr->findBoundingBoxFromActor(widget->GetProp3D());
+//      if (index >= 0)
+//      {
+//        m_mainwindowPtr->m_boundingBoxManager.
+//      }
+//    }
   }
+
+  void setMainWindow(MainWindow* ptr) {
+    m_mainwindowPtr = ptr;
+  }
+private:
+  MainWindow* m_mainwindowPtr = nullptr;
 };
 
 // Define interaction style
@@ -94,20 +110,6 @@ class MouseInteractorStyle2 : public vtkInteractorStyleTrackballCamera
                 << " " << pos[2] << std::endl;
 
       std::cout << "Picked actor: " << picker->GetActor() << std::endl;
-//      //Create a sphere
-//      vtkSmartPointer<vtkSphereSource> sphereSource =
-//        vtkSmartPointer<vtkSphereSource>::New();
-//      sphereSource->SetCenter(pos[0], pos[1], pos[2]);
-//      sphereSource->SetRadius(0.1);
-
-//      //Create a mapper and actor
-//      vtkSmartPointer<vtkPolyDataMapper> mapper =
-//        vtkSmartPointer<vtkPolyDataMapper>::New();
-//      mapper->SetInputConnection(sphereSource->GetOutputPort());
-
-//      vtkSmartPointer<vtkActor> actor =
-//        vtkSmartPointer<vtkActor>::New();
-//      actor->SetMapper(mapper);
 
 
       //this->GetInteractor()->GetRenderWindow()->GetRenderers()->GetDefaultRenderer()->AddActor(actor);
@@ -137,7 +139,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_renderWindow(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New()),
   m_renderer(vtkSmartPointer<vtkRenderer>::New()),
   m_axes(vtkSmartPointer<vtkAxesActor>::New()),
-  m_widget(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
+  m_axesWidget(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
   m_boxWidget(vtkSmartPointer<vtkBoxWidget>::New()),
   ui(new Ui::MainWindow)
 {
@@ -155,12 +157,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
   this->ui->qvtkWidget->GetRenderWindow()->AddRenderer(m_renderer);
 
-  m_widget->SetOutlineColor(0.9300, 0.5700, 0.1300);
-  m_widget->SetOrientationMarker(m_axes);
-  m_widget->SetInteractor(this->ui->qvtkWidget->GetInteractor());
-  m_widget->SetViewport(0.0, 0.0, 0.2, 0.2);
-  m_widget->SetEnabled(1);
-  m_widget->InteractiveOn();
+  m_axesWidget->SetOutlineColor(0.9300, 0.5700, 0.1300);
+  m_axesWidget->SetOrientationMarker(m_axes);
+  m_axesWidget->SetInteractor(this->ui->qvtkWidget->GetInteractor());
+  m_axesWidget->SetViewport(0.0, 0.0, 0.2, 0.2);
+  m_axesWidget->SetEnabled(1);
+  m_axesWidget->InteractiveOn();
 
   auto reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
 //  reader->SetFileName("/home/matthieu/dev/CalibrationDepthPose/data/pc_0000.ply");
@@ -213,6 +215,7 @@ MainWindow::MainWindow(QWidget *parent) :
 //   boxWidget->PlaceWidget();
 
   auto callback = vtkSmartPointer<vtkMyCallback>::New();
+  callback->setMainWindow(this);
   m_boxWidget->SetInteractor(m_renderWindow->GetInteractor());
   m_boxWidget->AddObserver(vtkCommand::InteractionEvent, callback);
   m_boxWidget->SetPlaceFactor(1.0);
@@ -224,10 +227,16 @@ MainWindow::MainWindow(QWidget *parent) :
 //  style->SetDefaultRenderer(m_renderer);
 //  ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style);
 
-  auto style2 = vtkSmartPointer<MouseInteractorStyle2>::New();
-  style2->SetDefaultRenderer(m_renderer);
-  style2->setMainWindow(this);
-  ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style2);
+//  auto style2 = vtkSmartPointer<MouseInteractorStyle2>::New();
+//  style2->SetDefaultRenderer(m_renderer);
+//  style2->setMainWindow(this);
+//  ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style2);
+
+  auto style3 = vtkSmartPointer<KeyPressInteractorStyle>::New();
+  style3->SetDefaultRenderer(m_renderer);
+  style3->setMainWindow(this);
+  ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style3);
+
 
   addBoundingNewBox(Eigen::Translation3d(1, 1, 0));
   addBoundingNewBox(Eigen::Translation3d(2, -1, 0));
@@ -295,27 +304,34 @@ void MainWindow::addBoundingNewBox(const Eigen::Translation3d& temp_transl)
   m_renderer->AddActor(actor);
 }
 
-void MainWindow::selectBoundingBox(vtkActor *bbActor)
+int MainWindow::findBoundingBoxFromActor(vtkProp3D* actor)
 {
   int idx = -1;
   for (unsigned int i = 0; i < m_bbActors.size(); ++i)
   {
-    if (bbActor == m_bbActors[i])
+    if (actor == m_bbActors[i])
     {
       idx = i;
       break;
     }
   }
+  return idx;
+}
+
+void MainWindow::disableBoxWidget()
+{
+  m_boxWidget->Off();
+}
+
+void MainWindow::selectBoundingBox(vtkActor *bbActor)
+{
+  int idx = findBoundingBoxFromActor(bbActor);
   if (idx != -1)
   {
-    qInfo() << "Found BB " << idx;
+    qInfo() << "Select bounding box" << idx;
     m_boxWidget->SetProp3D(bbActor);
     m_boxWidget->PlaceWidget();
     m_boxWidget->On();
-  }
-  else
-  {
-    qWarning() << "Bounding Boxx not found";
   }
 }
 
