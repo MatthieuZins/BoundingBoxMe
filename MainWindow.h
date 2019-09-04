@@ -44,14 +44,15 @@ public:
 
 private:
   Ui::MainWindow *ui;
+  vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;
+  vtkSmartPointer<vtkRenderer> m_renderer;
+  vtkSmartPointer<vtkAxesActor> m_axes;
+  vtkSmartPointer<vtkOrientationMarkerWidget> m_widget;
 
   std::vector<vtkSmartPointer<vtkPolyDataMapper>> m_mappers;
   std::vector<vtkSmartPointer<vtkActor>> m_actors;
   std::vector<vtkSmartPointer<vtkVertexGlyphFilter>> m_vertexGlyphFilters;
 
-  vtkNew<vtkRenderer> m_renderer;
-  vtkSmartPointer<vtkAxesActor> m_axes;
-  vtkSmartPointer<vtkOrientationMarkerWidget> m_widget;
 };
 
 #endif // MAINWINDOW_H

@@ -37,23 +37,26 @@ public:
 };
 
 MainWindow::MainWindow(QWidget *parent) :
-  QMainWindow(parent), m_lidarFramesManager(LidarFrameManager::getInstance()),
+  QMainWindow(parent),
+  m_lidarFramesManager(LidarFrameManager::getInstance()),
   m_timeStepsManager(TimeStepsManager::getInstance(0)),
+  m_renderWindow(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New()),
+  m_renderer(vtkSmartPointer<vtkRenderer>::New()),
+  m_axes(vtkSmartPointer<vtkAxesActor>::New()),
+  m_widget(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
 
   vtkNew<vtkNamedColors> colors;
 
-  vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
-  this->ui->qvtkWidget->SetRenderWindow(renderWindow);
+
+  this->ui->qvtkWidget->SetRenderWindow(m_renderWindow);
 
   m_renderer->SetBackground(colors->GetColor3d("Grey").GetData());
 
   this->ui->qvtkWidget->GetRenderWindow()->AddRenderer(m_renderer);
 
-  m_axes = vtkSmartPointer<vtkAxesActor>::New();
-  m_widget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
   m_widget->SetOutlineColor(0.9300, 0.5700, 0.1300);
   m_widget->SetOrientationMarker(m_axes);
   m_widget->SetInteractor(this->ui->qvtkWidget->GetInteractor());
