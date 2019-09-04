@@ -14,6 +14,7 @@
 #include <vtkBoxWidget.h>
 #include <vtkProp3D.h>
 #include <vtkTransform.h>
+#include <vtkCubeSource.h>
 #include <vtkCommand.h>
 #include <vtkAxesActor.h>
 #include <vtkOrientationMarkerWidget.h>
@@ -22,6 +23,7 @@
 #include "classesManager.h"
 #include "lidarFrameManager.h"
 #include "timeStepsManager.h"
+#include "boundingBoxManager.h"
 
 namespace Ui {
   class MainWindow;
@@ -38,6 +40,7 @@ public:
   LidarFrameManager& m_lidarFramesManager;
   TimeStepsManager& m_timeStepsManager;
   ClassesManager& m_classesManager;
+  BoundingBoxManager& m_boundingBoxManager;
 
 
   void update();
@@ -50,6 +53,10 @@ public:
 
   void displayLog(const QString &msg);
 
+  void addBoundingNewBox(const Eigen::Translation3d &temp_transl);
+
+  void selectBoundingBox(vtkActor* bbActor);
+
 private:
   Ui::MainWindow *ui;
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;
@@ -57,9 +64,15 @@ private:
   vtkSmartPointer<vtkAxesActor> m_axes;
   vtkSmartPointer<vtkOrientationMarkerWidget> m_widget;
 
-  std::vector<vtkSmartPointer<vtkPolyDataMapper>> m_mappers;
-  std::vector<vtkSmartPointer<vtkActor>> m_actors;
-  std::vector<vtkSmartPointer<vtkVertexGlyphFilter>> m_vertexGlyphFilters;
+  std::vector<vtkSmartPointer<vtkPolyDataMapper>> m_pcMappers;
+  std::vector<vtkSmartPointer<vtkActor>> m_pcActors;
+  std::vector<vtkSmartPointer<vtkVertexGlyphFilter>> m_pcVertexGlyphFilters;
+
+  std::vector<vtkSmartPointer<vtkCubeSource>> m_bbSources;
+  std::vector<vtkSmartPointer<vtkPolyDataMapper>> m_bbMappers;
+  std::vector<vtkSmartPointer<vtkActor>> m_bbActors;
+
+  vtkSmartPointer<vtkBoxWidget> m_boxWidget;
 
 };
 

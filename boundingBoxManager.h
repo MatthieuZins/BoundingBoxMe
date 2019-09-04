@@ -18,6 +18,10 @@ public:
   /// This is called only once
   void initializeClassesToHandle(const ClassesManager& classesManager);
 
+  // for now test method
+  std::shared_ptr<BoundingBox> appendBoundingBox(BoundingBox::Id id, const std::string& classe, const Eigen::Isometry3d& pose,
+                         const Eigen::Vector3d& dimension, int frame);
+
 private:
   static std::unique_ptr<BoundingBoxManager> m_instance;
 
@@ -25,6 +29,7 @@ private:
   BoundingBoxManager(const BoundingBoxManager&) = delete;
   BoundingBoxManager& operator =(const BoundingBoxManager&) = delete;
 
+  std::vector<std::shared_ptr<BoundingBox>> m_bbs;
 
   bool m_initiliazed = false;
   std::unordered_map<std::string, int> m_perClassCount; // just for information purpose

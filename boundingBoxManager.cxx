@@ -21,3 +21,16 @@ void BoundingBoxManager::initializeClassesToHandle(const ClassesManager &classes
     }
   }
 }
+
+std::shared_ptr<BoundingBox> BoundingBoxManager::appendBoundingBox(BoundingBox::Id id,
+                                                                   const std::string &classe,
+                                                                   const Eigen::Isometry3d &pose,
+                                                                   const Eigen::Vector3d &dimension,
+                                                                   int frame)
+{
+  BoundingBox::Id storing_id = m_bbs.size();
+  auto bb = std::make_shared<BoundingBox>(storing_id, id, classe);
+
+  m_bbs.push_back(bb);
+  return bb;
+}
