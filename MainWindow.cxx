@@ -38,6 +38,7 @@ public:
 
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
+  m_classesManager(ClassesManager::getInstance()),
   m_lidarFramesManager(LidarFrameManager::getInstance()),
   m_timeStepsManager(TimeStepsManager::getInstance(0)),
   m_renderWindow(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New()),
@@ -50,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   vtkNew<vtkNamedColors> colors;
 
+  m_classesManager.loadFromYaml("../classes.yaml");
 
   this->ui->qvtkWidget->SetRenderWindow(m_renderWindow);
 
@@ -68,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent) :
 //  reader->SetFileName("/home/matthieu/dev/CalibrationDepthPose/data/pc_0000.ply");
 //  reader->Update();
 
-  int NB = 60;
+  int NB = 501;
 
   m_timeStepsManager.setSize(NB);
   m_timeStepsManager.setModeAll();

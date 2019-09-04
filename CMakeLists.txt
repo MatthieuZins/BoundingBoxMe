@@ -17,11 +17,19 @@ set(CMAKE_AUTOUIC ON)
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
+# YAML-cpp
+find_package(yaml-cpp REQUIRED)
 
 
 # The main application
 add_executable(BoundingBoxMe
     assets/resources.qrc
+    boundingBox.h
+    boundingBox.cxx
+    boundingBoxManager.h
+    boundingBoxManager.cxx
+    classesManager.cxx
+    classesManager.h
     lidarFrame.cxx
     lidarFrame.h
     lidarFrameManager.cxx
@@ -38,10 +46,12 @@ add_executable(BoundingBoxMe
 )
 target_include_directories(BoundingBoxMe SYSTEM PRIVATE
     ${VTK_INCLUDE_DIRS}
+    ${YAML_CPP_INCLUDE_DIR}
     .
     )
 target_link_libraries(BoundingBoxMe PRIVATE
   Qt5::Widgets
   ${VTK_LIBRARIES}
   Eigen3::Eigen
+  ${YAML_CPP_LIBRARIES}
   )

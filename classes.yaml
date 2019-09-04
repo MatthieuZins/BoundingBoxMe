@@ -1,0 +1,5 @@
+classes:
+    - name: car
+      color: [255, 0, 0]
+    - name: person
+      color: [0, 255, 0]

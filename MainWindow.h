@@ -19,6 +19,7 @@
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkVertexGlyphFilter.h>
 
+#include "classesManager.h"
 #include "lidarFrameManager.h"
 #include "timeStepsManager.h"
 
@@ -36,6 +37,7 @@ public:
 
   LidarFrameManager& m_lidarFramesManager;
   TimeStepsManager& m_timeStepsManager;
+  ClassesManager& m_classesManager;
 
 
   void update();
