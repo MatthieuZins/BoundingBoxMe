@@ -3,6 +3,9 @@
 
 #include <Eigen/Dense>
 
+#include <vtkMatrix4x4.h>
+#include <vtkSmartPointer.h>
+
 class BoundingBox
 {
 public:
@@ -17,6 +20,8 @@ public:
   Eigen::Vector3d getCenter(unsigned int frameId);
 
   void addPresenceInFrame(const Eigen::Isometry3d& pose,  unsigned int frameId);
+
+  vtkSmartPointer<vtkMatrix4x4> getPoseVtkMatrix(unsigned int frameId) const;
 
 private:
 

@@ -43,6 +43,39 @@ public:
     widget->GetTransform(t);
     widget->GetProp3D()->SetUserTransform(t);
     std::cout << *t << std::endl;
+
+    auto pd = vtkSmartPointer<vtkPolyData>::New();
+    widget->GetPolyData(pd);
+    auto* points = pd->GetPoints();
+
+    double pc[3];
+    points->GetPoint(14, pc);
+    double px[3];   // +x
+    points->GetPoint(9, px);
+    double py[3];   // +y
+    points->GetPoint(11, py);
+    double pz[3];   // +z
+    points->GetPoint(13, pz);
+
+    Eigen::Vector3d x(px[0], px[1], px[2]);
+    Eigen::Vector3d y(py[0], py[1], py[2]);
+    Eigen::Vector3d z(pz[0], pz[1], pz[2]);
+    Eigen::Vector3d center(pc[0], pc[1], pc[2]);
+    x -= center;
+    y -= center;
+    z -= center;
+
+    Eigen::Matrix3d rotation;
+    rotation.col(0) = x;
+    rotation.col(1) = y;
+    rotation.col(2) = z;
+
+    Eigen::Isometry3d T = Eigen::Translation3d(center) * Eigen::Quaterniond(rotation);
+    std::cout << "T = \n";
+    std::cout << T.matrix() << std::endl;
+
+
+
 //    if (m_mainwindowPtr)
 //    {
 //      auto index = m_mainwindowPtr->findBoundingBoxFromActor(widget->GetProp3D());
@@ -297,7 +330,8 @@ void MainWindow::addBoundingNewBox(const Eigen::Translation3d& temp_transl)
 
   mapper->SetInputConnection(source->GetOutputPort());
   actor->SetMapper(mapper);
-  actor->SetPosition(bb->getCenter(0).data());
+  //actor->SetPosition(bb->getCenter(0).data());
+//  actor->PokeMatrix(bb->getPoseVtkMatrix(0));
   actor->GetProperty()->SetColor(colors->GetColor4d("OrangeRed").GetData());
   actor->GetProperty()->SetRepresentationToSurface();
   actor->GetProperty()->SetOpacity(0.2);
