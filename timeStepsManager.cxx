@@ -1,5 +1,7 @@
 #include "timeStepsManager.h"
 
+#include <QDebug>
+
 #include <iostream>
 
 std::unique_ptr<TimeStepsManager> TimeStepsManager::m_instance = nullptr;
@@ -29,7 +31,7 @@ void TimeStepsManager::setModeInterval(int first, int last)
 {
   if (last < first)
   {
-    std::cerr << "Wrong time steps interval" << std::endl;
+      qWarning() << "Wrong time steps interval";
   }
   first = std::max(0, std::min(m_size - 1, first));
   last = std::max(0, std::min(m_size - 1, last));

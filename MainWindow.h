@@ -44,6 +44,12 @@ public:
   // funciton load dataset
   // - should update the min max interval
 
+  /// This function initialize the application
+  /// For example, it loads the classes available
+  void initialize();
+
+  void displayLog(const QString &msg);
+
 private:
   Ui::MainWindow *ui;
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;

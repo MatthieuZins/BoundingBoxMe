@@ -17,6 +17,9 @@
 #include <vtkPLYReader.h>
 #include <vtkXMLPolyDataReader.h>
 
+#include <QDebug>
+
+
 class vtkMyCallback : public vtkCommand
 {
 public:
@@ -51,7 +54,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
   vtkNew<vtkNamedColors> colors;
 
-  m_classesManager.loadFromYaml("../classes.yaml");
 
   this->ui->qvtkWidget->SetRenderWindow(m_renderWindow);
 
@@ -103,7 +105,7 @@ MainWindow::~MainWindow()
 void MainWindow::update()
 {
   auto [first_frame, last_frame] = m_timeStepsManager.getTimeStepsInterval();
-  std::cout << "interval = " << first_frame << " -> " << last_frame << std::endl;
+  qDebug() << "interval = " << first_frame << " -> " << last_frame;
   for (unsigned int i = 0; i < m_lidarFramesManager.getNbFrames(); ++i)
   {
     if (i >= first_frame && i <= last_frame)
@@ -113,4 +115,14 @@ void MainWindow::update()
   }
   m_renderer->Modified();
   m_renderer->Render();
+}
+
+void MainWindow::initialize()
+{
+  m_classesManager.loadFromYaml("../classes.yaml");
+}
+
+void MainWindow::displayLog(const QString& msg)
+{
+  ui->textBrowser_logger->append(msg);
 }

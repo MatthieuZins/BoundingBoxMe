@@ -71,13 +71,28 @@
       <height>0</height>
      </size>
     </property>
+    <widget class="QWidget" name="verticalLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>270</y>
+       <width>231</width>
+       <height>111</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QTextBrowser" name="textBrowser_logger"/>
+      </item>
+     </layout>
+    </widget>
     <widget class="timeStepsManager_ui" name="groupBox">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>241</width>
-       <height>231</height>
+       <width>231</width>
+       <height>241</height>
       </rect>
      </property>
      <property name="minimumSize">
@@ -124,6 +139,7 @@
     <string>Quit</string>
    </property>
   </action>
+  <zorder>dockWidget</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

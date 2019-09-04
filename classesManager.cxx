@@ -3,7 +3,10 @@
 #include <iostream>
 #include <string>
 
+#include <QDebug>
 #include <yaml-cpp/yaml.h>
+
+#include "logger.h"
 
 std::unique_ptr<ClassesManager> ClassesManager::m_instance = nullptr;
 
@@ -21,16 +24,19 @@ bool ClassesManager::loadFromYaml(const std::string &filename)
   {
     YAML::Node file(YAML::LoadFile(filename));
     auto classes = file["classes"];
+    qInfo() << "Load classes:";
     for (auto cl : classes)
     {
       std::string name = cl["name"].as<std::string>();
-      std::cout << name << "\n";
+      qInfo() << name.c_str();
       Color color;
       color = std::make_tuple(static_cast<unsigned char>(cl["color"][0].as<int>()),     // need to convert first to int because yaml-cpp can't convert to unsigned char
                               static_cast<unsigned char>(cl["color"][1].as<int>()),
                               static_cast<unsigned char>(cl["color"][2].as<int>()));
-  //    std::cout << (int)std::get<0>(color) << " " << (int)std::get<1>(color) << " " << (int)std::get<2>(color) << "\n";
       m_map[name] = color;
+
+//      Logger log;
+//      log.info("losclosclosc");
     }
   } catch (std::exception& e)
   {

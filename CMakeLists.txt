@@ -34,6 +34,8 @@ add_executable(BoundingBoxMe
     lidarFrame.h
     lidarFrameManager.cxx
     lidarFrameManager.h
+    logger.cxx
+    logger.h
     MainWindow.cxx
     MainWindow.h
     MainWindow.ui

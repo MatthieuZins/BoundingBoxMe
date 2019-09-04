@@ -12,7 +12,7 @@ BoundingBoxManager& BoundingBoxManager::getInstance()
 
 void BoundingBoxManager::initializeClassesToHandle(const ClassesManager &classesManager)
 {
-  if (!m_initiliazde)
+  if (!m_initiliazed)
   {
 
     for (const auto& cl : classesManager.getclasses())
