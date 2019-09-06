@@ -63,9 +63,17 @@ void KeyPressInteractorStyle::OnLeftButtonDown()
 
   std::cout << "Picked actor: " << picker->GetActor() << std::endl;
 
+  if (picker->GetActor())
+  {
+    if (m_mainWindowPtr)
+      m_mainWindowPtr->selectBoundingBox(picker->GetActor());
+  }
+  else
+  {
+    qInfo() << "Unselect all";
+    m_mainWindowPtr->disableBoxWidget();
+  }
 
-  if (m_mainWindowPtr)
-    m_mainWindowPtr->selectBoundingBox(picker->GetActor());
 
   // Forward events
   vtkInteractorStyleTrackballCamera::OnLeftButtonDown();

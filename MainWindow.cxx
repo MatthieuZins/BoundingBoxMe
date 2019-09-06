@@ -23,7 +23,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkPropPicker.h>
 #include <QDebug>
-
+#include <unsupported/Eigen/EulerAngles>
 #include "keyPressInteractorStyle.h"
 
 class vtkMyCallback : public vtkCommand
@@ -39,10 +39,71 @@ public:
     // (by manipulating its transformation matrix).
     vtkSmartPointer<vtkTransform> t =
       vtkSmartPointer<vtkTransform>::New();
-    vtkBoxWidget *widget = reinterpret_cast<vtkBoxWidget*>(caller);
+    vtkBoundingBoxManipulatorWidget *widget = reinterpret_cast<vtkBoundingBoxManipulatorWidget*>(caller);
     widget->GetTransform(t);
+    vtkMatrix4x4* prevUserTransform = widget->getPreviousUserTransform();
+    double vx=0, vy=0, vz=0;
+    for (int i = 0; i<3;++i)
+    {
+      vx += std::pow(prevUserTransform->GetElement(i,0), 2);
+      vy += std::pow(prevUserTransform->GetElement(i,1), 2);
+      vz += std::pow(prevUserTransform->GetElement(i,2), 2);
+    }
+    vx = std::sqrt(vx);
+    vy = std::sqrt(vy);
+    vz = std::sqrt(vz);
+    std::cout << "Apply scale to box widget ==> scale from previous user transfrom = " << vx << " " << vy << " " << vz << std::endl;
+    vx=0;
+    vy=0;
+    vz=0;
+    auto t_m = vtkSmartPointer<vtkMatrix4x4>::New();
+    t->GetMatrix(t_m);
+    for (int i = 0; i<3;++i)
+    {
+      vx += std::pow(t_m->GetElement(i,0), 2);
+      vy += std::pow(t_m->GetElement(i,1), 2);
+      vz += std::pow(t_m->GetElement(i,2), 2);
+    }
+    vx = std::sqrt(vx);
+    vy = std::sqrt(vy);
+    vz = std::sqrt(vz);
+    std::cout << "Apply scale to box widget ==> scale new transform scale = " << vx << " " << vy << " " << vz << std::endl;
+
+    t->PreMultiply();
+    if (prevUserTransform)
+    {
+
+//      for (int i = 0; i<3;++i)
+//      {
+//        t_m->SetElement(i, 0,t_m->GetElement(i,0) / vx);
+//        t_m->SetElement(i, 1,t_m->GetElement(i,1) / vy);
+//        t_m->SetElement(i, 2,t_m->GetElement(i,2) / vz);
+//      }
+//      for (int i = 0; i<3;++i)
+//      {
+//        prevUserTransform->SetElement(i, 0,prevUserTransform->GetElement(i,0) * vx);
+//        prevUserTransform->SetElement(i, 1,prevUserTransform->GetElement(i,1) * vy);
+//        prevUserTransform->SetElement(i, 2,prevUserTransform->GetElement(i,2) * vz);
+//      }
+      t->Concatenate(prevUserTransform);
+    }
+
+//    t->PreMultiply();
+//    t->Concatenate(widget->GetProp3D()->GetUserTransform());
+double *scale = widget->GetProp3D()->GetScale();
+std::cout << "GET SCALE = " << scale[0] << " " << scale[1] << " " << scale[2] << std::endl;
     widget->GetProp3D()->SetUserTransform(t);
-    std::cout << *t << std::endl;
+
+//    widget->GetProp3D()->ComputeMatrix();
+
+//    vtkMatrix4x4* m = t->GetMatrix();
+//    std::cout << "User transform = \n" << widget->GetProp3D()->GetUserTransform() << "\n";
+
+    //    double *currentPos = widget->GetProp3D()->GetPosition();
+//    widget->GetProp3D()->SetPosition(m->GetElement(0, 3) + currentPos[0],
+//        m->GetElement(1, 3) + currentPos[1],
+//        m->GetElement(2, 3) + currentPos[2]);
+//    std::cout << *t << std::endl;
 
     auto pd = vtkSmartPointer<vtkPolyData>::New();
     widget->GetPolyData(pd);
@@ -70,9 +131,9 @@ public:
     rotation.col(1) = y;
     rotation.col(2) = z;
 
-    Eigen::Isometry3d T = Eigen::Translation3d(center) * Eigen::Quaterniond(rotation);
-    std::cout << "T = \n";
-    std::cout << T.matrix() << std::endl;
+//    Eigen::Isometry3d T = Eigen::Translation3d(center) * Eigen::Quaterniond(rotation);
+//    std::cout << "T = \n";
+//    std::cout << T.matrix() << std::endl;
 
 
 
@@ -173,7 +234,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_renderer(vtkSmartPointer<vtkRenderer>::New()),
   m_axes(vtkSmartPointer<vtkAxesActor>::New()),
   m_axesWidget(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
-  m_boxWidget(vtkSmartPointer<vtkBoxWidget>::New()),
+  m_boxWidget(vtkSmartPointer<vtkBoundingBoxManipulatorWidget>::New()),
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
@@ -271,9 +332,9 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style3);
 
 
-  addBoundingNewBox(Eigen::Translation3d(1, 1, 0));
-  addBoundingNewBox(Eigen::Translation3d(2, -1, 0));
-  addBoundingNewBox(Eigen::Translation3d(-2, 2, 0));
+  addBoundingNewBox(Eigen::Translation3d(2, 0, 0));
+//  addBoundingNewBox(Eigen::Translation3d(2, -1, 0));
+//  addBoundingNewBox(Eigen::Translation3d(-2, 2, 0));
 }
 
 MainWindow::~MainWindow()
@@ -330,7 +391,7 @@ void MainWindow::addBoundingNewBox(const Eigen::Translation3d& temp_transl)
 
   mapper->SetInputConnection(source->GetOutputPort());
   actor->SetMapper(mapper);
-  //actor->SetPosition(bb->getCenter(0).data());
+  actor->SetPosition(bb->getCenter(0).data());
 //  actor->PokeMatrix(bb->getPoseVtkMatrix(0));
   actor->GetProperty()->SetColor(colors->GetColor4d("OrangeRed").GetData());
   actor->GetProperty()->SetRepresentationToSurface();
@@ -343,7 +404,7 @@ int MainWindow::findBoundingBoxFromActor(vtkProp3D* actor)
   int idx = -1;
   for (unsigned int i = 0; i < m_bbActors.size(); ++i)
   {
-    if (actor == m_bbActors[i])
+    if (actor == static_cast<vtkProp3D*>(m_bbActors[i]))
     {
       idx = i;
       break;
@@ -354,6 +415,27 @@ int MainWindow::findBoundingBoxFromActor(vtkProp3D* actor)
 
 void MainWindow::disableBoxWidget()
 {
+  std::cout << "====== disable box widget =======\n";
+  // we need to updat the position and orientation fo the actor of the bb with its user transform
+  auto* actor = m_boxWidget->GetProp3D();
+
+//  auto* userT = actor->GetUserTransform();
+//  if (userT)
+//  {
+//    auto* matrix = userT->GetMatrix();
+//    if (matrix)
+//    {
+//      std::cout << "matrix = \n" << *matrix << std::endl;
+//      Eigen::Vector3d pos = Eigen::Map<Eigen::Vector3d>(actor->GetPosition());
+//      Eigen::Vector3d rot = Eigen::Map<Eigen::Vector3d>(actor->GetOrientation());
+//      Eigen::EulerAnglesZXYd eulerAngles(rot[2], rot[0], rot[1]);
+//      Eigen::EulerAnglesYXZd eulerAngles2(rot[1], rot[0], rot[2]);
+//      Eigen::Vector3d origin = Eigen::Map<Eigen::Vector3d>(actor->GetOrigin());
+//  //    Eigen::Isometry3d T = Eigen::Translation3d(position) * Eigen::Translation3d(origin) * eulerAngles2 * Eigen::Translation3d(-origin);
+//      std::cout << "origin = " << origin.transpose() << std::endl;
+//    }
+//  }
+
   m_boxWidget->Off();
 }
 
@@ -364,7 +446,33 @@ void MainWindow::selectBoundingBox(vtkActor *bbActor)
   {
     qInfo() << "Select bounding box" << idx;
     m_boxWidget->SetProp3D(bbActor);
+    auto* m = bbActor->GetUserTransform();
+    std::cout << "user matrix at selection is \n";
+    if (m)
+    {
+      std::cout << *m << "\n";
+    }
+    else
+    {
+      std::cout << "no\n";
+    }
+
     m_boxWidget->PlaceWidget();
+//    if (bbActor->GetUserTransform())
+//    {
+//      auto * ma = bbActor->GetUserTransform()->GetMatrix();
+////      ma->SetElement(0, 3, 0);
+////      ma->SetElement(1, 3, 0);
+////      ma->SetElement(2, 3, 0);
+////      ma->Identity();
+//    auto mb = vtkSmartPointer<vtkMatrix4x4>::New();
+//    mb->DeepCopy(ma);
+//    mb->Identity();
+//      vtkSmartPointer<vtkTransform> t = vtkSmartPointer<vtkTransform>::New();
+//      t->SetMatrix(mb);
+//      m_boxWidget->SetTransform(t);
+
+//    }
     m_boxWidget->On();
   }
 }

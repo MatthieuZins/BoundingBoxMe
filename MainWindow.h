@@ -24,6 +24,7 @@
 #include "lidarFrameManager.h"
 #include "timeStepsManager.h"
 #include "boundingBoxManager.h"
+#include "vtkBoundingBoxManipulatorWidget.h"
 
 namespace Ui {
   class MainWindow;
@@ -75,7 +76,7 @@ private:
   std::vector<vtkSmartPointer<vtkPolyDataMapper>> m_bbMappers;
   std::vector<vtkSmartPointer<vtkActor>> m_bbActors;
 
-  vtkSmartPointer<vtkBoxWidget> m_boxWidget;
+  vtkSmartPointer<vtkBoundingBoxManipulatorWidget> m_boxWidget;
 
 };
 
