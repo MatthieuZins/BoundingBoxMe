@@ -46,6 +46,7 @@ void KeyPressInteractorStyle::OnKeyPress()
 
   // Forward events
   vtkInteractorStyleTrackballCamera::OnKeyPress();
+  m_mainWindowPtr->forceRender();
 }
 
 void KeyPressInteractorStyle::OnLeftButtonDown()

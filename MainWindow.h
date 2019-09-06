@@ -61,6 +61,10 @@ public:
 
   void disableBoxWidget();
 
+  void forceRender() {
+    m_renderWindow->Render();
+  }
+
 private:
   Ui::MainWindow *ui;
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;

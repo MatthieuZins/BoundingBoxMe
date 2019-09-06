@@ -38,146 +38,14 @@ public:
   {
     // Here we use the vtkBoxWidget to transform the underlying coneActor
     // (by manipulating its transformation matrix).
-    vtkSmartPointer<vtkTransform> t =
-      vtkSmartPointer<vtkTransform>::New();
     vtkBoundingBoxManipulatorWidget *widget = reinterpret_cast<vtkBoundingBoxManipulatorWidget*>(caller);
-    widget->GetTransform(t);  // this is just use to update the internal state of the widget
-    double* widgetPosition = widget->GetactorCenter();
-    double* widgetOrigin = widget->GetactorOrigin();
-    double* widgetOrientation= widget->GetactorOrientation();
-    double* widgetScale = widget->GetactorScale();
 
-
-
+    widget->GetTransform(0);  // this is just use to update the internal state of the widget
 
     auto* actorToModify = widget->GetProp3D();
-//    vtkSmartPointer<vtkMatrix4x4> m = vtkSmartPointer<vtkMatrix4x4>::New();
-//    m->Identity();
-//    actorToModify->ComputeMatrix();
-//    actorToModify->PokeMatrix(m);
-//    actorToModify->SetScale(widgetScale[0], widgetScale[1], widgetScale[2]);
-//    actorToModify->SetOrigin(widgetOrigin[0], widgetOrigin[1], widgetOrigin[2]);
-//    actorToModify->SetOrientation(widgetOrientation[0], widgetOrientation[1], widgetOrientation[2]);
-//    actorToModify->SetPosition(widgetPosition[0], widgetPosition[1], widgetPosition[2]);
-//    actorToModify->ComputeMatrix();
-//    actorToModify->Modified();
 
-  actorToModify->SetUserMatrix(widget->userMatrix);
-//    std::cout << "actor prev position : " << actorToModify->GetPosition()[0] << " " << actorToModify->GetPosition()[1] << " " << actorToModify->GetPosition()[2] << std::endl;
-//    std::cout << "Callback set position: " << widgetPosition[0] << " " << widgetPosition[1] << " " << widgetPosition[2] << std::endl;
-//    std::cout << "Callback set origin: " << widgetOrigin[0] << " " << widgetOrigin[1] << " " << widgetOrigin[2] << std::endl;
-//    std::cout << "Callback set orientation: " << widgetOrientation[0] << " " << widgetOrientation[1] << " " << widgetOrientation[2] << std::endl;
+    actorToModify->SetUserMatrix(widget->getPoseMatrixCopy());
 
-//    std::cout << "Callback set position: " << widgetPosition[0] << " " << widgetPosition[1] << " " << widgetPosition[2] << std::endl;
-
-//    std::cout << "Callback set position: " << widgetPosition[0] << " " << widgetPosition[1] << " " << widgetPosition[2] << std::endl;
-
-
-//    widget->GetTransform(t);
-//    vtkMatrix4x4* prevUserTransform = widget->getPreviousUserTransform();
-//    double vx=0, vy=0, vz=0;
-//    for (int i = 0; i<3;++i)
-//    {
-//      vx += std::pow(prevUserTransform->GetElement(i,0), 2);
-//      vy += std::pow(prevUserTransform->GetElement(i,1), 2);
-//      vz += std::pow(prevUserTransform->GetElement(i,2), 2);
-//    }
-//    vx = std::sqrt(vx);
-//    vy = std::sqrt(vy);
-//    vz = std::sqrt(vz);
-//    std::cout << "Apply scale to box widget ==> scale from previous user transfrom = " << vx << " " << vy << " " << vz << std::endl;
-//    vx=0;
-//    vy=0;
-//    vz=0;
-//    auto t_m = vtkSmartPointer<vtkMatrix4x4>::New();
-//    t->GetMatrix(t_m);
-//    for (int i = 0; i<3;++i)
-//    {
-//      vx += std::pow(t_m->GetElement(i,0), 2);
-//      vy += std::pow(t_m->GetElement(i,1), 2);
-//      vz += std::pow(t_m->GetElement(i,2), 2);
-//    }
-//    vx = std::sqrt(vx);
-//    vy = std::sqrt(vy);
-//    vz = std::sqrt(vz);
-//    std::cout << "Apply scale to box widget ==> scale new transform scale = " << vx << " " << vy << " " << vz << std::endl;
-
-//    t->PreMultiply();
-//    if (prevUserTransform)
-//    {
-
-////      for (int i = 0; i<3;++i)
-////      {
-////        t_m->SetElement(i, 0,t_m->GetElement(i,0) / vx);
-////        t_m->SetElement(i, 1,t_m->GetElement(i,1) / vy);
-////        t_m->SetElement(i, 2,t_m->GetElement(i,2) / vz);
-////      }
-////      for (int i = 0; i<3;++i)
-////      {
-////        prevUserTransform->SetElement(i, 0,prevUserTransform->GetElement(i,0) * vx);
-////        prevUserTransform->SetElement(i, 1,prevUserTransform->GetElement(i,1) * vy);
-////        prevUserTransform->SetElement(i, 2,prevUserTransform->GetElement(i,2) * vz);
-////      }
-//      t->Concatenate(prevUserTransform);
-//    }
-
-////    t->PreMultiply();
-////    t->Concatenate(widget->GetProp3D()->GetUserTransform());
-//double *scale = widget->GetProp3D()->GetScale();
-//std::cout << "GET SCALE = " << scale[0] << " " << scale[1] << " " << scale[2] << std::endl;
-//    widget->GetProp3D()->SetUserTransform(t);
-
-////    widget->GetProp3D()->ComputeMatrix();
-
-////    vtkMatrix4x4* m = t->GetMatrix();
-////    std::cout << "User transform = \n" << widget->GetProp3D()->GetUserTransform() << "\n";
-
-//    //    double *currentPos = widget->GetProp3D()->GetPosition();
-////    widget->GetProp3D()->SetPosition(m->GetElement(0, 3) + currentPos[0],
-////        m->GetElement(1, 3) + currentPos[1],
-////        m->GetElement(2, 3) + currentPos[2]);
-////    std::cout << *t << std::endl;
-
-//    auto pd = vtkSmartPointer<vtkPolyData>::New();
-//    widget->GetPolyData(pd);
-//    auto* points = pd->GetPoints();
-
-//    double pc[3];
-//    points->GetPoint(14, pc);
-//    double px[3];   // +x
-//    points->GetPoint(9, px);
-//    double py[3];   // +y
-//    points->GetPoint(11, py);
-//    double pz[3];   // +z
-//    points->GetPoint(13, pz);
-
-//    Eigen::Vector3d x(px[0], px[1], px[2]);
-//    Eigen::Vector3d y(py[0], py[1], py[2]);
-//    Eigen::Vector3d z(pz[0], pz[1], pz[2]);
-//    Eigen::Vector3d center(pc[0], pc[1], pc[2]);
-//    x -= center;
-//    y -= center;
-//    z -= center;
-
-//    Eigen::Matrix3d rotation;
-//    rotation.col(0) = x;
-//    rotation.col(1) = y;
-//    rotation.col(2) = z;
-
-//    Eigen::Isometry3d T = Eigen::Translation3d(center) * Eigen::Quaterniond(rotation);
-//    std::cout << "T = \n";
-//    std::cout << T.matrix() << std::endl;
-
-
-
-//    if (m_mainwindowPtr)
-//    {
-//      auto index = m_mainwindowPtr->findBoundingBoxFromActor(widget->GetProp3D());
-//      if (index >= 0)
-//      {
-//        m_mainwindowPtr->m_boundingBoxManager.
-//      }
-//    }
   }
 
   void setMainWindow(MainWindow* ptr) {
@@ -366,8 +234,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
   addBoundingNewBox(Eigen::Translation3d(0, 0, 0));
-//  addBoundingNewBox(Eigen::Translation3d(2, -1, 0));
-//  addBoundingNewBox(Eigen::Translation3d(-2, 2, 0));
+  addBoundingNewBox(Eigen::Translation3d(2, -1, 0));
+  addBoundingNewBox(Eigen::Translation3d(-2, 2, 0));
 }
 
 MainWindow::~MainWindow()
@@ -427,6 +295,7 @@ void MainWindow::addBoundingNewBox(const Eigen::Translation3d& temp_transl)
 //  actor->SetPosition(bb->getCenter(0).data());
 //  actor->SetOrigin(bb->getCenter(0).data());
 //  actor->SetOrientation(10, 20, 30);
+  actor->SetUserMatrix(bb->getPoseVtkMatrix(0));
   actor->ComputeMatrix();
   actor->GetProperty()->SetColor(colors->GetColor4d("OrangeRed").GetData());
   actor->GetProperty()->SetRepresentationToSurface();

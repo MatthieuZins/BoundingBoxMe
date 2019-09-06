@@ -16,31 +16,22 @@ public:
 
   void PlaceWidget();
 
-  virtual void GetTransform(vtkTransform *t);
+  virtual void GetTransform(vtkTransform*);
 
-  vtkMatrix4x4* getPreviousUserTransform() {
-    return prevUserTransform;
+  vtkSmartPointer<vtkMatrix4x4> getPoseMatrixCopy() const {
+    vtkSmartPointer<vtkMatrix4x4> posecopy = vtkSmartPointer<vtkMatrix4x4>::New();
+    posecopy->DeepCopy(userMatrix);
+    return posecopy;
   }
 
-  vtkGetVector3Macro(actorCenter, double);
-  vtkGetVector3Macro(actorOrigin, double);
-  vtkGetVector3Macro(actorOrientation, double);
-  vtkGetVector3Macro(actorScale, double);
-  vtkSmartPointer<vtkMatrix4x4> userMatrix = nullptr;
 
 protected:
   vtkBoundingBoxManipulatorWidget();
   ~vtkBoundingBoxManipulatorWidget() = default;
-  double InitialCenter[3] = {0, 0, 0};
-  double InitialScale[3] = {1.0, 1.0, 1.0};
 
-  double actorCenter[3] = {0, 0, 0};
-  double actorOrigin[3] = {0, 0, 0};
-  double actorOrientation[3] = {0, 0, 0};
-  double actorScale[3] = {0, 0, 0};
+  vtkSmartPointer<vtkMatrix4x4> userMatrix = nullptr;
 
-  vtkSmartPointer<vtkMatrix4x4> prevUserTransform = nullptr;
-  vtkSmartPointer<vtkMatrix4x4> initialOrientation = nullptr;
+
 };
 
 #endif // VTKBOUNDINGBOXMANIPULATORWIDGET_H
