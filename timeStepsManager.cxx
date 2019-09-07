@@ -6,11 +6,12 @@
 
 std::unique_ptr<TimeStepsManager> TimeStepsManager::m_instance = nullptr;
 
-TimeStepsManager &TimeStepsManager::getInstance(int size)
+TimeStepsManager &TimeStepsManager::getInstance(size_t size)
 {
   if (!m_instance)
     m_instance.reset(new TimeStepsManager());
-  m_instance->setSize(size);
+  if (size > 0)
+    m_instance->initializeSize(size);
   return *m_instance;
 }
 
@@ -44,7 +45,7 @@ std::pair<int, int> TimeStepsManager::getTimeStepsInterval() const
   return std::make_pair(m_first, m_last);
 }
 
-void TimeStepsManager::setSize(size_t size)
+void TimeStepsManager::initializeSize(size_t size)
 {
   m_size = static_cast<int>(size);
 }

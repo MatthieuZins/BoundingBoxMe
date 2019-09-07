@@ -34,9 +34,6 @@ bool ClassesManager::loadFromYaml(const std::string &filename)
                               static_cast<unsigned char>(cl["color"][1].as<int>()),
                               static_cast<unsigned char>(cl["color"][2].as<int>()));
       m_map[name] = color;
-
-//      Logger log;
-//      log.info("losclosclosc");
     }
   } catch (std::exception& e)
   {
@@ -46,7 +43,7 @@ bool ClassesManager::loadFromYaml(const std::string &filename)
   return true;
 }
 
-std::vector<std::string> ClassesManager::getclasses() const
+std::vector<std::string> ClassesManager::getAvailableClasses() const
 {
   std::vector<std::string> classes;
   for (const auto& cl : m_map)

@@ -17,11 +17,22 @@ public:
     return std::find(m_framesIds.begin(), m_framesIds.end(), frameId) != m_framesIds.end();
   }
 
-  Eigen::Vector3d getCenter(unsigned int frameId);
+  Eigen::Vector3d getCenter(unsigned int frameId) const;
+  Eigen::Quaterniond getOrientation(unsigned int frameId) const;
+  const std::vector<unsigned int>& getFrames() const {
+    return m_framesIds;
+  }
+  const std::string& getClass() const {
+    return m_class;
+  }
 
   void addPresenceInFrame(const Eigen::Isometry3d& pose,  unsigned int frameId);
 
   vtkSmartPointer<vtkMatrix4x4> getPoseVtkMatrix(unsigned int frameId) const;
+
+  Id getInstanceId() const {
+    return m_instanceId;
+  }
 
 private:
 

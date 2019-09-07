@@ -16,7 +16,7 @@ public:
 
   bool loadFromYaml(const std::string& filename);
 
-  std::vector<std::string> getclasses() const;
+  std::vector<std::string> getAvailableClasses() const;
 
   Color getClassColor(const std::string& classe) const;
 

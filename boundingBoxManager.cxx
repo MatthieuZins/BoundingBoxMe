@@ -15,7 +15,7 @@ void BoundingBoxManager::initializeClassesToHandle(const ClassesManager &classes
   if (!m_initiliazed)
   {
 
-    for (const auto& cl : classesManager.getclasses())
+    for (const auto& cl : classesManager.getAvailableClasses())
     {
       m_perClassCount[cl] = 0;
     }

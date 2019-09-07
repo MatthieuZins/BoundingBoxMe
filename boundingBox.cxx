@@ -11,7 +11,7 @@ BoundingBox::BoundingBox(BoundingBox::Id storingId, BoundingBox::Id instanceId,
 
 }
 
-Eigen::Vector3d BoundingBox::getCenter(unsigned int frameId)
+Eigen::Vector3d BoundingBox::getCenter(unsigned int frameId) const
 {
   auto it = std::find(m_framesIds.begin(), m_framesIds.end(), frameId);
   if (it != m_framesIds.end())
@@ -23,6 +23,21 @@ Eigen::Vector3d BoundingBox::getCenter(unsigned int frameId)
   {
     qWarning() << "Bounding Box not present in frame: " << frameId << "(BoundingBox::getCenter)";
     return Eigen::Vector3d::Zero();
+  }
+}
+
+Eigen::Quaterniond BoundingBox::getOrientation(unsigned int frameId) const
+{
+  auto it = std::find(m_framesIds.begin(), m_framesIds.end(), frameId);
+  if (it != m_framesIds.end())
+  {
+    int index = std::distance(m_framesIds.begin(), it);
+    return Eigen::Quaterniond(m_poses[index].rotation());
+  }
+  else
+  {
+    qWarning() << "Bounding Box not present in frame: " << frameId << "(BoundingBox::getOrientation)";
+    return Eigen::Quaterniond::Identity();
   }
 }
 

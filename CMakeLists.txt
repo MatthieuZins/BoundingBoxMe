@@ -28,6 +28,9 @@ add_executable(BoundingBoxMe
     boundingBox.cxx
     boundingBoxManager.h
     boundingBoxManager.cxx
+    boundingBoxInformation_ui.ui
+    boundingBoxInformation_ui.cxx
+    boundingBoxInformation_ui.h
     classesManager.cxx
     classesManager.h
     keyPressInteractorStyle.cxx

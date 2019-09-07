@@ -141,7 +141,6 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->setupUi(this);
 
   vtkNew<vtkNamedColors> colors;
-  m_boundingBoxManager.initializeClassesToHandle(m_classesManager);
 
 //  m_boundingBoxManager.appendBoundingBox(0, "car", Eigen::Translation3d(1, 1, 0) * Eigen::Isometry3d::Identity(), Eigen::Vector3d::Ones(), 0);
 //  m_boundingBoxManager.appendBoundingBox(1, "car", Eigen::Translation3d(-1, -2, 0) * Eigen::Isometry3d::Identity(), Eigen::Vector3d::Ones(), 0);
@@ -165,7 +164,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   int NB = 501;
 
-  m_timeStepsManager.setSize(NB);
+  m_timeStepsManager.initializeSize(NB);
   m_timeStepsManager.setModeAll();
 
   for (int i = 0; i < NB; ++i)
@@ -267,6 +266,8 @@ void MainWindow::update()
 void MainWindow::initialize()
 {
   m_classesManager.loadFromYaml("../classes.yaml");
+  m_boundingBoxManager.initializeClassesToHandle(m_classesManager);
+  ui->widget_BB_Information->updateAvailableClasses(m_classesManager.getAvailableClasses());
 }
 
 void MainWindow::displayLog(const QString& msg)
@@ -378,6 +379,7 @@ void MainWindow::selectBoundingBox(vtkActor *bbActor)
 
 //    }
     m_boxWidget->On();
+    this->ui->widget_BB_Information->updateInformation(m_boundingBoxManager.getBoundingBoxFromIndex(idx));
   }
 }
 
