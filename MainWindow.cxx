@@ -348,7 +348,7 @@ void MainWindow::disableBoxWidget()
 //      std::cout << "origin = " << origin.transpose() << std::endl;
 //    }
 //  }
-
+  ui->widget_BB_Information->unselectBoundingBox();
   m_boxWidget->Off();
 }
 

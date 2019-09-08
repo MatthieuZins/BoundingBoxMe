@@ -41,6 +41,8 @@ private:
 
   bool m_initiliazed = false;
   std::unordered_map<std::string, int> m_perClassCount; // just for information purpose
+
+  BoundingBox::Id findFirstUnusedInstanceId() const;
 };
 
 #endif // BOUNDINGBOXMANAGER_H

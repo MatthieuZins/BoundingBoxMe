@@ -21,7 +21,7 @@ public:
 
   void updateAvailableClasses(const std::vector<std::string>& availableClasses);
 
-  void unSelectBoundingBox();
+  void unselectBoundingBox();
 
 public slots:
   void updateBoundingBoxClass(int index);

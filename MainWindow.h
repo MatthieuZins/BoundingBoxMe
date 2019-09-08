@@ -54,7 +54,6 @@ public:
 
   void displayLog(const QString &msg);
 
-  void addBoundingNewBox(const Eigen::Translation3d &temp_transl);
 
   void selectBoundingBox(vtkActor* bbActor);
   int findBoundingBoxFromActor(vtkProp3D *actor);
@@ -64,6 +63,8 @@ public:
   void forceRender() {
     m_renderWindow->Render();
   }
+
+  void addBoundingNewBox(const Eigen::Translation3d &temp_transl);
 
   void editBoundingBox(int index);
 

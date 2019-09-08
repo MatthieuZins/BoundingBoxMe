@@ -57,7 +57,7 @@ void BoundingBoxInformation_ui::updateAvailableClasses(const std::vector<std::st
   ui->comboBox_BB_Class->addItems(l);
 }
 
-void BoundingBoxInformation_ui::unSelectBoundingBox() {
+void BoundingBoxInformation_ui::unselectBoundingBox() {
   m_bb = nullptr;
   ui->label_BB_Id->setText(QString());
   ui->label_BB_Position->setText(QString());
