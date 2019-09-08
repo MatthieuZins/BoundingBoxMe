@@ -26,6 +26,7 @@
 #include <unsupported/Eigen/EulerAngles>
 #include <vtkMatrix4x4.h>
 #include "keyPressInteractorStyle.h"
+#include "vtkEigenUtils.h"
 
 class vtkMyCallback : public vtkCommand
 {
@@ -45,7 +46,14 @@ public:
     auto* actorToModify = widget->GetProp3D();
 
     actorToModify->SetUserMatrix(widget->getPoseMatrixCopy());
-
+    if (m_mainwindowPtr)
+    {
+      auto index = m_mainwindowPtr->findBoundingBoxFromActor(actorToModify);
+      if (index >= 0)
+      {
+        m_mainwindowPtr->editBoundingBox(index);
+      }
+    }
   }
 
   void setMainWindow(MainWindow* ptr) {
@@ -55,73 +63,73 @@ private:
   MainWindow* m_mainwindowPtr = nullptr;
 };
 
-// Define interaction style
-class MouseInteractorStylePP : public vtkInteractorStyleTrackballCamera
-{
-  public:
-    static MouseInteractorStylePP* New();
-    vtkTypeMacro(MouseInteractorStylePP, vtkInteractorStyleTrackballCamera);
+//// Define interaction style
+//class MouseInteractorStylePP : public vtkInteractorStyleTrackballCamera
+//{
+//  public:
+//    static MouseInteractorStylePP* New();
+//    vtkTypeMacro(MouseInteractorStylePP, vtkInteractorStyleTrackballCamera);
 
-    virtual void OnLeftButtonDown()
-    {
-      std::cout << "Picking pixel: " << this->Interactor->GetEventPosition()[0] << " " << this->Interactor->GetEventPosition()[1] << std::endl;
-      this->Interactor->GetPicker()->Pick(this->Interactor->GetEventPosition()[0],
-                         this->Interactor->GetEventPosition()[1],
-                         0,  // always zero.
-                         this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer());
-      double picked[3];
-      this->Interactor->GetPicker()->GetPickPosition(picked);
-      std::cout << "Picked value: " << picked[0] << " " << picked[1] << " " << picked[2] << std::endl;
-      // Forward events
-      vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
-    }
+//    virtual void OnLeftButtonDown()
+//    {
+//      std::cout << "Picking pixel: " << this->Interactor->GetEventPosition()[0] << " " << this->Interactor->GetEventPosition()[1] << std::endl;
+//      this->Interactor->GetPicker()->Pick(this->Interactor->GetEventPosition()[0],
+//                         this->Interactor->GetEventPosition()[1],
+//                         0,  // always zero.
+//                         this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer());
+//      double picked[3];
+//      this->Interactor->GetPicker()->GetPickPosition(picked);
+//      std::cout << "Picked value: " << picked[0] << " " << picked[1] << " " << picked[2] << std::endl;
+//      // Forward events
+//      vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
+//    }
 
-};
-vtkStandardNewMacro(MouseInteractorStylePP);
+//};
+//vtkStandardNewMacro(MouseInteractorStylePP);
 
-// Handle mouse events
-class MouseInteractorStyle2 : public vtkInteractorStyleTrackballCamera
-{
-  public:
-    static MouseInteractorStyle2* New();
-    vtkTypeMacro(MouseInteractorStyle2, vtkInteractorStyleTrackballCamera);
+//// Handle mouse events
+//class MouseInteractorStyle2 : public vtkInteractorStyleTrackballCamera
+//{
+//  public:
+//    static MouseInteractorStyle2* New();
+//    vtkTypeMacro(MouseInteractorStyle2, vtkInteractorStyleTrackballCamera);
 
-    void setMainWindow(MainWindow* ptr) {
-      m_mainwindowPtr = ptr;
-    }
+//    void setMainWindow(MainWindow* ptr) {
+//      m_mainwindowPtr = ptr;
+//    }
 
-    virtual void OnLeftButtonDown()
-    {
-      int* clickPos = this->GetInteractor()->GetEventPosition();
+//    virtual void OnLeftButtonDown()
+//    {
+//      int* clickPos = this->GetInteractor()->GetEventPosition();
 
-      // Pick from this location.
-      vtkSmartPointer<vtkPropPicker>  picker =
-        vtkSmartPointer<vtkPropPicker>::New();
-      picker->Pick(clickPos[0], clickPos[1], 0, this->GetDefaultRenderer());
+//      // Pick from this location.
+//      vtkSmartPointer<vtkPropPicker>  picker =
+//        vtkSmartPointer<vtkPropPicker>::New();
+//      picker->Pick(clickPos[0], clickPos[1], 0, this->GetDefaultRenderer());
 
-      double* pos = picker->GetPickPosition();
-      std::cout << "Pick position (world coordinates) is: "
-                << pos[0] << " " << pos[1]
-                << " " << pos[2] << std::endl;
+//      double* pos = picker->GetPickPosition();
+//      std::cout << "Pick position (world coordinates) is: "
+//                << pos[0] << " " << pos[1]
+//                << " " << pos[2] << std::endl;
 
-      std::cout << "Picked actor: " << picker->GetActor() << std::endl;
+//      std::cout << "Picked actor: " << picker->GetActor() << std::endl;
 
 
-      //this->GetInteractor()->GetRenderWindow()->GetRenderers()->GetDefaultRenderer()->AddActor(actor);
-//      this->GetDefaultRenderer()->AddActor(actor);
+//      //this->GetInteractor()->GetRenderWindow()->GetRenderers()->GetDefaultRenderer()->AddActor(actor);
+////      this->GetDefaultRenderer()->AddActor(actor);
 
-      if (m_mainwindowPtr)
-        m_mainwindowPtr->selectBoundingBox(picker->GetActor());
+//      if (m_mainwindowPtr)
+//        m_mainwindowPtr->selectBoundingBox(picker->GetActor());
 
-      // Forward events
-      vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
-    }
+//      // Forward events
+//      vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
+//    }
 
-  private:
-    MainWindow* m_mainwindowPtr = nullptr;
+//  private:
+//    MainWindow* m_mainwindowPtr = nullptr;
 
-};
-vtkStandardNewMacro(MouseInteractorStyle2);
+//};
+//vtkStandardNewMacro(MouseInteractorStyle2);
 
 
 
@@ -232,9 +240,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style3);
 
 
-  addBoundingNewBox(Eigen::Translation3d(0, 0, 0));
-  addBoundingNewBox(Eigen::Translation3d(2, -1, 0));
-  addBoundingNewBox(Eigen::Translation3d(-2, 2, 0));
+
 }
 
 MainWindow::~MainWindow()
@@ -244,7 +250,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::update()
 {
-  auto [first_frame, last_frame] = m_timeStepsManager.getTimeStepsInterval();
+  auto [first_frame, last_frame] = m_timeStepsManager.getCurrentTimeInterval();
   qDebug() << "interval = " << first_frame << " -> " << last_frame;
   for (unsigned int i = 0; i < m_lidarFramesManager.getNbFrames(); ++i)
   {
@@ -268,6 +274,12 @@ void MainWindow::initialize()
   m_classesManager.loadFromYaml("../classes.yaml");
   m_boundingBoxManager.initializeClassesToHandle(m_classesManager);
   ui->widget_BB_Information->updateAvailableClasses(m_classesManager.getAvailableClasses());
+  m_timeStepsManager.setModeSingle(0);
+
+
+  addBoundingNewBox(Eigen::Translation3d(0, 0, 0));
+  addBoundingNewBox(Eigen::Translation3d(2, -1, 0));
+  addBoundingNewBox(Eigen::Translation3d(-2, 2, 0));
 }
 
 void MainWindow::displayLog(const QString& msg)
@@ -289,16 +301,12 @@ void MainWindow::addBoundingNewBox(const Eigen::Translation3d& temp_transl)
   m_bbMappers.emplace_back(mapper);
   m_bbActors.emplace_back(actor);
 
-  vtkNew<vtkNamedColors> colors;
 
   mapper->SetInputConnection(source->GetOutputPort());
   actor->SetMapper(mapper);
-//  actor->SetPosition(bb->getCenter(0).data());
-//  actor->SetOrigin(bb->getCenter(0).data());
-//  actor->SetOrientation(10, 20, 30);
-  actor->SetUserMatrix(bb->getPoseVtkMatrix(0));
-  actor->ComputeMatrix();
-  actor->GetProperty()->SetColor(colors->GetColor4d("OrangeRed").GetData());
+  actor->SetUserMatrix(eigenIsometry3dToVtkMatrix4x4(bb->getPose(0)));
+  auto col = m_classesManager.getClassColor(bb->getClass());
+  actor->GetProperty()->SetColor(col.r, col.g, col.b);
   actor->GetProperty()->SetRepresentationToSurface();
   actor->GetProperty()->SetOpacity(0.2);
   m_renderer->AddActor(actor);
@@ -342,6 +350,31 @@ void MainWindow::disableBoxWidget()
 //  }
 
   m_boxWidget->Off();
+}
+
+void MainWindow::editBoundingBox(int index)
+{
+  if (index >= 0)
+  {
+    auto *bb = m_boundingBoxManager.getBoundingBoxFromIndex(index);
+
+    // update pose
+    vtkMatrix4x4 *pose = m_bbActors[index]->GetUserMatrix();
+    auto [tFirst, tLast] = m_timeStepsManager.getCurrentTimeInterval();
+    for (int t = tFirst; t <= tLast; ++t)
+    {
+      bb->setPose(t, eigenIsometry3dFromVtkMatrix4x4(pose));
+    }
+
+//    bb->setClass();
+    ui->widget_BB_Information->updateInformation(bb);
+
+    // update color from class
+    auto col = m_classesManager.getClassColor(bb->getClass());
+    m_bbActors[index]->GetProperty()->SetColor(col.r, col.g, col.b);
+
+    m_renderer->Render();
+  }
 }
 
 void MainWindow::selectBoundingBox(vtkActor *bbActor)

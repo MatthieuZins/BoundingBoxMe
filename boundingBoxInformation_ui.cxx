@@ -8,12 +8,16 @@
 #include "boundingBox.h"
 #include "classesManager.h"
 #include "timeStepsManager.h"
+#include "MainWindow.h"
 
 BoundingBoxInformation_ui::BoundingBoxInformation_ui(QWidget *parent) :
   QWidget(parent),
   ui(new Ui::BoundingBoxInformation_ui)
 {
   ui->setupUi(this);
+
+  QObject::connect(ui->comboBox_BB_Class, SIGNAL(activated(int)), this, SLOT(updateBoundingBoxClass(int)));
+
 }
 
 BoundingBoxInformation_ui::~BoundingBoxInformation_ui()
@@ -21,14 +25,15 @@ BoundingBoxInformation_ui::~BoundingBoxInformation_ui()
   delete ui;
 }
 
-void BoundingBoxInformation_ui::updateInformation(const BoundingBox *bb)
+void BoundingBoxInformation_ui::updateInformation(BoundingBox *bb)
 {
-  unsigned int frameToDisplay = TimeStepsManager::getInstance().getFirstOfCurrentFrames();
+  m_bb = bb;
+  unsigned int frameToDisplay = TimeStepsManager::getInstance().getCurrentTimeInterval().first;
   ui->label_BB_Id->setText(QString::fromStdString(std::to_string(bb->getInstanceId())));
   ui->comboBox_BB_Class->setCurrentText(QString::fromStdString(bb->getClass()));
   const Eigen::Vector3d& center = bb->getCenter(frameToDisplay);
   std::stringstream ss;
-  ss << center.x() << ", " << center.z() << ", " << center.z();
+  ss << center.x() << ", " << center.y() << ", " << center.z();
   ui->label_BB_Position->setText(QString::fromStdString(ss.str()));
   ss.str("");
   const Eigen::Quaterniond& orientation = bb->getOrientation(frameToDisplay);
@@ -50,4 +55,27 @@ void BoundingBoxInformation_ui::updateAvailableClasses(const std::vector<std::st
     l.append(QString::fromStdString(c));
   }
   ui->comboBox_BB_Class->addItems(l);
+}
+
+void BoundingBoxInformation_ui::unSelectBoundingBox() {
+  m_bb = nullptr;
+  ui->label_BB_Id->setText(QString());
+  ui->label_BB_Position->setText(QString());
+  ui->label_BB_Orientation->setText(QString());
+  ui->label_BB_Frames->setText(QString());
+}
+
+void BoundingBoxInformation_ui::updateBoundingBoxClass(int index)
+{
+  const auto& classe = ui->comboBox_BB_Class->itemText(index);
+  if (m_bb)
+  {
+    m_bb->setClass(classe.toStdString());
+    updateInformation(m_bb);
+    auto *mainWindow = dynamic_cast<MainWindow*>(window());
+    if (mainWindow)
+    {
+      mainWindow->editBoundingBox(m_bb->getStoringId());
+    }
+  }
 }

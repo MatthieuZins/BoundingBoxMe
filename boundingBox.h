@@ -19,19 +19,31 @@ public:
 
   Eigen::Vector3d getCenter(unsigned int frameId) const;
   Eigen::Quaterniond getOrientation(unsigned int frameId) const;
+
   const std::vector<unsigned int>& getFrames() const {
     return m_framesIds;
   }
+
   const std::string& getClass() const {
     return m_class;
   }
 
+  void setClass(const std::string& classe) {
+    m_class = classe;
+  }
+
   void addPresenceInFrame(const Eigen::Isometry3d& pose,  unsigned int frameId);
 
-  vtkSmartPointer<vtkMatrix4x4> getPoseVtkMatrix(unsigned int frameId) const;
+  Eigen::Isometry3d getPose(unsigned int frameId) const;
 
   Id getInstanceId() const {
     return m_instanceId;
+  }
+
+  bool setPose(unsigned int frameId, const Eigen::Isometry3d &pose);
+
+  Id getStoringId() const {
+    return m_storingId;
   }
 
 private:

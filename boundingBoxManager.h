@@ -26,6 +26,10 @@ public:
     return m_bbs[index].get();
   }
 
+  BoundingBox* getBoundingBoxFromIndex(unsigned int index) {
+    return m_bbs[index].get();
+  }
+
 private:
   static std::unique_ptr<BoundingBoxManager> m_instance;
 

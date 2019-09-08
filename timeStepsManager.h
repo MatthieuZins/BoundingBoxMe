@@ -18,10 +18,8 @@ public:
 
   void setModeInterval(int first, int last);
 
-  std::pair<int, int> getTimeStepsInterval() const;
-
-  int getFirstOfCurrentFrames() const {
-    return m_first;
+  std::pair<int, int> getCurrentTimeInterval() const {
+    return std::make_pair(m_first, m_last);
   }
 
 private:

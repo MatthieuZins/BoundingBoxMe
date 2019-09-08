@@ -51,6 +51,8 @@ add_executable(BoundingBoxMe
     timeStepsManager_ui.ui
     vtkBoundingBoxManipulatorWidget.cxx
     vtkBoundingBoxManipulatorWidget.h
+    vtkEigenUtils.cxx
+    vtkEigenUtils.h
     main.cxx
 )
 target_include_directories(BoundingBoxMe SYSTEM PRIVATE

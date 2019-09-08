@@ -65,6 +65,8 @@ public:
     m_renderWindow->Render();
   }
 
+  void editBoundingBox(int index);
+
 private:
   Ui::MainWindow *ui;
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;

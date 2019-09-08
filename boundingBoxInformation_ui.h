@@ -17,12 +17,18 @@ public:
   explicit BoundingBoxInformation_ui(QWidget *parent = nullptr);
   ~BoundingBoxInformation_ui();
 
-  void updateInformation(const BoundingBox *bb);
+  void updateInformation(BoundingBox *bb);
+
   void updateAvailableClasses(const std::vector<std::string>& availableClasses);
 
+  void unSelectBoundingBox();
+
+public slots:
+  void updateBoundingBoxClass(int index);
 
 private:
   Ui::BoundingBoxInformation_ui *ui;
+  BoundingBox *m_bb = nullptr;
 };
 
 #endif // BOUNDINGBOXINFORMATION_UI_H

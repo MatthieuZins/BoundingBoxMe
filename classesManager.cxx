@@ -30,11 +30,12 @@ bool ClassesManager::loadFromYaml(const std::string &filename)
       std::string name = cl["name"].as<std::string>();
       qInfo() << name.c_str();
       Color color;
-      color = std::make_tuple(static_cast<unsigned char>(cl["color"][0].as<int>()),     // need to convert first to int because yaml-cpp can't convert to unsigned char
-                              static_cast<unsigned char>(cl["color"][1].as<int>()),
-                              static_cast<unsigned char>(cl["color"][2].as<int>()));
+      color.r = static_cast<unsigned char>(cl["color"][0].as<int>());     // need to convert first to int because yaml-cpp can't convert to unsigned char
+      color.g = static_cast<unsigned char>(cl["color"][1].as<int>());
+      color.b = static_cast<unsigned char>(cl["color"][2].as<int>());
       m_map[name] = color;
     }
+    m_defaultClass = m_map.begin()->first;
   } catch (std::exception& e)
   {
     std::cerr << "Error while loading the classes configuration file: " << e.what() << std::endl;

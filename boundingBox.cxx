@@ -17,6 +17,7 @@ Eigen::Vector3d BoundingBox::getCenter(unsigned int frameId) const
   if (it != m_framesIds.end())
   {
     int index = std::distance(m_framesIds.begin(), it);
+    std::cout << m_poses[index].translation() << std::endl;
     return m_poses[index].translation();
   }
   else
@@ -48,7 +49,7 @@ void BoundingBox::addPresenceInFrame(const Eigen::Isometry3d& pose, unsigned int
   m_poses.emplace_back(pose);
 }
 
-vtkSmartPointer<vtkMatrix4x4> BoundingBox::getPoseVtkMatrix(unsigned int frameId) const
+Eigen::Isometry3d BoundingBox::getPose(unsigned int frameId) const
 {
   auto it = std::find(m_framesIds.begin(), m_framesIds.end(), frameId);
   auto mat = vtkSmartPointer<vtkMatrix4x4>::New();
@@ -56,18 +57,25 @@ vtkSmartPointer<vtkMatrix4x4> BoundingBox::getPoseVtkMatrix(unsigned int frameId
   if (it != m_framesIds.end())
   {
     int index = std::distance(m_framesIds.begin(), it);
-    const Eigen::Matrix4d& poseMat = m_poses[index].matrix();
-    for (int i = 0; i < 4; ++i)
-    {
-      for (int j = 0; j < 4; ++j)
-      {
-        mat->SetElement(i, j, poseMat(i, j));
-      }
-    }
+    return m_poses[index];
   }
   else
   {
-    qWarning() << "Bounding Box not present in frame: " << frameId << "(BoundingBox::getPoseVtkMatrix)";
+    qWarning() << "Try to get the pose in a frame where the bounding box is not present: " << frameId;
   }
-  return mat;
+  return Eigen::Isometry3d::Identity();
+}
+
+bool BoundingBox::setPose(unsigned int frameId, const Eigen::Isometry3d& pose)
+{
+  for (int i = 0; i < m_framesIds.size(); ++i)
+  {
+    if (m_framesIds[i] == frameId)
+    {
+      m_poses[i] = pose;
+      return true;
+    }
+  }
+  qWarning() << "Try to set pose in a frame where the bounding box is not present: " << frameId;
+  return false;
 }

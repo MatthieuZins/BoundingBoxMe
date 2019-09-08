@@ -40,10 +40,6 @@ void TimeStepsManager::setModeInterval(int first, int last)
   m_last = last;
 }
 
-std::pair<int, int> TimeStepsManager::getTimeStepsInterval() const
-{
-  return std::make_pair(m_first, m_last);
-}
 
 void TimeStepsManager::initializeSize(size_t size)
 {
