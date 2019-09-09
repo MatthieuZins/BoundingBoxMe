@@ -49,6 +49,7 @@ public:
     if (m_mainwindowPtr)
     {
       auto index = m_mainwindowPtr->findBoundingBoxFromActor(actorToModify);
+      std::cout << "edit bb " << index << std::endl;
       if (index >= 0)
       {
         m_mainwindowPtr->editBoundingBox(index);
@@ -149,6 +150,7 @@ MainWindow::MainWindow(QWidget *parent) :
 //   boxWidget->PlaceWidget();
 
   auto callback = vtkSmartPointer<vtkMyCallback>::New();
+  callback->setMainWindow(this);
   m_boxWidget->SetInteractor(m_renderWindow->GetInteractor());
   m_boxWidget->AddObserver(vtkCommand::InteractionEvent, callback);
   m_boxWidget->SetPlaceFactor(1.0);
@@ -206,7 +208,6 @@ void MainWindow::initialize()
   m_boundingBoxManager.initializeClassesToHandle(m_classesManager);
   ui->widget_BB_Information->updateAvailableClasses(m_classesManager.getAvailableClasses());
   m_timeStepsManager.setModeSingle(0);
-
 
   addBoundingBox(Eigen::Translation3d(0, 0, 0)  * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
   addBoundingBox(Eigen::Translation3d(2, -1, 0) * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
