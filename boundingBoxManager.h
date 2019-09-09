@@ -32,6 +32,9 @@ public:
 
   BoundingBox::Id findFirstUnusedInstanceId() const;
 
+  void deleteBoundingBox(unsigned int index, const std::pair<int, int> &framesInterval);
+
+
 private:
   static std::unique_ptr<BoundingBoxManager> m_instance;
 

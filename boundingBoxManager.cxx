@@ -91,3 +91,21 @@ BoundingBox::Id BoundingBoxManager::findFirstUnusedInstanceId() const
   }
   return std::distance(counts.begin(), std::find(counts.begin(), counts.end(), 0));
 }
+
+// This function delete the presence in framesInterval of the bounding boxes stored at index
+// if the bounding is not more present in any frames it gets completely remove
+void BoundingBoxManager::deleteBoundingBox(unsigned int index, const std::pair<int, int> &framesInterval)
+{
+  if (index >= 0 && index < m_bbs.size())
+  {
+    for (int f = framesInterval.first; f <= framesInterval.second; ++f)
+    {
+      m_bbs[index]->removePresenceInFrame(f);
+    }
+    if (!m_bbs[index]->hasPresence())
+    {
+      // if the bounding box is not present anymore, we remove it completely
+      m_bbs.erase(m_bbs.begin() + index);
+    }
+  }
+}

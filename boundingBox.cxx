@@ -49,6 +49,19 @@ void BoundingBox::addPresenceInFrame(const Eigen::Isometry3d& pose, unsigned int
   m_poses.emplace_back(pose);
 }
 
+void BoundingBox::removePresenceInFrame(unsigned int frameId)
+{
+  for (int i = 0; i < m_framesIds.size(); ++i)
+  {
+    if (frameId == m_framesIds[i])
+    {
+      m_framesIds.erase(m_framesIds.begin() + i);
+      m_poses.erase(m_poses.begin() + i);
+      break;
+    }
+  }
+}
+
 Eigen::Isometry3d BoundingBox::getPose(unsigned int frameId) const
 {
   auto it = std::find(m_framesIds.begin(), m_framesIds.end(), frameId);

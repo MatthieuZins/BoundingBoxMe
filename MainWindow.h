@@ -65,8 +65,12 @@ public:
   }
 
   void addBoundingBox(const Eigen::Isometry3d &pose, const Eigen::Vector3d &dimensions);
+  // this function create a new bounding box from camera position
+  void createNewBoundingBox();
 
   void editBoundingBox(int index);
+
+  void deleteBoundingBox();
 
 private:
   Ui::MainWindow *ui;
@@ -85,6 +89,7 @@ private:
 
   vtkSmartPointer<vtkBoundingBoxManipulatorWidget> m_boxWidget;
 
+  int m_currentlyEditedBox = -1;
 };
 
 #endif // MAINWINDOW_H

@@ -38,10 +38,21 @@ void KeyPressInteractorStyle::OnKeyPress()
   vtkRenderWindowInteractor *rwi = this->Interactor;
   std::string key = rwi->GetKeySym();
 
+  std::cout << "key = " << key << std::endl;
   if (key == "a" || key == "A")
   {
     qInfo() << "Unselect all";
     m_mainWindowPtr->disableBoxWidget();
+  }
+  else if (key == "Delete")
+  {
+    qInfo() << "Remove bounding box";
+    m_mainWindowPtr->deleteBoundingBox();
+  }
+  else if (key == "n")
+  {
+    qInfo() << "Create new bounding box";
+    m_mainWindowPtr->createNewBoundingBox();
   }
 
   // Forward events

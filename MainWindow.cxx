@@ -6,6 +6,7 @@
 #include <vtkNew.h>
 #include <vtkPointPicker.h>
 
+#include <vtkCamera.h>
 #include <vtkActor.h>
 #include <vtkSphereSource.h>
 #include <vtkCubeSource.h>
@@ -173,7 +174,6 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style3);
 
 
-
 }
 
 MainWindow::~MainWindow()
@@ -219,6 +219,8 @@ void MainWindow::displayLog(const QString& msg)
   ui->textBrowser_logger->append(msg);
 }
 
+
+
 void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vector3d& dimensions)
 {
   qInfo() << "Add Bounding Box";
@@ -247,6 +249,17 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
   actor->GetProperty()->SetRepresentationToSurface();
   actor->GetProperty()->SetOpacity(0.2);
   m_renderer->AddActor(actor);
+
+  // maybe return the corresponding actor so that we can continue to and call edit
+}
+
+void MainWindow::createNewBoundingBox()
+{
+  double *focalPoint = m_renderer->GetActiveCamera()->GetFocalPoint();
+  Eigen::Isometry3d pose = Eigen::Isometry3d::Identity();
+  pose = Eigen::Translation3d(focalPoint[0], focalPoint[1], focalPoint[2]) * pose;
+  Eigen::Vector3d dimension(1.0, 1.0, 1.0);
+  addBoundingBox(pose, dimension);
 }
 
 int MainWindow::findBoundingBoxFromActor(vtkProp3D* actor)
@@ -266,27 +279,9 @@ int MainWindow::findBoundingBoxFromActor(vtkProp3D* actor)
 void MainWindow::disableBoxWidget()
 {
   std::cout << "====== disable box widget =======\n";
-  // we need to updat the position and orientation fo the actor of the bb with its user transform
-  auto* actor = m_boxWidget->GetProp3D();
-
-//  auto* userT = actor->GetUserTransform();
-//  if (userT)
-//  {
-//    auto* matrix = userT->GetMatrix();
-//    if (matrix)
-//    {
-//      std::cout << "matrix = \n" << *matrix << std::endl;
-//      Eigen::Vector3d pos = Eigen::Map<Eigen::Vector3d>(actor->GetPosition());
-//      Eigen::Vector3d rot = Eigen::Map<Eigen::Vector3d>(actor->GetOrientation());
-//      Eigen::EulerAnglesZXYd eulerAngles(rot[2], rot[0], rot[1]);
-//      Eigen::EulerAnglesYXZd eulerAngles2(rot[1], rot[0], rot[2]);
-//      Eigen::Vector3d origin = Eigen::Map<Eigen::Vector3d>(actor->GetOrigin());
-//  //    Eigen::Isometry3d T = Eigen::Translation3d(position) * Eigen::Translation3d(origin) * eulerAngles2 * Eigen::Translation3d(-origin);
-//      std::cout << "origin = " << origin.transpose() << std::endl;
-//    }
-//  }
   ui->widget_BB_Information->unselectBoundingBox();
   m_boxWidget->Off();
+  m_currentlyEditedBox = -1;
 }
 
 void MainWindow::editBoundingBox(int index)
@@ -314,11 +309,32 @@ void MainWindow::editBoundingBox(int index)
   }
 }
 
+void MainWindow::deleteBoundingBox()
+{
+  std::cout << "Delete bb index " << m_currentlyEditedBox << std::endl;
+  if (m_currentlyEditedBox >= 0)
+  {
+    auto currentFramesInterval = m_timeStepsManager.getCurrentTimeInterval();
+    // bb manager delete bb
+    m_boundingBoxManager.deleteBoundingBox(m_currentlyEditedBox, currentFramesInterval);
+
+    // remove vtk stuff
+    m_renderer->RemoveActor(m_bbActors[m_currentlyEditedBox]);
+    m_bbActors.erase (m_bbActors.begin() + m_currentlyEditedBox);
+    m_bbMappers.erase(m_bbMappers.begin() + m_currentlyEditedBox);
+    m_bbSources.erase(m_bbSources.begin() + m_currentlyEditedBox);
+
+    disableBoxWidget();
+    update();
+  }
+}
+
 void MainWindow::selectBoundingBox(vtkActor *bbActor)
 {
   int idx = findBoundingBoxFromActor(bbActor);
   if (idx != -1)
   {
+    m_currentlyEditedBox = idx;
     qInfo() << "Select bounding box" << idx;
     m_boxWidget->SetProp3D(bbActor);
 //    auto* m = bbActor->GetUserTransform();

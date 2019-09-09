@@ -33,6 +33,10 @@ public:
   }
 
   void addPresenceInFrame(const Eigen::Isometry3d& pose,  unsigned int frameId);
+  void removePresenceInFrame(unsigned int frameId);
+  bool hasPresence() const {
+    return m_framesIds.size() > 0;
+  }
 
   Eigen::Isometry3d getPose(unsigned int frameId) const;
 
@@ -53,6 +57,7 @@ public:
   void setDimensions(const Eigen::Vector3d& dims) {
     m_dimensions = dims;
   }
+
 
 private:
 
