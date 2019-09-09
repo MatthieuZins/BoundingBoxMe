@@ -4,6 +4,8 @@
 
 #include <QDebug>
 
+#include "timeStepsManager.h"
+
 std::unique_ptr<BoundingBoxManager> BoundingBoxManager::m_instance = nullptr;
 
 
@@ -73,7 +75,10 @@ const BoundingBox* BoundingBoxManager::appendBoundingBox(BoundingBox::Id id,
   else
   {
     BoundingBox::Id storing_id = m_bbs.size();
-    auto new_bb = std::make_shared<BoundingBox>(storing_id, id, classe);
+    BoundingBox::State state = BoundingBox::State::DYNAMIC;
+    if (TimeStepsManager::getInstance().isModeAll())
+      state = BoundingBox::State::STATIC;
+    auto new_bb = std::make_shared<BoundingBox>(storing_id, id, classe, state);
     for (int f = framesInterval.first; f <= framesInterval.second; ++f)
     {
       new_bb->addPresenceInFrame(pose, f);
@@ -96,7 +101,7 @@ BoundingBox::Id BoundingBoxManager::findFirstUnusedInstanceId() const
   return std::distance(counts.begin(), std::find(counts.begin(), counts.end(), 0));
 }
 
-// This function delete the presence in framesInterval of the bounding boxes stored at index
+// This function deletes the presence in framesInterval of the bounding boxes stored at index
 // if the bounding is not more present in any frames it gets completely remove
 // The function returns if the bounding box is completely deleted
 bool BoundingBoxManager::deleteBoundingBox(unsigned int index, const std::pair<int, int> &framesInterval)

@@ -22,6 +22,14 @@ public:
     return std::make_pair(m_first, m_last);
   }
 
+  bool isModeSingle() const {
+    return m_first == m_last;
+  }
+
+  bool isModeAll() const {
+    return m_last - m_first + 1 == m_size;
+  }
+
 private:
   static std::unique_ptr<TimeStepsManager> m_instance;
 

@@ -16,7 +16,7 @@ public:
     DYNAMIC
   };
 
-  BoundingBox(Id storingId, Id instanceId, const std::string& classe);
+  BoundingBox(Id storingId, Id instanceId, const std::string& classe, State state);
 
   bool isInFrame(unsigned int frameId) {
     return std::find(m_framesIds.begin(), m_framesIds.end(), frameId) != m_framesIds.end();
@@ -83,7 +83,7 @@ private:
   Id m_storingId;
   Id m_instanceId;
 
-  State m_state = State::STATIC;
+  State m_state;
 
   // global (constant over the whole set of frames)
   Eigen::Vector3d m_dimensions = Eigen::Vector3d(0.0, 0.0, 0.0);

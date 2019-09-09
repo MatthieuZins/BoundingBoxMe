@@ -4,9 +4,9 @@
 
 
 BoundingBox::BoundingBox(BoundingBox::Id storingId, BoundingBox::Id instanceId,
-                         const std::string &classe)
+                         const std::string &classe, State state)
   : m_storingId(storingId), m_instanceId(instanceId),
-    m_class(classe)
+    m_class(classe), m_state(state)
 {
 
 }
