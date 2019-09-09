@@ -6,7 +6,7 @@
 
 timeStepsManager_ui::timeStepsManager_ui(QWidget *parent) :
   QGroupBox(parent),
-  ui(new Ui::timeStepsManager_ui)
+  ui(new Ui::TimeStepsManager_ui)
 {
   ui->setupUi(this);
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>timeStepsManager_ui</class>
- <widget class="QGroupBox" name="timeStepsManager_ui">
+ <class>TimeStepsManager_ui</class>
+ <widget class="QGroupBox" name="TimeStepsManager_ui">
   <property name="geometry">
    <rect>
     <x>0</x>

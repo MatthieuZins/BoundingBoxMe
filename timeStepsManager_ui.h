@@ -4,7 +4,7 @@
 #include <QGroupBox>
 
 namespace Ui {
-class timeStepsManager_ui;
+class TimeStepsManager_ui;
 }
 
 class timeStepsManager_ui : public QGroupBox
@@ -27,7 +27,7 @@ public slots:
   void previousFrame();
 
 private:
-  Ui::timeStepsManager_ui *ui;
+  Ui::TimeStepsManager_ui *ui;
 
 
 };
