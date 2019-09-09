@@ -59,6 +59,10 @@ public:
     return m_storingId;
   }
 
+  void setStoringId(Id id) {
+    m_storingId = id;
+  }
+
   Eigen::Vector3d getDimensions() const {
     return m_dimensions;
   }

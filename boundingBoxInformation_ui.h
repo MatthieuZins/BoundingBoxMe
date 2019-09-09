@@ -20,11 +20,13 @@ public:
   void updateInformation(BoundingBox *bb);
 
   void updateAvailableClasses(const std::vector<std::string>& availableClasses);
+  void updateAvailableInstanceIds(const std::vector<unsigned int>& availableIds);
 
   void unselectBoundingBox();
 
 public slots:
   void updateBoundingBoxClass(int index);
+  void updateBoundingBoxInstanceId(int index);
 
 private:
   Ui::BoundingBoxInformation_ui *ui;

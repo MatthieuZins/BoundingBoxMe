@@ -186,7 +186,7 @@ void MainWindow::update()
   auto [first_frame, last_frame] = m_timeStepsManager.getCurrentTimeInterval();
   qDebug() << "interval = " << first_frame << " -> " << last_frame;
 
-  // Displaty Lidar frames
+  // Display Lidar frames
   for (unsigned int i = 0; i < m_lidarFramesManager.getNbFrames(); ++i)
   {
     if (i >= first_frame && i <= last_frame)
@@ -205,6 +205,10 @@ void MainWindow::update()
         || bb_state == BoundingBox::State::STATIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_STATIC
         || bb_state == BoundingBox::State::DYNAMIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_DYNAMIC)
     {
+
+      const Eigen::Isometry3d& pose = m_boundingBoxManager.getBoundingBoxFromIndex(i)->getPose(first_frame);
+      vtkSmartPointer<vtkMatrix4x4> matrix = eigenIsometry3dToVtkMatrix4x4(pose);
+      m_bbActors[i]->SetUserMatrix(matrix);
       m_renderer->AddActor(m_bbActors[i]);
     }
     else
@@ -221,6 +225,7 @@ void MainWindow::update()
       disableBoxWidget();
     }
   }
+  disableBoxWidget();
   m_renderWindow->Render();
 }
 
@@ -326,6 +331,7 @@ void MainWindow::editBoundingBox(int index)
     else
     {
       auto [tFirst, tLast] = m_timeStepsManager.getCurrentTimeInterval();
+          std::cout << "edit bb dyn from to " << tFirst << " " << tLast << std::endl;
       for (int t = tFirst; t <= tLast; ++t)
       {
         bb->setPose(t, eigenIsometry3dFromVtkMatrix4x4(poseMatrix));
@@ -360,10 +366,33 @@ void MainWindow::deleteBoundingBox()
       m_bbActors.erase (m_bbActors.begin() + m_currentlyEditedBox);
       m_bbMappers.erase(m_bbMappers.begin() + m_currentlyEditedBox);
       m_bbSources.erase(m_bbSources.begin() + m_currentlyEditedBox);
+      m_currentlyEditedBox = -1;
     }
 
     disableBoxWidget();
     update();
+  }
+}
+
+void MainWindow::updateBoundingBoxInstanceId(int index, unsigned int id)
+{
+  auto* bb = m_boundingBoxManager.getBoundingBoxFromIndex(index);
+  if (bb->getInstanceId() != id)
+  {
+    auto* bbTarget = m_boundingBoxManager.getBoundingBoxFromInstanceId(id);
+    if (bbTarget)
+    {
+      const auto& poses = bb->getPoses();
+      const auto& frames = bb->getFrames();
+      for (int i = 0; i < poses.size(); ++i)
+      {
+        bbTarget->addPresenceInFrame(poses[i], frames[i]);
+      }
+
+      auto newSelectedActor = m_bbActors[bbTarget->getStoringId()];
+      deleteBoundingBox();
+      selectBoundingBox(newSelectedActor);
+    }
   }
 }
 
@@ -375,34 +404,37 @@ void MainWindow::selectBoundingBox(vtkActor *bbActor)
     m_currentlyEditedBox = idx;
     qInfo() << "Select bounding box" << idx;
     m_boxWidget->SetProp3D(bbActor);
-//    auto* m = bbActor->GetUserTransform();
-//    std::cout << "user matrix at selection is \n";
-//    if (m)
-//    {
-//      std::cout << *m << "\n";
-//    }
-//    else
-//    {
-//      std::cout << "no\n";
-//    }
-
     m_boxWidget->PlaceWidget();
-//    if (bbActor->GetUserTransform())
-//    {
-//      auto * ma = bbActor->GetUserTransform()->GetMatrix();
-////      ma->SetElement(0, 3, 0);
-////      ma->SetElement(1, 3, 0);
-////      ma->SetElement(2, 3, 0);
-////      ma->Identity();
-//    auto mb = vtkSmartPointer<vtkMatrix4x4>::New();
-//    mb->DeepCopy(ma);
-//    mb->Identity();
-//      vtkSmartPointer<vtkTransform> t = vtkSmartPointer<vtkTransform>::New();
-//      t->SetMatrix(mb);
-//      m_boxWidget->SetTransform(t);
-
-//    }
     m_boxWidget->On();
+
+    std::vector<unsigned int> availableIds = { m_boundingBoxManager.getBoundingBoxFromIndex(idx)->getInstanceId() };
+    const auto& framesOfPresence = m_boundingBoxManager.getBoundingBoxFromIndex(idx)->getFrames();
+    for (int index = 0; index < m_bbActors.size(); ++index)
+    {
+      if (index != idx)
+      {
+        auto *bb = m_boundingBoxManager.getBoundingBoxFromIndex(index);
+        if (bb->getState() == BoundingBox::State::DYNAMIC)
+        {
+          const auto& frames = bb->getFrames();
+          bool hasNoIntersection = true;
+          for (const auto& f : frames)
+          {
+            if (std::find(framesOfPresence.begin(), framesOfPresence.end(), f) != framesOfPresence.end())
+            {
+              hasNoIntersection = false;
+              break;
+            }
+          }
+          if (hasNoIntersection)
+          {
+            availableIds.push_back(bb->getInstanceId());
+          }
+        }
+      }
+    }
+    this->ui->widget_BB_Information->updateAvailableInstanceIds(availableIds);
+
     this->ui->widget_BB_Information->updateInformation(m_boundingBoxManager.getBoundingBoxFromIndex(idx));
   }
 }

@@ -17,6 +17,7 @@ BoundingBoxInformation_ui::BoundingBoxInformation_ui(QWidget *parent) :
   ui->setupUi(this);
 
   QObject::connect(ui->comboBox_BB_Class, SIGNAL(activated(int)), this, SLOT(updateBoundingBoxClass(int)));
+  QObject::connect(ui->comboBox_BB_Id, SIGNAL(activated(int)), this, SLOT(updateBoundingBoxInstanceId(int)));
 
 }
 
@@ -29,7 +30,7 @@ void BoundingBoxInformation_ui::updateInformation(BoundingBox *bb)
 {
   m_bb = bb;
   unsigned int frameToDisplay = TimeStepsManager::getInstance().getCurrentTimeInterval().first;
-  ui->label_BB_Id->setText(QString::fromStdString(std::to_string(bb->getInstanceId())));
+  ui->comboBox_BB_Id->setCurrentText(QString::number(bb->getInstanceId()));
   ui->comboBox_BB_Class->setCurrentText(QString::fromStdString(bb->getClass()));
   const Eigen::Vector3d& center = bb->getCenter(frameToDisplay);
   std::stringstream ss;
@@ -56,6 +57,7 @@ void BoundingBoxInformation_ui::updateInformation(BoundingBox *bb)
 
 void BoundingBoxInformation_ui::updateAvailableClasses(const std::vector<std::string> &availableClasses)
 {
+  ui->comboBox_BB_Class->clear();
   QStringList l;
   for (const auto& c : availableClasses)
   {
@@ -64,9 +66,20 @@ void BoundingBoxInformation_ui::updateAvailableClasses(const std::vector<std::st
   ui->comboBox_BB_Class->addItems(l);
 }
 
+void BoundingBoxInformation_ui::updateAvailableInstanceIds(const std::vector<unsigned int> &availableIds)
+{
+  ui->comboBox_BB_Id->clear();
+  QStringList l;
+  for (const auto& id : availableIds)
+  {
+    l.append(QString::number(id));
+  }
+  ui->comboBox_BB_Id->addItems(l);
+}
+
 void BoundingBoxInformation_ui::unselectBoundingBox() {
   m_bb = nullptr;
-  ui->label_BB_Id->setText(QString());
+  ui->comboBox_BB_Id->clear();
   ui->label_BB_Position->setText(QString());
   ui->label_BB_Orientation->setText(QString());
   ui->label_BB_Frames->setText(QString());
@@ -83,6 +96,19 @@ void BoundingBoxInformation_ui::updateBoundingBoxClass(int index)
     if (mainWindow)
     {
       mainWindow->editBoundingBox(m_bb->getStoringId());
+    }
+  }
+}
+
+void BoundingBoxInformation_ui::updateBoundingBoxInstanceId(int index)
+{
+  const auto& classe = ui->comboBox_BB_Id->itemText(index);
+  if (m_bb)
+  {
+    auto *mainWindow = dynamic_cast<MainWindow*>(window());
+    if (mainWindow)
+    {
+      mainWindow->updateBoundingBoxInstanceId(m_bb->getStoringId(), classe.toUInt());
     }
   }
 }

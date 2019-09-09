@@ -75,13 +75,6 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="1">
-     <widget class="QLabel" name="label_BB_Id">
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="0">
      <widget class="QLabel" name="label">
       <property name="text">
@@ -102,6 +95,9 @@
        <string/>
       </property>
      </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QComboBox" name="comboBox_BB_Id"/>
     </item>
    </layout>
   </widget>

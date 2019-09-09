@@ -2,7 +2,6 @@
 
 #include <QDebug>
 
-
 BoundingBox::BoundingBox(BoundingBox::Id storingId, BoundingBox::Id instanceId,
                          const std::string &classe, State state)
   : m_storingId(storingId), m_instanceId(instanceId),
@@ -102,3 +101,4 @@ bool BoundingBox::isPresentInInterval(int first, int last) const {
   }
   return false;
 }
+

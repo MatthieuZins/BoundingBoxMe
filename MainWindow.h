@@ -74,6 +74,9 @@ public:
 
   void deleteBoundingBox();
 
+  void updateBoundingBoxInstanceId(int index, unsigned int id);
+
+
 private:
   Ui::MainWindow *ui;
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;

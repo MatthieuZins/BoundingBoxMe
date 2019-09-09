@@ -101,6 +101,16 @@ BoundingBox::Id BoundingBoxManager::findFirstUnusedInstanceId() const
   return std::distance(counts.begin(), std::find(counts.begin(), counts.end(), 0));
 }
 
+BoundingBox *BoundingBoxManager::getBoundingBoxFromInstanceId(BoundingBox::Id id)
+{
+  for(auto& bbPtr : m_bbs)
+  {
+    if (bbPtr->getInstanceId() == id)
+      return bbPtr.get();
+  }
+  return nullptr;
+}
+
 // This function deletes the presence in framesInterval of the bounding boxes stored at index
 // if the bounding is not more present in any frames it gets completely remove
 // The function returns if the bounding box is completely deleted
@@ -112,12 +122,51 @@ bool BoundingBoxManager::deleteBoundingBox(unsigned int index, const std::pair<i
     {
       m_bbs[index]->removePresenceInFrame(f);
     }
+
+    // if the bounding box is not present anymore, we remove it completely
     if (!m_bbs[index]->hasAnyPresence())
     {
-      // if the bounding box is not present anymore, we remove it completely
+      // update the storing id of all the bbs that are stored after the bb which is deleted
+      for (int i = index +1 ; i < m_bbs.size(); ++i)
+      {
+        m_bbs[i]->setStoringId(m_bbs[i]->getStoringId() - 1);
+      }
       m_bbs.erase(m_bbs.begin() + index);
       return true;
     }
   }
   return false;
+}
+
+
+void BoundingBoxManager::updateBoundingBoxInstanceId(BoundingBox* bb, unsigned int id)
+{
+  if (bb->getInstanceId() != id)
+  {
+    int indexToEdit = -1;
+    int indexTarget = -1;
+    for (int i = 0; i < m_bbs.size(); ++i)
+    {
+      if (m_bbs[i].get() == bb)
+      {
+        indexToEdit = i;
+      }
+      if (m_bbs[i]->getInstanceId() == id)
+      {
+        indexTarget = i;
+      }
+    }
+
+    if (indexToEdit >= 0 && indexTarget >= 0)
+    {
+      const auto& poses = m_bbs[indexToEdit]->getPoses();
+      const auto& frames = m_bbs[indexToEdit]->getFrames();
+
+      for (int i = 0; i < poses.size(); ++i)
+      {
+        m_bbs[indexTarget]->addPresenceInFrame(poses[i], frames[i]);
+      }
+      m_bbs.erase(m_bbs.begin() + indexToEdit);
+    }
+  }
 }
