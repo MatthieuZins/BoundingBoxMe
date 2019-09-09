@@ -8,6 +8,7 @@
 
 #include <vtkCamera.h>
 #include <vtkActor.h>
+#include <vtkActorCollection.h>
 #include <vtkSphereSource.h>
 #include <vtkCubeSource.h>
 #include <vtkPolyDataMapper.h>
@@ -184,6 +185,8 @@ void MainWindow::update()
 {
   auto [first_frame, last_frame] = m_timeStepsManager.getCurrentTimeInterval();
   qDebug() << "interval = " << first_frame << " -> " << last_frame;
+
+  // Displaty Lidar frames
   for (unsigned int i = 0; i < m_lidarFramesManager.getNbFrames(); ++i)
   {
     if (i >= first_frame && i <= last_frame)
@@ -192,13 +195,33 @@ void MainWindow::update()
       m_renderer->RemoveActor(m_pcActors[i]);
   }
 
-  for (auto& bbActor : m_bbActors)
+  // Display bounding boxes
+  for (int i = 0; i < m_bbActors.size(); ++i)
   {
-    m_renderer->AddActor(bbActor);
+    auto visible = m_boundingBoxManager.getBoundingBoxFromIndex(i)->isPresentInInterval(first_frame, last_frame);
+    auto bb_state = m_boundingBoxManager.getBoundingBoxFromIndex(i)->getState();
+    auto displayMode = ui->groupBox_DisplayManager->getDisplayMode();
+    if (visible && displayMode == DisplayManager_ui::DisplayMode::BOTH
+        || bb_state == BoundingBox::State::STATIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_STATIC
+        || bb_state == BoundingBox::State::DYNAMIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_DYNAMIC)
+    {
+      m_renderer->AddActor(m_bbActors[i]);
+    }
+    else
+    {
+      m_renderer->RemoveActor(m_bbActors[i]);
+    }
   }
 
-  m_renderer->Modified();
-  m_renderer->Render();
+  // Dislpay the bounding box manipulator widget
+  if (m_currentlyEditedBox >= 0)
+  {
+    if (!m_boundingBoxManager.getBoundingBoxFromIndex(m_currentlyEditedBox)->isPresentInInterval(first_frame, last_frame))
+    {
+      disableBoxWidget();
+    }
+  }
+  m_renderWindow->Render();
 }
 
 void MainWindow::initialize()
@@ -314,14 +337,18 @@ void MainWindow::deleteBoundingBox()
   if (m_currentlyEditedBox >= 0)
   {
     auto currentFramesInterval = m_timeStepsManager.getCurrentTimeInterval();
+    std::cout << "currentinterval = " << currentFramesInterval.first << " " << currentFramesInterval.second << std::endl;
     // bb manager delete bb
-    m_boundingBoxManager.deleteBoundingBox(m_currentlyEditedBox, currentFramesInterval);
+    bool isCompletelyRemoved = m_boundingBoxManager.deleteBoundingBox(m_currentlyEditedBox, currentFramesInterval);
 
-    // remove vtk stuff
-    m_renderer->RemoveActor(m_bbActors[m_currentlyEditedBox]);
-    m_bbActors.erase (m_bbActors.begin() + m_currentlyEditedBox);
-    m_bbMappers.erase(m_bbMappers.begin() + m_currentlyEditedBox);
-    m_bbSources.erase(m_bbSources.begin() + m_currentlyEditedBox);
+    if (isCompletelyRemoved)
+    {
+      // remove vtk stuff
+      m_renderer->RemoveActor(m_bbActors[m_currentlyEditedBox]);
+      m_bbActors.erase (m_bbActors.begin() + m_currentlyEditedBox);
+      m_bbMappers.erase(m_bbMappers.begin() + m_currentlyEditedBox);
+      m_bbSources.erase(m_bbSources.begin() + m_currentlyEditedBox);
+    }
 
     disableBoxWidget();
     update();

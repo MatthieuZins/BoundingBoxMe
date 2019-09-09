@@ -33,6 +33,9 @@ add_executable(BoundingBoxMe
     boundingBoxInformation_ui.h
     classesManager.cxx
     classesManager.h
+    displayManager_ui.cxx
+    displayManager_ui.h
+    displayManager_ui.ui
     keyPressInteractorStyle.cxx
     keyPressInteractorStyle.h
     lidarFrame.cxx

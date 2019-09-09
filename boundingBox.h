@@ -43,7 +43,7 @@ public:
 
   void addPresenceInFrame(const Eigen::Isometry3d& pose,  unsigned int frameId);
   void removePresenceInFrame(unsigned int frameId);
-  bool hasPresence() const {
+  bool hasAnyPresence() const {
     return m_framesIds.size() > 0;
   }
 
@@ -74,6 +74,8 @@ public:
   void setState(State state) {
     m_state = state;
   }
+
+  bool isPresentInInterval(int first, int last) const;
 
 
 private:

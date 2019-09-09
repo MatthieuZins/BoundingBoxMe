@@ -98,7 +98,8 @@ BoundingBox::Id BoundingBoxManager::findFirstUnusedInstanceId() const
 
 // This function delete the presence in framesInterval of the bounding boxes stored at index
 // if the bounding is not more present in any frames it gets completely remove
-void BoundingBoxManager::deleteBoundingBox(unsigned int index, const std::pair<int, int> &framesInterval)
+// The function returns if the bounding box is completely deleted
+bool BoundingBoxManager::deleteBoundingBox(unsigned int index, const std::pair<int, int> &framesInterval)
 {
   if (index >= 0 && index < m_bbs.size())
   {
@@ -106,10 +107,12 @@ void BoundingBoxManager::deleteBoundingBox(unsigned int index, const std::pair<i
     {
       m_bbs[index]->removePresenceInFrame(f);
     }
-    if (!m_bbs[index]->hasPresence())
+    if (!m_bbs[index]->hasAnyPresence())
     {
       // if the bounding box is not present anymore, we remove it completely
       m_bbs.erase(m_bbs.begin() + index);
+      return true;
     }
   }
+  return false;
 }

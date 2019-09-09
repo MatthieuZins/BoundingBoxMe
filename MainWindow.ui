@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>966</width>
-    <height>760</height>
+    <width>1148</width>
+    <height>847</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>966</width>
+     <width>1148</width>
      <height>19</height>
     </rect>
    </property>
@@ -96,7 +96,7 @@
        <x>10</x>
        <y>270</y>
        <width>231</width>
-       <height>241</height>
+       <height>171</height>
       </rect>
      </property>
      <property name="title">
@@ -108,10 +108,23 @@
         <x>10</x>
         <y>30</y>
         <width>201</width>
-        <height>201</height>
+        <height>131</height>
        </rect>
       </property>
      </widget>
+    </widget>
+    <widget class="DisplayManager_ui" name="groupBox_DisplayManager">
+     <property name="geometry">
+      <rect>
+       <x>9</x>
+       <y>449</y>
+       <width>231</width>
+       <height>201</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Display</string>
+     </property>
     </widget>
    </widget>
   </widget>
@@ -134,7 +147,7 @@
       <rect>
        <x>10</x>
        <y>0</y>
-       <width>961</width>
+       <width>1111</width>
        <height>51</height>
       </rect>
      </property>
@@ -175,8 +188,6 @@
   </action>
   <zorder>dockWidget</zorder>
   <zorder>dockWidget_2</zorder>
-  <zorder>dockWidget_3</zorder>
-  <zorder>dockWidget_4</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -196,6 +207,12 @@
    <class>BoundingBoxInformation_ui</class>
    <extends>QWidget</extends>
    <header>boundingBoxInformation_ui.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DisplayManager_ui</class>
+   <extends>QGroupBox</extends>
+   <header>displayManager_ui.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -92,3 +92,13 @@ bool BoundingBox::setPose(unsigned int frameId, const Eigen::Isometry3d& pose)
   qWarning() << "Try to set pose in a frame where the bounding box is not present: " << frameId;
   return false;
 }
+
+
+bool BoundingBox::isPresentInInterval(int first, int last) const {
+  for (auto& f : m_framesIds)
+  {
+    if (f >= first && f <= last)
+      return true;
+  }
+  return false;
+}

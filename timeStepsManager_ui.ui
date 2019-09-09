@@ -32,7 +32,7 @@
        <string>All frames</string>
       </property>
       <property name="checked">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
      </widget>
     </item>
@@ -42,6 +42,9 @@
        <widget class="QRadioButton" name="radioButton_single">
         <property name="text">
          <string>Single Frame</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

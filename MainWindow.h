@@ -34,11 +34,7 @@ class MainWindow : public QMainWindow
 {
   Q_OBJECT
 
-  enum class DisplayMode {
-    BOTH,
-    ONLY_STATIC,
-    ONLY_DYNAMIC
-  };
+
 
 public:
   explicit MainWindow(QWidget *parent = nullptr);
@@ -96,6 +92,7 @@ private:
   vtkSmartPointer<vtkBoundingBoxManipulatorWidget> m_boxWidget;
 
   int m_currentlyEditedBox = -1;
+
 };
 
 #endif // MAINWINDOW_H

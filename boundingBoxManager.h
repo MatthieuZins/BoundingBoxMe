@@ -32,7 +32,7 @@ public:
 
   BoundingBox::Id findFirstUnusedInstanceId() const;
 
-  void deleteBoundingBox(unsigned int index, const std::pair<int, int> &framesInterval);
+  bool deleteBoundingBox(unsigned int index, const std::pair<int, int> &framesInterval);
 
 
 private:
