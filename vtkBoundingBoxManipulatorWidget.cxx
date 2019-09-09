@@ -15,19 +15,12 @@
 
 vtkStandardNewMacro(vtkBoundingBoxManipulatorWidget);
 
-vtkBoundingBoxManipulatorWidget::vtkBoundingBoxManipulatorWidget()
-  : userMatrix(vtkSmartPointer<vtkMatrix4x4>::New())
-{
-
-}
-
-//vtkBoundingBoxManipulatorWidget::~vtkBoundingBoxManipulatorWidget()
-//{
-
-//}
 
 void vtkBoundingBoxManipulatorWidget::PlaceWidget()
 {
+  // Here we assume that the actor on which we place the widget has actually this geometry
+  // if the geometry was acessible from an actor,
+  // we could directly use the geometry of the bounding box
   double pts[8][4] = {
     {-0.5, -0.5, -0.5, 1.0},
     { 0.5, -0.5, -0.5, 1.0},
@@ -60,7 +53,7 @@ void vtkBoundingBoxManipulatorWidget::PlaceWidget()
 }
 
 
-void vtkBoundingBoxManipulatorWidget::GetTransform(vtkTransform* vtkNotUsed(t))
+vtkSmartPointer<vtkMatrix4x4> vtkBoundingBoxManipulatorWidget::getPoseMatrix()
 {
   double *pts = static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double *p0 = pts;
@@ -69,22 +62,25 @@ void vtkBoundingBoxManipulatorWidget::GetTransform(vtkTransform* vtkNotUsed(t))
   double *p4 = pts + 3*4;
   double *p14 = pts + 3*14;
 
+
+  vtkSmartPointer<vtkMatrix4x4> poseMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+
   // Reset to Identity
-  userMatrix->Identity();
+  poseMatrix->Identity();
 
   // Set translation
-  userMatrix->SetElement(0, 3, p14[0]);
-  userMatrix->SetElement(1, 3, p14[1]);
-  userMatrix->SetElement(2, 3, p14[2]);
+  poseMatrix->SetElement(0, 3, p14[0]);
+  poseMatrix->SetElement(1, 3, p14[1]);
+  poseMatrix->SetElement(2, 3, p14[2]);
 
   // Set orientation
   this->PositionHandles();
   this->ComputeNormals();
   for (int i = 0; i < 3; i++)
   {
-    userMatrix->SetElement(i,0,this->N[1][i]);
-    userMatrix->SetElement(i,1,this->N[3][i]);
-    userMatrix->SetElement(i,2,this->N[5][i]);
+    poseMatrix->SetElement(i,0,this->N[1][i]);
+    poseMatrix->SetElement(i,1,this->N[3][i]);
+    poseMatrix->SetElement(i,2,this->N[5][i]);
   }
 
   // Set scale
@@ -104,8 +100,10 @@ void vtkBoundingBoxManipulatorWidget::GetTransform(vtkTransform* vtkNotUsed(t))
 
   for (int i = 0; i < 3; ++i)
   {
-    userMatrix->SetElement(i, 0, userMatrix->GetElement(i, 0) * scaleX);
-    userMatrix->SetElement(i, 1, userMatrix->GetElement(i, 1) * scaleY);
-    userMatrix->SetElement(i, 2, userMatrix->GetElement(i, 2) * scaleZ);
+    poseMatrix->SetElement(i, 0, poseMatrix->GetElement(i, 0) * scaleX);
+    poseMatrix->SetElement(i, 1, poseMatrix->GetElement(i, 1) * scaleY);
+    poseMatrix->SetElement(i, 2, poseMatrix->GetElement(i, 2) * scaleZ);
   }
+
+  return poseMatrix;
 }

@@ -36,92 +36,15 @@ public:
   }
   virtual void Execute( vtkObject *caller, unsigned long, void* )
   {
-    // Here we use the vtkBoxWidget to transform the underlying coneActor
-    // (by manipulating its transformation matrix).
-    vtkBoundingBoxManipulatorWidget *widget = reinterpret_cast<vtkBoundingBoxManipulatorWidget*>(caller);
-
-    widget->GetTransform(0);  // this is just use to update the internal state of the widget
-
-    auto* actorToModify = widget->GetProp3D();
-
-    actorToModify->SetUserMatrix(widget->getPoseMatrixCopy());
-
-  }
-
-  void setMainWindow(MainWindow* ptr) {
-    m_mainwindowPtr = ptr;
-  }
-private:
-  MainWindow* m_mainwindowPtr = nullptr;
-};
-
-// Define interaction style
-class MouseInteractorStylePP : public vtkInteractorStyleTrackballCamera
-{
-  public:
-    static MouseInteractorStylePP* New();
-    vtkTypeMacro(MouseInteractorStylePP, vtkInteractorStyleTrackballCamera);
-
-    virtual void OnLeftButtonDown()
+    // Here we use the vtkBoxWidget to transform the underlying bounding box actor
+    // (by manipulating its user matrix).
+    vtkBoundingBoxManipulatorWidget *widget = vtkBoundingBoxManipulatorWidget::SafeDownCast(caller);
+    if (widget)
     {
-      std::cout << "Picking pixel: " << this->Interactor->GetEventPosition()[0] << " " << this->Interactor->GetEventPosition()[1] << std::endl;
-      this->Interactor->GetPicker()->Pick(this->Interactor->GetEventPosition()[0],
-                         this->Interactor->GetEventPosition()[1],
-                         0,  // always zero.
-                         this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer());
-      double picked[3];
-      this->Interactor->GetPicker()->GetPickPosition(picked);
-      std::cout << "Picked value: " << picked[0] << " " << picked[1] << " " << picked[2] << std::endl;
-      // Forward events
-      vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
+      widget->GetProp3D()->SetUserMatrix(widget->getPoseMatrix());
     }
-
+  }
 };
-vtkStandardNewMacro(MouseInteractorStylePP);
-
-// Handle mouse events
-class MouseInteractorStyle2 : public vtkInteractorStyleTrackballCamera
-{
-  public:
-    static MouseInteractorStyle2* New();
-    vtkTypeMacro(MouseInteractorStyle2, vtkInteractorStyleTrackballCamera);
-
-    void setMainWindow(MainWindow* ptr) {
-      m_mainwindowPtr = ptr;
-    }
-
-    virtual void OnLeftButtonDown()
-    {
-      int* clickPos = this->GetInteractor()->GetEventPosition();
-
-      // Pick from this location.
-      vtkSmartPointer<vtkPropPicker>  picker =
-        vtkSmartPointer<vtkPropPicker>::New();
-      picker->Pick(clickPos[0], clickPos[1], 0, this->GetDefaultRenderer());
-
-      double* pos = picker->GetPickPosition();
-      std::cout << "Pick position (world coordinates) is: "
-                << pos[0] << " " << pos[1]
-                << " " << pos[2] << std::endl;
-
-      std::cout << "Picked actor: " << picker->GetActor() << std::endl;
-
-
-      //this->GetInteractor()->GetRenderWindow()->GetRenderers()->GetDefaultRenderer()->AddActor(actor);
-//      this->GetDefaultRenderer()->AddActor(actor);
-
-      if (m_mainwindowPtr)
-        m_mainwindowPtr->selectBoundingBox(picker->GetActor());
-
-      // Forward events
-      vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
-    }
-
-  private:
-    MainWindow* m_mainwindowPtr = nullptr;
-
-};
-vtkStandardNewMacro(MouseInteractorStyle2);
 
 
 
@@ -210,7 +133,6 @@ MainWindow::MainWindow(QWidget *parent) :
 //   boxWidget->PlaceWidget();
 
   auto callback = vtkSmartPointer<vtkMyCallback>::New();
-  callback->setMainWindow(this);
   m_boxWidget->SetInteractor(m_renderWindow->GetInteractor());
   m_boxWidget->AddObserver(vtkCommand::InteractionEvent, callback);
   m_boxWidget->SetPlaceFactor(1.0);

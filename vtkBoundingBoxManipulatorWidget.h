@@ -14,24 +14,15 @@ public:
   vtkTypeMacro(vtkBoundingBoxManipulatorWidget, vtkBoxWidget);
 
 
-  void PlaceWidget();
+  // This method should be called when place the widget on an actor
+  void PlaceWidget() override;
 
-  virtual void GetTransform(vtkTransform*);
-
-  vtkSmartPointer<vtkMatrix4x4> getPoseMatrixCopy() const {
-    vtkSmartPointer<vtkMatrix4x4> posecopy = vtkSmartPointer<vtkMatrix4x4>::New();
-    posecopy->DeepCopy(userMatrix);
-    return posecopy;
-  }
-
+  // This method returns the current pose of the widget (in world coordinates)
+  vtkSmartPointer<vtkMatrix4x4> getPoseMatrix();
 
 protected:
-  vtkBoundingBoxManipulatorWidget();
+  vtkBoundingBoxManipulatorWidget() = default;
   ~vtkBoundingBoxManipulatorWidget() = default;
-
-  vtkSmartPointer<vtkMatrix4x4> userMatrix = nullptr;
-
-
 };
 
 #endif // VTKBOUNDINGBOXMANIPULATORWIDGET_H
