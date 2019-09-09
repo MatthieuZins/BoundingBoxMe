@@ -139,34 +139,3 @@ bool BoundingBoxManager::deleteBoundingBox(unsigned int index, const std::pair<i
 }
 
 
-void BoundingBoxManager::updateBoundingBoxInstanceId(BoundingBox* bb, unsigned int id)
-{
-  if (bb->getInstanceId() != id)
-  {
-    int indexToEdit = -1;
-    int indexTarget = -1;
-    for (int i = 0; i < m_bbs.size(); ++i)
-    {
-      if (m_bbs[i].get() == bb)
-      {
-        indexToEdit = i;
-      }
-      if (m_bbs[i]->getInstanceId() == id)
-      {
-        indexTarget = i;
-      }
-    }
-
-    if (indexToEdit >= 0 && indexTarget >= 0)
-    {
-      const auto& poses = m_bbs[indexToEdit]->getPoses();
-      const auto& frames = m_bbs[indexToEdit]->getFrames();
-
-      for (int i = 0; i < poses.size(); ++i)
-      {
-        m_bbs[indexTarget]->addPresenceInFrame(poses[i], frames[i]);
-      }
-      m_bbs.erase(m_bbs.begin() + indexToEdit);
-    }
-  }
-}

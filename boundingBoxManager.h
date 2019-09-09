@@ -37,8 +37,6 @@ public:
 
   bool deleteBoundingBox(unsigned int index, const std::pair<int, int> &framesInterval);
 
-  void updateBoundingBoxInstanceId(BoundingBox* bb, unsigned int id);
-
 
 private:
   static std::unique_ptr<BoundingBoxManager> m_instance;

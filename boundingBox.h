@@ -6,80 +6,79 @@
 #include <vtkMatrix4x4.h>
 #include <vtkSmartPointer.h>
 
+
+/// This class represents a bounding box
 class BoundingBox
 {
+
 public:
-  using  Id = unsigned long;
+
+  using  Id = unsigned int;
+
   enum class State
   {
     STATIC,
     DYNAMIC
   };
 
+
+  /// Constructor
   BoundingBox(Id storingId, Id instanceId, const std::string& classe, State state);
 
-  bool isInFrame(unsigned int frameId) {
-    return std::find(m_framesIds.begin(), m_framesIds.end(), frameId) != m_framesIds.end();
-  }
 
-  Eigen::Vector3d getCenter(unsigned int frameId) const;
-  Eigen::Quaterniond getOrientation(unsigned int frameId) const;
+  /// Check if the bounding box is present in frame frameId
+  bool isInFrame(unsigned int frameId);
 
-  const std::vector<unsigned int>& getFrames() const {
-    return m_framesIds;
-  }
 
-  const std::vector<Eigen::Isometry3d, Eigen::aligned_allocator<Eigen::Isometry3d>>& getPoses() const {
-    return m_poses;
-  }
+  /// Get a list of frames in which the bounding box is present
+  const std::vector<unsigned int>& getFrames() const;
 
-  const std::string& getClass() const {
-    return m_class;
-  }
+  /// Get a list of poses of the bounding box in the different frames
+  const std::vector<Eigen::Isometry3d, Eigen::aligned_allocator<Eigen::Isometry3d>>& getPoses() const;
 
-  void setClass(const std::string& classe) {
-    m_class = classe;
-  }
 
+  /// Add the presence of the bounding box in a frame. This also adds the corresponding pose
   void addPresenceInFrame(const Eigen::Isometry3d& pose,  unsigned int frameId);
+
+  /// Remove the presence of the bounding box in a frame. This also removes the corresponding pose
   void removePresenceInFrame(unsigned int frameId);
-  bool hasAnyPresence() const {
-    return m_framesIds.size() > 0;
-  }
 
+  /// Return true if the bounding box appears in at least one frame
+  bool hasAnyPresence() const;
+
+  /// Return true if the bounding box is present in the interval (both inclusive)
+  bool isPresentInInterval(int first, int last) const;
+
+
+  /// Get / Set the pose of the bounding box in frame frameId
   Eigen::Isometry3d getPose(unsigned int frameId) const;
-
-  Id getInstanceId() const {
-    return m_instanceId;
-  }
-
   bool setPose(unsigned int frameId, const Eigen::Isometry3d &pose);
 
-  Id getStoringId() const {
-    return m_storingId;
-  }
+  /// Get / Set the class
+  const std::string& getClass() const;
+  void setClass(const std::string& classe);
 
-  void setStoringId(Id id) {
-    m_storingId = id;
-  }
+  /// Get the instance id
+  Id getInstanceId() const;
 
-  Eigen::Vector3d getDimensions() const {
-    return m_dimensions;
-  }
+  /// Get / Set the storing id
+  Id getStoringId() const;
+  void setStoringId(Id id);
 
-  void setDimensions(const Eigen::Vector3d& dims) {
-    m_dimensions = dims;
-  }
+  // Get / Set the dimensions
+  Eigen::Vector3d getDimensions() const;
+  void setDimensions(const Eigen::Vector3d& dims);
 
-  State getState() const {
-    return m_state;
-  }
+  /// Get / Set the state
+  State getState() const;
+  void setState(State state);
 
-  void setState(State state) {
-    m_state = state;
-  }
+  /// Get the center of the bounding box in frameId
+  Eigen::Vector3d getCenter(unsigned int frameId) const;
 
-  bool isPresentInInterval(int first, int last) const;
+
+  /// Get the orientation of the bounding box in frameId
+  Eigen::Quaterniond getOrientation(unsigned int frameId) const;
 
 
 private:
@@ -89,16 +88,95 @@ private:
 
   State m_state;
 
-  // global (constant over the whole set of frames)
+  // for now the dimensions of the bounding is constant in every frame
   Eigen::Vector3d m_dimensions = Eigen::Vector3d(0.0, 0.0, 0.0);
+
   std::string m_class;
 
-
+  // vector of poses and the corresponding frame id
   std::vector<Eigen::Isometry3d, Eigen::aligned_allocator<Eigen::Isometry3d>> m_poses;
   std::vector<unsigned int> m_framesIds;
 
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
+
+
+inline bool BoundingBox::isInFrame(unsigned int frameId)
+{
+  return std::find(m_framesIds.begin(), m_framesIds.end(), frameId) != m_framesIds.end();
+}
+
+inline bool BoundingBox::hasAnyPresence() const
+{
+  return m_framesIds.size() > 0;
+}
+
+inline const std::vector<unsigned int> &BoundingBox::getFrames() const
+{
+  return m_framesIds;
+}
+
+inline const std::vector<Eigen::Isometry3d, Eigen::aligned_allocator<Eigen::Isometry3d> > &BoundingBox::getPoses() const
+{
+  return m_poses;
+}
+
+inline const std::string &BoundingBox::getClass() const
+{
+  return m_class;
+}
+
+inline void BoundingBox::setClass(const std::string &classe)
+{
+  m_class = classe;
+}
+
+inline BoundingBox::Id BoundingBox::getInstanceId() const
+{
+  return m_instanceId;
+}
+
+inline BoundingBox::Id BoundingBox::getStoringId() const
+{
+  return m_storingId;
+}
+
+inline void BoundingBox::setStoringId(BoundingBox::Id id)
+{
+  m_storingId = id;
+}
+
+inline Eigen::Vector3d BoundingBox::getDimensions() const
+{
+  return m_dimensions;
+}
+
+inline void BoundingBox::setDimensions(const Eigen::Vector3d &dims)
+{
+  m_dimensions = dims;
+}
+
+inline BoundingBox::State BoundingBox::getState() const
+{
+  return m_state;
+}
+
+inline void BoundingBox::setState(BoundingBox::State state)
+{
+  m_state = state;
+}
+
+inline Eigen::Vector3d BoundingBox::getCenter(unsigned int frameId) const
+{
+  return getPose(frameId).translation();
+}
+
+inline Eigen::Quaterniond BoundingBox::getOrientation(unsigned int frameId) const
+{
+  return Eigen::Quaterniond(getPose(frameId).rotation());
+}
+
 #endif // BOUNDINGBOX_H
+

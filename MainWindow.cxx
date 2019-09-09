@@ -174,6 +174,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style3);
 
 
+  vtkCamera *cam =  m_renderer->GetActiveCamera();
 }
 
 MainWindow::~MainWindow()
