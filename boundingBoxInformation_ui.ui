@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>201</width>
-    <height>153</height>
+    <height>209</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>10</x>
      <y>10</y>
      <width>181</width>
-     <height>131</height>
+     <height>181</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
@@ -61,14 +61,14 @@
       </property>
      </widget>
     </item>
-    <item row="5" column="0">
+    <item row="6" column="0">
      <widget class="QLabel" name="label_8">
       <property name="text">
        <string>Frames</string>
       </property>
      </widget>
     </item>
-    <item row="5" column="1">
+    <item row="6" column="1">
      <widget class="QLabel" name="label_BB_Frames">
       <property name="text">
        <string/>
@@ -82,14 +82,14 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="0">
+    <item row="5" column="0">
      <widget class="QLabel" name="label_3">
       <property name="text">
        <string>State</string>
       </property>
      </widget>
     </item>
-    <item row="4" column="1">
+    <item row="5" column="1">
      <widget class="QLabel" name="label_BB_State">
       <property name="text">
        <string/>
@@ -98,6 +98,20 @@
     </item>
     <item row="0" column="1">
      <widget class="QComboBox" name="comboBox_BB_Id"/>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_6">
+      <property name="text">
+       <string>Dimensions</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLabel" name="label_BB_Dimensions">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

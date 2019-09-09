@@ -32,15 +32,23 @@ void BoundingBoxInformation_ui::updateInformation(BoundingBox *bb)
   unsigned int frameToDisplay = TimeStepsManager::getInstance().getCurrentTimeInterval().first;
   ui->comboBox_BB_Id->setCurrentText(QString::number(bb->getInstanceId()));
   ui->comboBox_BB_Class->setCurrentText(QString::fromStdString(bb->getClass()));
-  const Eigen::Vector3d& center = bb->getCenter(frameToDisplay);
   std::stringstream ss;
+
+  const Eigen::Vector3d& center = bb->getCenter(frameToDisplay);
   ss << center.x() << ", " << center.y() << ", " << center.z();
   ui->label_BB_Position->setText(QString::fromStdString(ss.str()));
   ss.str("");
+
   const Eigen::Quaterniond& orientation = bb->getOrientation(frameToDisplay);
   ss << orientation.w() << ", " << orientation.x() << ", " << orientation.y() << ", " << orientation.z();
   ui->label_BB_Orientation->setText(QString::fromStdString(ss.str()));
   ss.str("");
+
+  const Eigen::Vector3d& dimensions = bb->getDimensions();
+  ss << dimensions.x() << ", " << dimensions.y() << ", " << dimensions.z();
+  ui->label_BB_Dimensions->setText(QString::fromStdString(ss.str()));
+  ss.str("");
+
   auto frames = bb->getFrames();
   for (int i = 0; i < frames.size() - 1;  ++i)
     ss << frames[i] << ", ";
