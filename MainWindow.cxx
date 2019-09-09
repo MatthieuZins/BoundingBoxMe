@@ -37,6 +37,32 @@ public:
   }
   virtual void Execute( vtkObject *caller, unsigned long, void* )
   {
+    // Here we use the vtkBoxWidget to transform the underlying coneActor
+    // (by manipulating its transformation matrix).
+    vtkBoundingBoxManipulatorWidget *widget = vtkBoundingBoxManipulatorWidget::SafeDownCast(caller);
+
+    widget->GetTransform(0);  // this is just use to update the internal state of the widget
+
+    auto* actorToModify = widget->GetProp3D();
+
+    actorToModify->SetUserMatrix(widget->getPoseMatrix());
+    if (m_mainwindowPtr)
+    {
+      auto index = m_mainwindowPtr->findBoundingBoxFromActor(actorToModify);
+      if (index >= 0)
+      {
+        m_mainwindowPtr->editBoundingBox(index);
+      }
+    }
+  }
+
+  void setMainWindow(MainWindow* ptr) {
+    m_mainwindowPtr = ptr;
+  }
+private:
+  MainWindow* m_mainwindowPtr = nullptr;
+};
+
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -182,9 +208,9 @@ void MainWindow::initialize()
   m_timeStepsManager.setModeSingle(0);
 
 
-  addBoundingNewBox(Eigen::Translation3d(0, 0, 0));
-  addBoundingNewBox(Eigen::Translation3d(2, -1, 0));
-  addBoundingNewBox(Eigen::Translation3d(-2, 2, 0));
+  addBoundingBox(Eigen::Translation3d(0, 0, 0)  * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
+  addBoundingBox(Eigen::Translation3d(2, -1, 0) * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
+  addBoundingBox(Eigen::Translation3d(-2, 2, 0) * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
 }
 
 void MainWindow::displayLog(const QString& msg)
@@ -192,12 +218,17 @@ void MainWindow::displayLog(const QString& msg)
   ui->textBrowser_logger->append(msg);
 }
 
-void MainWindow::addBoundingNewBox(const Eigen::Translation3d& temp_transl)
+void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vector3d& dimensions)
 {
   qInfo() << "Add Bounding Box";
   std::cout << "===============++> add bb" << std::endl;
-  auto bb = m_boundingBoxManager.appendBoundingBox(m_bbSources.size(), "car", temp_transl * Eigen::Isometry3d::Identity() * Eigen::EulerAnglesXYZd(10, 20, 30), Eigen::Vector3d::Ones(), 0);
-  bb->addPresenceInFrame( temp_transl * Eigen::Isometry3d::Identity() * Eigen::EulerAnglesXYZd(10, 20, 30), 0);
+  const std::string& initialClass = "car"; // getDefaultClass from ui
+  auto currentFrameInterval = m_timeStepsManager.getCurrentTimeInterval();
+  auto instanceId = m_boundingBoxManager.findFirstUnusedInstanceId();
+
+  const BoundingBox* bb = m_boundingBoxManager.appendBoundingBox(instanceId, initialClass, pose, dimensions, currentFrameInterval);
+
+//  bb->addPresenceInFrame( temp_transl * Eigen::Isometry3d::Identity() * Eigen::EulerAnglesXYZd(10, 20, 30), 0);
 
   auto source = vtkSmartPointer<vtkCubeSource>::New();
   auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();

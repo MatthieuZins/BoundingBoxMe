@@ -64,7 +64,7 @@ public:
     m_renderWindow->Render();
   }
 
-  void addBoundingNewBox(const Eigen::Translation3d &temp_transl);
+  void addBoundingBox(const Eigen::Isometry3d &pose, const Eigen::Vector3d &dimensions);
 
   void editBoundingBox(int index);
 

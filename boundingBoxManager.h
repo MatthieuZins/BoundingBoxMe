@@ -19,8 +19,8 @@ public:
   void initializeClassesToHandle(const ClassesManager& classesManager);
 
   // for now test method
-  std::shared_ptr<BoundingBox> appendBoundingBox(BoundingBox::Id id, const std::string& classe, const Eigen::Isometry3d& pose,
-                         const Eigen::Vector3d& dimension, int frame);
+  const BoundingBox *appendBoundingBox(BoundingBox::Id id, const std::string& classe, const Eigen::Isometry3d& pose,
+                         const Eigen::Vector3d& dimension, const std::pair<int, int> &framesInterval);
 
   const BoundingBox* getBoundingBoxFromIndex(unsigned int index) const {
     return m_bbs[index].get();
@@ -29,6 +29,8 @@ public:
   BoundingBox* getBoundingBoxFromIndex(unsigned int index) {
     return m_bbs[index].get();
   }
+
+  BoundingBox::Id findFirstUnusedInstanceId() const;
 
 private:
   static std::unique_ptr<BoundingBoxManager> m_instance;
@@ -42,7 +44,6 @@ private:
   bool m_initiliazed = false;
   std::unordered_map<std::string, int> m_perClassCount; // just for information purpose
 
-  BoundingBox::Id findFirstUnusedInstanceId() const;
 };
 
 #endif // BOUNDINGBOXMANAGER_H
