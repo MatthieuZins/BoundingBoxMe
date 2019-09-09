@@ -251,7 +251,7 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
   auto currentFrameInterval = m_timeStepsManager.getCurrentTimeInterval();
   auto instanceId = m_boundingBoxManager.findFirstUnusedInstanceId();
 
-  const BoundingBox* bb = m_boundingBoxManager.appendBoundingBox(instanceId, initialClass, pose, dimensions, currentFrameInterval);
+  const BoundingBox* bb = m_boundingBoxManager.addBoundingBox(instanceId, initialClass, pose, dimensions, currentFrameInterval);
 
 //  bb->addPresenceInFrame( temp_transl * Eigen::Isometry3d::Identity() * Eigen::EulerAnglesXYZd(10, 20, 30), 0);
 
@@ -313,11 +313,23 @@ void MainWindow::editBoundingBox(int index)
     auto *bb = m_boundingBoxManager.getBoundingBoxFromIndex(index);
 
     // update pose
-    vtkMatrix4x4 *pose = m_bbActors[index]->GetUserMatrix();
-    auto [tFirst, tLast] = m_timeStepsManager.getCurrentTimeInterval();
-    for (int t = tFirst; t <= tLast; ++t)
+    vtkMatrix4x4 *poseMatrix = m_bbActors[index]->GetUserMatrix();
+    if (bb->getState() == BoundingBox::State::STATIC)
     {
-      bb->setPose(t, eigenIsometry3dFromVtkMatrix4x4(pose));
+      Eigen::Isometry3d poseEigen = eigenIsometry3dFromVtkMatrix4x4(poseMatrix);
+      const auto& frames = bb->getFrames();
+      for (const auto& f : frames)
+      {
+        bb->setPose(f, poseEigen);
+      }
+    }
+    else
+    {
+      auto [tFirst, tLast] = m_timeStepsManager.getCurrentTimeInterval();
+      for (int t = tFirst; t <= tLast; ++t)
+      {
+        bb->setPose(t, eigenIsometry3dFromVtkMatrix4x4(poseMatrix));
+      }
     }
 
 //    bb->setClass();

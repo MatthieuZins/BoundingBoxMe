@@ -19,8 +19,9 @@ public:
   void initializeClassesToHandle(const ClassesManager& classesManager);
 
   // for now test method
-  const BoundingBox *appendBoundingBox(BoundingBox::Id id, const std::string& classe, const Eigen::Isometry3d& pose,
-                         const Eigen::Vector3d& dimension, const std::pair<int, int> &framesInterval);
+  const BoundingBox *addBoundingBox(BoundingBox::Id id, const std::string& classe,
+                                    const Eigen::Isometry3d& pose, const Eigen::Vector3d& dimension,
+                                    const std::pair<int, int> &framesInterval);
 
   const BoundingBox* getBoundingBoxFromIndex(unsigned int index) const {
     return m_bbs[index].get();

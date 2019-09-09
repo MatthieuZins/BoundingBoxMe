@@ -32,7 +32,7 @@ void BoundingBoxManager::initializeClassesToHandle(const ClassesManager &classes
 /// if the instance id is already existing, then we add the pose and the frames interval
 /// otherwaise we create it
 /// the pose correspond to the full interval
-const BoundingBox* BoundingBoxManager::appendBoundingBox(BoundingBox::Id id,
+const BoundingBox* BoundingBoxManager::addBoundingBox(BoundingBox::Id id,
                                                          const std::string &classe,
                                                          const Eigen::Isometry3d &pose,
                                                          const Eigen::Vector3d &dimension,
