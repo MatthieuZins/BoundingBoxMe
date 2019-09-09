@@ -15,7 +15,7 @@ void BoundingBoxManager::initializeClassesToHandle(const ClassesManager &classes
   if (!m_initiliazed)
   {
 
-    for (const auto& cl : classesManager.getclasses())
+    for (const auto& cl : classesManager.getAvailableClasses())
     {
       m_perClassCount[cl] = 0;
     }
@@ -33,4 +33,16 @@ std::shared_ptr<BoundingBox> BoundingBoxManager::appendBoundingBox(BoundingBox::
 
   m_bbs.push_back(bb);
   return bb;
+}
+
+BoundingBox::Id BoundingBoxManager::findFirstUnusedInstanceId() const
+{
+  std::vector<int> counts(m_bbs.size(), 0);
+  for (const auto& bb : m_bbs)
+  {
+    auto id = bb->getInstanceId();
+    if (id < counts.size())
+      ++counts[bb->getInstanceId()];
+  }
+  return std::distance(counts.begin(), std::find(counts.begin(), counts.end(), 0));
 }

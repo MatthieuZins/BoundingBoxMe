@@ -26,6 +26,7 @@
 #include <unsupported/Eigen/EulerAngles>
 #include <vtkMatrix4x4.h>
 #include "keyPressInteractorStyle.h"
+#include "vtkEigenUtils.h"
 
 class vtkMyCallback : public vtkCommand
 {
@@ -36,16 +37,6 @@ public:
   }
   virtual void Execute( vtkObject *caller, unsigned long, void* )
   {
-    // Here we use the vtkBoxWidget to transform the underlying bounding box actor
-    // (by manipulating its user matrix).
-    vtkBoundingBoxManipulatorWidget *widget = vtkBoundingBoxManipulatorWidget::SafeDownCast(caller);
-    if (widget)
-    {
-      widget->GetProp3D()->SetUserMatrix(widget->getPoseMatrix());
-    }
-  }
-};
-
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -64,7 +55,6 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->setupUi(this);
 
   vtkNew<vtkNamedColors> colors;
-  m_boundingBoxManager.initializeClassesToHandle(m_classesManager);
 
 //  m_boundingBoxManager.appendBoundingBox(0, "car", Eigen::Translation3d(1, 1, 0) * Eigen::Isometry3d::Identity(), Eigen::Vector3d::Ones(), 0);
 //  m_boundingBoxManager.appendBoundingBox(1, "car", Eigen::Translation3d(-1, -2, 0) * Eigen::Isometry3d::Identity(), Eigen::Vector3d::Ones(), 0);
@@ -88,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   int NB = 501;
 
-  m_timeStepsManager.setSize(NB);
+  m_timeStepsManager.initializeSize(NB);
   m_timeStepsManager.setModeAll();
 
   for (int i = 0; i < NB; ++i)
@@ -155,9 +145,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style3);
 
 
-  addBoundingNewBox(Eigen::Translation3d(0, 0, 0));
-  addBoundingNewBox(Eigen::Translation3d(2, -1, 0));
-  addBoundingNewBox(Eigen::Translation3d(-2, 2, 0));
+
 }
 
 MainWindow::~MainWindow()
@@ -167,7 +155,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::update()
 {
-  auto [first_frame, last_frame] = m_timeStepsManager.getTimeStepsInterval();
+  auto [first_frame, last_frame] = m_timeStepsManager.getCurrentTimeInterval();
   qDebug() << "interval = " << first_frame << " -> " << last_frame;
   for (unsigned int i = 0; i < m_lidarFramesManager.getNbFrames(); ++i)
   {
@@ -189,6 +177,14 @@ void MainWindow::update()
 void MainWindow::initialize()
 {
   m_classesManager.loadFromYaml("../classes.yaml");
+  m_boundingBoxManager.initializeClassesToHandle(m_classesManager);
+  ui->widget_BB_Information->updateAvailableClasses(m_classesManager.getAvailableClasses());
+  m_timeStepsManager.setModeSingle(0);
+
+
+  addBoundingNewBox(Eigen::Translation3d(0, 0, 0));
+  addBoundingNewBox(Eigen::Translation3d(2, -1, 0));
+  addBoundingNewBox(Eigen::Translation3d(-2, 2, 0));
 }
 
 void MainWindow::displayLog(const QString& msg)
@@ -210,16 +206,12 @@ void MainWindow::addBoundingNewBox(const Eigen::Translation3d& temp_transl)
   m_bbMappers.emplace_back(mapper);
   m_bbActors.emplace_back(actor);
 
-  vtkNew<vtkNamedColors> colors;
 
   mapper->SetInputConnection(source->GetOutputPort());
   actor->SetMapper(mapper);
-//  actor->SetPosition(bb->getCenter(0).data());
-//  actor->SetOrigin(bb->getCenter(0).data());
-//  actor->SetOrientation(10, 20, 30);
-  actor->SetUserMatrix(bb->getPoseVtkMatrix(0));
-  actor->ComputeMatrix();
-  actor->GetProperty()->SetColor(colors->GetColor4d("OrangeRed").GetData());
+  actor->SetUserMatrix(eigenIsometry3dToVtkMatrix4x4(bb->getPose(0)));
+  auto col = m_classesManager.getClassColor(bb->getClass());
+  actor->GetProperty()->SetColor(col.r, col.g, col.b);
   actor->GetProperty()->SetRepresentationToSurface();
   actor->GetProperty()->SetOpacity(0.2);
   m_renderer->AddActor(actor);
@@ -261,8 +253,33 @@ void MainWindow::disableBoxWidget()
 //      std::cout << "origin = " << origin.transpose() << std::endl;
 //    }
 //  }
-
+  ui->widget_BB_Information->unselectBoundingBox();
   m_boxWidget->Off();
+}
+
+void MainWindow::editBoundingBox(int index)
+{
+  if (index >= 0)
+  {
+    auto *bb = m_boundingBoxManager.getBoundingBoxFromIndex(index);
+
+    // update pose
+    vtkMatrix4x4 *pose = m_bbActors[index]->GetUserMatrix();
+    auto [tFirst, tLast] = m_timeStepsManager.getCurrentTimeInterval();
+    for (int t = tFirst; t <= tLast; ++t)
+    {
+      bb->setPose(t, eigenIsometry3dFromVtkMatrix4x4(pose));
+    }
+
+//    bb->setClass();
+    ui->widget_BB_Information->updateInformation(bb);
+
+    // update color from class
+    auto col = m_classesManager.getClassColor(bb->getClass());
+    m_bbActors[index]->GetProperty()->SetColor(col.r, col.g, col.b);
+
+    m_renderer->Render();
+  }
 }
 
 void MainWindow::selectBoundingBox(vtkActor *bbActor)
@@ -300,7 +317,6 @@ void MainWindow::selectBoundingBox(vtkActor *bbActor)
 
 //    }
     m_boxWidget->On();
+    this->ui->widget_BB_Information->updateInformation(m_boundingBoxManager.getBoundingBoxFromIndex(idx));
   }
 }
-
-

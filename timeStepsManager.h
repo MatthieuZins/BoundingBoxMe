@@ -7,10 +7,10 @@ class TimeStepsManager
 {
 
 public:
-  static TimeStepsManager& getInstance(int size);
+  static TimeStepsManager& getInstance(size_t size=0);
   ~TimeStepsManager() = default;
 
-  void setSize(size_t size);
+  void initializeSize(size_t size);
 
   void setModeAll();
 
@@ -18,7 +18,9 @@ public:
 
   void setModeInterval(int first, int last);
 
-  std::pair<int, int> getTimeStepsInterval() const;
+  std::pair<int, int> getCurrentTimeInterval() const {
+    return std::make_pair(m_first, m_last);
+  }
 
 private:
   static std::unique_ptr<TimeStepsManager> m_instance;

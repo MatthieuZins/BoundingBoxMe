@@ -22,6 +22,14 @@ public:
   std::shared_ptr<BoundingBox> appendBoundingBox(BoundingBox::Id id, const std::string& classe, const Eigen::Isometry3d& pose,
                          const Eigen::Vector3d& dimension, int frame);
 
+  const BoundingBox* getBoundingBoxFromIndex(unsigned int index) const {
+    return m_bbs[index].get();
+  }
+
+  BoundingBox* getBoundingBoxFromIndex(unsigned int index) {
+    return m_bbs[index].get();
+  }
+
 private:
   static std::unique_ptr<BoundingBoxManager> m_instance;
 
@@ -33,6 +41,8 @@ private:
 
   bool m_initiliazed = false;
   std::unordered_map<std::string, int> m_perClassCount; // just for information purpose
+
+  BoundingBox::Id findFirstUnusedInstanceId() const;
 };
 
 #endif // BOUNDINGBOXMANAGER_H

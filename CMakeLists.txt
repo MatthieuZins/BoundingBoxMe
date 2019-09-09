@@ -28,6 +28,9 @@ add_executable(BoundingBoxMe
     boundingBox.cxx
     boundingBoxManager.h
     boundingBoxManager.cxx
+    boundingBoxInformation_ui.ui
+    boundingBoxInformation_ui.cxx
+    boundingBoxInformation_ui.h
     classesManager.cxx
     classesManager.h
     keyPressInteractorStyle.cxx
@@ -48,6 +51,8 @@ add_executable(BoundingBoxMe
     timeStepsManager_ui.ui
     vtkBoundingBoxManipulatorWidget.cxx
     vtkBoundingBoxManipulatorWidget.h
+    vtkEigenUtils.cxx
+    vtkEigenUtils.h
     main.cxx
 )
 target_include_directories(BoundingBoxMe SYSTEM PRIVATE
