@@ -233,7 +233,6 @@ void MainWindow::update()
 void MainWindow::initialize()
 {
   m_classesManager.loadFromYaml("../classes.yaml");
-  m_boundingBoxManager.initializeClassesToHandle(m_classesManager);
   ui->widget_BB_Information->updateAvailableClasses(m_classesManager.getAvailableClasses());
   m_timeStepsManager.setModeSingle(0);
 

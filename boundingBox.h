@@ -21,7 +21,6 @@ public:
     DYNAMIC
   };
 
-
   /// Constructor
   BoundingBox(Id storingId, Id instanceId, const std::string& classe, State state);
 
