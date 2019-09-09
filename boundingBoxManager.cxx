@@ -64,6 +64,10 @@ const BoundingBox* BoundingBoxManager::appendBoundingBox(BoundingBox::Id id,
     {
       qWarning() << "The class (" << QString::fromStdString(classe) << ") does not match the initial class (" << QString::fromStdString(existingBoundingBox->getClass()) << ")";
     }
+
+    // if we add a new observation of a bounding box, we consider it is moving
+    existingBoundingBox->setState(BoundingBox::State::DYNAMIC);
+
     return existingBoundingBox;
   }
   else

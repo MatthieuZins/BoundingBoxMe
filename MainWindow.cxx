@@ -50,7 +50,6 @@ public:
     if (m_mainwindowPtr)
     {
       auto index = m_mainwindowPtr->findBoundingBoxFromActor(actorToModify);
-      std::cout << "edit bb " << index << std::endl;
       if (index >= 0)
       {
         m_mainwindowPtr->editBoundingBox(index);
@@ -98,7 +97,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_axesWidget->SetInteractor(this->ui->qvtkWidget->GetInteractor());
   m_axesWidget->SetViewport(0.0, 0.0, 0.2, 0.2);
   m_axesWidget->SetEnabled(1);
-  m_axesWidget->InteractiveOn();
+  m_axesWidget->SetInteractive(0);
 
   auto reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
 //  reader->SetFileName("/home/matthieu/dev/CalibrationDepthPose/data/pc_0000.ply");

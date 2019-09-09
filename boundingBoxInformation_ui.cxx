@@ -46,6 +46,13 @@ void BoundingBoxInformation_ui::updateInformation(BoundingBox *bb)
     ss << frames[i] << ", ";
   ss << frames.back();
   ui->label_BB_Frames->setText(QString::fromStdString(ss.str()));
+
+  auto state = bb->getState();
+  if (state == BoundingBox::State::STATIC)
+    ui->label_BB_State->setText("Static");
+  else if (state == BoundingBox::State::DYNAMIC)
+    ui->label_BB_State->setText("Dynamic");
+
 }
 
 void BoundingBoxInformation_ui::updateAvailableClasses(const std::vector<std::string> &availableClasses)

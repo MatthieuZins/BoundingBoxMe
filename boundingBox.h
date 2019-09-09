@@ -10,6 +10,11 @@ class BoundingBox
 {
 public:
   using  Id = unsigned long;
+  enum class State
+  {
+    STATIC,
+    DYNAMIC
+  };
 
   BoundingBox(Id storingId, Id instanceId, const std::string& classe);
 
@@ -22,6 +27,10 @@ public:
 
   const std::vector<unsigned int>& getFrames() const {
     return m_framesIds;
+  }
+
+  const std::vector<Eigen::Isometry3d, Eigen::aligned_allocator<Eigen::Isometry3d>>& getPoses() const {
+    return m_poses;
   }
 
   const std::string& getClass() const {
@@ -58,11 +67,21 @@ public:
     m_dimensions = dims;
   }
 
+  State getState() const {
+    return m_state;
+  }
+
+  void setState(State state) {
+    m_state = state;
+  }
+
 
 private:
 
   Id m_storingId;
   Id m_instanceId;
+
+  State m_state = State::STATIC;
 
   // global (constant over the whole set of frames)
   Eigen::Vector3d m_dimensions = Eigen::Vector3d(0.0, 0.0, 0.0);

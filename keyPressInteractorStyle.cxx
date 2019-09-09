@@ -38,7 +38,6 @@ void KeyPressInteractorStyle::OnKeyPress()
   vtkRenderWindowInteractor *rwi = this->Interactor;
   std::string key = rwi->GetKeySym();
 
-  std::cout << "key = " << key << std::endl;
   if (key == "a" || key == "A")
   {
     qInfo() << "Unselect all";

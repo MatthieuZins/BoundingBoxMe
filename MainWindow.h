@@ -34,6 +34,12 @@ class MainWindow : public QMainWindow
 {
   Q_OBJECT
 
+  enum class DisplayMode {
+    BOTH,
+    ONLY_STATIC,
+    ONLY_DYNAMIC
+  };
+
 public:
   explicit MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
