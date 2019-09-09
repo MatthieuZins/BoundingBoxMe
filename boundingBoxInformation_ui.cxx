@@ -91,6 +91,8 @@ void BoundingBoxInformation_ui::unselectBoundingBox() {
   ui->label_BB_Position->setText(QString());
   ui->label_BB_Orientation->setText(QString());
   ui->label_BB_Frames->setText(QString());
+  ui->label_BB_Dimensions->setText(QString());
+  ui->label_BB_State->setText(QString());
 }
 
 void BoundingBoxInformation_ui::updateBoundingBoxClass(int index)
