@@ -79,6 +79,7 @@ public:
 
 public slots:
   void openLidarDataset();
+  void loadBoundingBoxDataset();
   void saveBoundingBoxDataset();
 
 private:

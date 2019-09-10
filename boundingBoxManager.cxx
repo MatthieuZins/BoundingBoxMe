@@ -67,7 +67,7 @@ const BoundingBox* BoundingBoxManager::addBoundingBox(BoundingBox::Id id,
     BoundingBox::State state = BoundingBox::State::DYNAMIC;
     if (TimeStepsManager::getInstance().isModeAll())
       state = BoundingBox::State::STATIC;
-    auto new_bb = std::make_shared<BoundingBox>(storing_id, id, classe, state);
+    auto new_bb = std::make_shared<BoundingBox>(storing_id, id, classe, dimension, state);
     for (int f = framesInterval.first; f <= framesInterval.second; ++f)
     {
       new_bb->addPresenceInFrame(pose, f);

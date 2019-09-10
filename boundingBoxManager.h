@@ -41,8 +41,11 @@ public:
   ///  return false if the bounding box is still present in some other frames
   bool deleteBoundingBox(unsigned int index, const std::pair<int, int> &framesInterval);
 
-  /// Retruna const ref to the vector containing the bounding boxes
+  /// Return const ref to the vector containing the bounding boxes
   const std::vector<std::shared_ptr<BoundingBox>>& getBoundingBoxes() const;
+
+  /// Return const ref to the vector containing the bounding boxes
+  std::vector<std::shared_ptr<BoundingBox>>& getBoundingBoxes();
 
   std::vector<BoundingBox::Id> findBoundingBoxesPresentInFrame(unsigned int frameId) const;
 
@@ -74,6 +77,11 @@ inline BoundingBox *BoundingBoxManager::getBoundingBoxFromIndex(unsigned int ind
 }
 
 inline const std::vector<std::shared_ptr<BoundingBox> > &BoundingBoxManager::getBoundingBoxes() const
+{
+  return m_bbs;
+}
+
+inline std::vector<std::shared_ptr<BoundingBox> > &BoundingBoxManager::getBoundingBoxes()
 {
   return m_bbs;
 }

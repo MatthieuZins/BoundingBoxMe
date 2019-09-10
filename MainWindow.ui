@@ -51,6 +51,7 @@
    </attribute>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
+   <addaction name="actionOpenBBox"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="enabled">
@@ -190,6 +191,15 @@
   <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionOpenBBox">
+   <property name="icon">
+    <iconset>
+     <normaloff>assets/folder-open-solid.svg</normaloff>assets/folder-open-solid.svg</iconset>
+   </property>
+   <property name="text">
+    <string>OpenBBox</string>
    </property>
   </action>
   <zorder>dockWidget</zorder>

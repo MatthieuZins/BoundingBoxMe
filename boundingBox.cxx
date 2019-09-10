@@ -3,9 +3,9 @@
 #include <QDebug>
 
 BoundingBox::BoundingBox(BoundingBox::Id storingId, BoundingBox::Id instanceId,
-                         const std::string &classe, State state)
+                         const std::string &classe, const Eigen::Vector3d &dimensions, State state)
   : m_storingId(storingId), m_instanceId(instanceId),
-    m_class(classe), m_state(state)
+    m_class(classe), m_dimensions(dimensions), m_state(state)
 {
 
 }

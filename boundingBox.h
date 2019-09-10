@@ -22,7 +22,7 @@ public:
   };
 
   /// Constructor
-  BoundingBox(Id storingId, Id instanceId, const std::string& classe, State state);
+  BoundingBox(Id storingId, Id instanceId, const std::string& classe, const Eigen::Vector3d &dimensions, State state);
 
 
   /// Check if the bounding box is present in frame frameId
@@ -88,7 +88,7 @@ private:
   State m_state;
 
   // for now the dimensions of the bounding is constant in every frame
-  Eigen::Vector3d m_dimensions = Eigen::Vector3d(0.0, 0.0, 0.0);
+  Eigen::Vector3d m_dimensions;
 
   std::string m_class;
 

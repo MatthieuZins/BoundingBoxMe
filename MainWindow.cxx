@@ -87,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->setupUi(this);
   QObject::connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openLidarDataset()));
   QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveBoundingBoxDataset()));
+  QObject::connect(ui->actionOpenBBox, SIGNAL(triggered()), this, SLOT(loadBoundingBoxDataset()));
 
   vtkNew<vtkNamedColors> colors;
 
@@ -427,6 +428,38 @@ void MainWindow::openLidarDataset()
 
     ui->groupBox_TimeSteps_Manager->updateTimeStepsBounds(0, m_lidarFramesManager.getNbFrames());
   }
+}
+
+void MainWindow::loadBoundingBoxDataset()
+{
+//  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
+  QString fileName("/home/matthieu/dev/BoundingBoxMe/build/test/bb.series");
+
+  if (loadBBoxDataSet(fileName.toStdString()))
+  {
+    // create the corresponding actors (one per BBox)
+    const auto& BBoxes = m_boundingBoxManager.getBoundingBoxes();
+
+    for (auto bbPtr : BBoxes)
+    {
+      auto source = vtkSmartPointer<vtkCubeSource>::New();
+      auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+      auto actor = vtkSmartPointer<vtkActor>::New();
+      m_bbSources.emplace_back(source);
+      m_bbMappers.emplace_back(mapper);
+      m_bbActors.emplace_back(actor);
+
+      mapper->SetInputConnection(source->GetOutputPort());
+      actor->SetMapper(mapper);
+  //    actor->SetUserMatrix(eigenIsometry3dToVtkMatrix4x4(pose));
+      auto col = m_classesManager.getClassColor(bbPtr->getClass());
+      actor->GetProperty()->SetColor(col.r, col.g, col.b);
+      actor->GetProperty()->SetRepresentationToSurface();
+      actor->GetProperty()->SetOpacity(0.2);
+      m_renderer->AddActor(actor);
+    }
+  }
+  update();
 }
 
 void MainWindow::saveBoundingBoxDataset()

@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <memory>
 
 #include <QDebug>
 #include <vtkXMLPolyDataReader.h>
@@ -19,6 +20,7 @@
 
 #include "vtkEigenUtils.h"
 #include "boundingBoxManager.h"
+#include "boundingBox.h"
 #include "timeStepsManager.h"
 #include "lidarFrameManager.h"
 #include <unsupported/Eigen/EulerAngles>
@@ -84,30 +86,6 @@ std::unordered_map<std::string, vtkDoubleArray*> createArrayIndex(vtkTable* tabl
 }
 
 
-std::vector<std::pair<std::string, double> > loadLidarSeriesFile(const std::string &filename)
-{
-  std::vector<std::pair<std::string, double>> dataset;
-  try
-  {
-    YAML::Node node = YAML::LoadFile(filename);
-    YAML::Node files = node["files"];
-    fs::path directory = fs::path(filename).parent_path();
-
-    for (size_t i = 0; i < files.size(); ++i)
-    {
-      fs::path file(files[i]["name"].as<std::string>());
-
-      dataset.emplace_back(std::make_pair((directory / file).generic_string(), files[i]["time"].as<double>()));
-    }
-  }
-  catch (std::exception& e)
-  {
-    qCritical() << "Error opening the dataset: " << QString::fromStdString(e.what());
-  }
-  return dataset;
-}
-
-
 std::vector<Eigen::Isometry3d, Eigen::aligned_allocator<Eigen::Isometry3d> > loadPosesFile(const std::string &filename)
 {
   std::vector<Eigen::Isometry3d, Eigen::aligned_allocator<Eigen::Isometry3d>> poses;
@@ -158,6 +136,30 @@ std::vector<Eigen::Isometry3d, Eigen::aligned_allocator<Eigen::Isometry3d> > loa
   return poses;
 }
 
+std::vector<std::pair<std::string, double> > loadSeriesFile(const std::string &filename)
+{
+  std::vector<std::pair<std::string, double>> dataset;
+  try
+  {
+    YAML::Node node = YAML::LoadFile(filename);
+    YAML::Node files = node["files"];
+    fs::path directory = fs::path(filename).parent_path();
+
+    for (size_t i = 0; i < files.size(); ++i)
+    {
+      fs::path file(files[i]["name"].as<std::string>());
+
+      dataset.emplace_back(std::make_pair((directory / file).generic_string(), files[i]["time"].as<double>()));
+    }
+  }
+  catch (std::exception& e)
+  {
+    qCritical() << "Error opening the dataset: " << QString::fromStdString(e.what());
+  }
+  return dataset;
+}
+
+
 
 bool loadLidarDataSet(const std::string &filename)
 {
@@ -172,7 +174,7 @@ bool loadLidarDataSet(const std::string &filename)
   std::cout << "Poses file: " << posesFile.generic_string() << "\n";
 
 
-  auto listOfFramesAndTimes = loadLidarSeriesFile(filename);
+  auto listOfFramesAndTimes = loadSeriesFile(filename);
   if (listOfFramesAndTimes.size() > 0)
   {
     auto poses = loadPosesFile(posesFile.generic_string());
@@ -221,12 +223,8 @@ void writeBBoxDataSet(const std::string &filename)
 
   for (int frameId = 0; frameId < N; ++frameId)
   {
-
-
     Eigen::Isometry3d pose = lidarFramesManager.getFramePose(frameId);
     auto bbsPresent = bboxManager.findBoundingBoxesPresentInFrame(frameId);
-    std::cout << " =====> " << bbsPresent.size() << std::endl;
-
     YAML::Node ymlFile;
     ymlFile["meta"] = YAML::Node();
     ymlFile["objects"] = YAML::Node();
@@ -261,14 +259,14 @@ void writeBBoxDataSet(const std::string &filename)
 
       if (bb->getState() == BoundingBox::State::STATIC)
       {
-        bbNode["selector"]["state"].push_back("static");
+        bbNode["selector"]["state"] = "static";
       }
       else if (bb->getState() == BoundingBox::State::DYNAMIC)
       {
-        bbNode["selector"]["state"].push_back("dynamic");
+        bbNode["selector"]["state"] = "dynamic";
       }
 
-      bbNode["selector"]["state"].push_back(bb->getInstanceId());
+      bbNode["selector"]["instance_id"] = bb->getInstanceId();
 
       ymlFile["objects"].push_back(bbNode);
     }
@@ -292,4 +290,61 @@ void writeBBoxDataSet(const std::string &filename)
   std::ofstream outputFileSeries(filename);
   outputFileSeries << outputSeries;
   outputFileSeries.close();
+}
+
+
+bool loadBBoxDataSet(const std::string &filename)
+{
+  const auto& listOfBBFilesAndTimes = loadSeriesFile(filename);
+
+  std::unordered_map<BoundingBox::Id, std::shared_ptr<BoundingBox>> bbMap;
+
+  try
+  {
+    for (int frameId = 0; frameId < listOfBBFilesAndTimes.size(); ++frameId)
+    {
+      YAML::Node node = YAML::LoadFile(listOfBBFilesAndTimes[frameId].first);
+      YAML::Node objects = node["objects"];
+      for (size_t i = 0; i < objects.size(); ++i)
+      {
+        auto label = objects[i]["label"].as<std::string>();
+        YAML::Node selector = objects[i]["selector"];
+        auto center = selector["center"].as<std::vector<double>>();
+        auto dimensions = selector["dimensions"].as<std::vector<double>>();
+        auto orientation = selector["orientation"].as<std::vector<double>>();
+        auto stateStr = selector["state"].as<std::string>();
+        auto instanceId = selector["instance_id"].as<unsigned int>();
+
+        BoundingBox::State state = BoundingBox::State::STATIC;
+        if (stateStr == "dynamic")
+          state = BoundingBox::State::DYNAMIC;
+
+        Eigen::EulerAnglesXYZd rot(orientation[0], orientation[1], orientation[2]);
+        Eigen::Isometry3d pose = Eigen::Translation3d(center[0], center[1], center[2]) * rot;
+
+
+        if (bbMap.find(instanceId) == bbMap.end())
+        {
+          // storing id
+          bbMap[instanceId] = std::make_shared<BoundingBox>(0, instanceId, label, Eigen::Vector3d(dimensions[0], dimensions[1], dimensions[2]), state);
+        }
+        bbMap[instanceId]->addPresenceInFrame(pose, frameId);
+      }
+    }
+  }
+  catch (std::exception& e)
+  {
+    qCritical() << "Error while loading the BBox dataset: " << QString::fromStdString(e.what());
+    return false;
+  }
+
+  // fill the BBox Manager
+  // the function in MainWindow handles the actors
+  auto& listOfBBoxes = BoundingBoxManager::getInstance().getBoundingBoxes();
+  for (auto it = bbMap.begin(); it != bbMap.end(); ++it)
+  {
+    listOfBBoxes.push_back(it->second);
+    listOfBBoxes.back()->setStoringId(listOfBBFilesAndTimes.size()-1);
+  }
+  return true;
 }
