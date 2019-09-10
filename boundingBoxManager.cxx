@@ -127,4 +127,17 @@ bool BoundingBoxManager::deleteBoundingBox(unsigned int index, const std::pair<i
   return false;
 }
 
+std::vector<BoundingBox::Id> BoundingBoxManager::findBoundingBoxesPresentInFrame(unsigned int frameId) const
+{
+  std::vector<BoundingBox::Id> res;
+  for (BoundingBox::Id i = 0; i < m_bbs.size(); ++i)
+  {
+    if (m_bbs[i]->isPresentInInterval(frameId, frameId))
+    {
+      res.push_back(i);
+    }
+  }
+  return res;
+}
+
 

@@ -13,8 +13,14 @@
 #include <vtkPointData.h>
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
-#include "vtkEigenUtils.h"
+#include <vtk_jsoncpp.h>
 
+#include <unsupported/Eigen/EulerAngles>
+
+#include "vtkEigenUtils.h"
+#include "boundingBoxManager.h"
+#include "timeStepsManager.h"
+#include "lidarFrameManager.h"
 #include <unsupported/Eigen/EulerAngles>
 
 namespace
@@ -78,7 +84,7 @@ std::unordered_map<std::string, vtkDoubleArray*> createArrayIndex(vtkTable* tabl
 }
 
 
-std::vector<std::pair<std::string, double> > loadSeriesFile(const std::string &filename)
+std::vector<std::pair<std::string, double> > loadLidarSeriesFile(const std::string &filename)
 {
   std::vector<std::pair<std::string, double>> dataset;
   try
@@ -153,7 +159,7 @@ std::vector<Eigen::Isometry3d, Eigen::aligned_allocator<Eigen::Isometry3d> > loa
 }
 
 
-bool loadDataSet(const std::string &filename)
+bool loadLidarDataSet(const std::string &filename)
 {
   fs::path path(filename);
   fs::path directory = path.parent_path();
@@ -166,7 +172,7 @@ bool loadDataSet(const std::string &filename)
   std::cout << "Poses file: " << posesFile.generic_string() << "\n";
 
 
-  auto listOfFramesAndTimes = loadSeriesFile(filename);
+  auto listOfFramesAndTimes = loadLidarSeriesFile(filename);
   if (listOfFramesAndTimes.size() > 0)
   {
     auto poses = loadPosesFile(posesFile.generic_string());
@@ -197,4 +203,93 @@ bool loadDataSet(const std::string &filename)
     return true;
   }
   return false;
+}
+
+void writeBBoxDataSet(const std::string &filename)
+{
+  fs::path path(filename);
+  fs::path directory = path.parent_path();
+
+  fs::path name = path.filename().replace_extension();
+
+  auto& bboxManager = BoundingBoxManager::getInstance();
+  auto& lidarFramesManager = LidarFrameManager::getInstance();
+  const int N = lidarFramesManager.getNbFrames();
+
+  Json::Value outputSeries;
+  Json::Value files(Json::arrayValue);
+
+  for (int frameId = 0; frameId < N; ++frameId)
+  {
+
+
+    Eigen::Isometry3d pose = lidarFramesManager.getFramePose(frameId);
+    auto bbsPresent = bboxManager.findBoundingBoxesPresentInFrame(frameId);
+    std::cout << " =====> " << bbsPresent.size() << std::endl;
+
+    YAML::Node ymlFile;
+    ymlFile["meta"] = YAML::Node();
+    ymlFile["objects"] = YAML::Node();
+
+    ymlFile["meta"]["date"] = std::string("N.A.");
+    ymlFile["meta"]["source"] = std::string("N.A.");
+
+    for (auto bbId : bbsPresent)
+    {
+      auto* bb = bboxManager.getBoundingBoxFromIndex(bbId);
+      YAML::Node bbNode;
+      bbNode["label"] = bb->getClass();
+
+      Eigen::Vector3d center = bb->getCenter(frameId);
+      bbNode["selector"] = YAML::Node();
+      bbNode["selector"]["center"].push_back(center.x());
+      bbNode["selector"]["center"].push_back(center.y());
+      bbNode["selector"]["center"].push_back(center.z());
+
+      Eigen::Vector3d dimensions = bb->getDimensions();
+      bbNode["selector"]["dimensions"].push_back(dimensions.x());
+      bbNode["selector"]["dimensions"].push_back(dimensions.y());
+      bbNode["selector"]["dimensions"].push_back(dimensions.z());
+      bbNode["selector"]["type"] = "3D bounding box";
+
+
+      Eigen::EulerAnglesXYZd rot(bb->getPose(frameId).matrix().block<3, 3>(0, 0));
+      bbNode["selector"]["orientation"].push_back(rot.alpha());
+      bbNode["selector"]["orientation"].push_back(rot.beta());
+      bbNode["selector"]["orientation"].push_back(rot.gamma());
+
+
+      if (bb->getState() == BoundingBox::State::STATIC)
+      {
+        bbNode["selector"]["state"].push_back("static");
+      }
+      else if (bb->getState() == BoundingBox::State::DYNAMIC)
+      {
+        bbNode["selector"]["state"].push_back("dynamic");
+      }
+
+      bbNode["selector"]["state"].push_back(bb->getInstanceId());
+
+      ymlFile["objects"].push_back(bbNode);
+    }
+
+    std::stringstream ss;
+    ss << name.generic_string() << "_" << std::setw(6) << std::setfill('0') << frameId << ".yaml";
+    fs::path yamlName(ss.str());
+    std::ofstream fout((directory / yamlName).generic_string());
+    fout << ymlFile;
+    fout.close();
+
+    Json::Value node;
+    node["name"] = yamlName.generic_string();
+    node["time"] = lidarFramesManager.getFrameTimestamp(frameId);
+    files.append(node);
+  }
+
+  outputSeries["files"] = files;
+  outputSeries["file-series-version"] = "1.0";
+
+  std::ofstream outputFileSeries(filename);
+  outputFileSeries << outputSeries;
+  outputFileSeries.close();
 }

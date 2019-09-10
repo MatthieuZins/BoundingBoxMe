@@ -85,7 +85,8 @@ MainWindow::MainWindow(QWidget *parent) :
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
-  QObject::connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openDataset()));
+  QObject::connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openLidarDataset()));
+  QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveBoundingBoxDataset()));
 
   vtkNew<vtkNamedColors> colors;
 
@@ -227,7 +228,7 @@ void MainWindow::initialize()
 //  addBoundingBox(Eigen::Translation3d(0, 0, 0)  * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
 //  addBoundingBox(Eigen::Translation3d(2, -1, 0) * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
 //  addBoundingBox(Eigen::Translation3d(-2, 2, 0) * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
-  openDataset();
+  openLidarDataset();
 }
 
 void MainWindow::displayLog(const QString& msg)
@@ -381,14 +382,14 @@ void MainWindow::updateBoundingBoxInstanceId(int index, unsigned int id)
   }
 }
 
-void MainWindow::openDataset()
+void MainWindow::openLidarDataset()
 {
   std::cout << "open dataset" << std::endl;
-//  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Dataset"), "../", tr("Series Files (*.series)"));
+//  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
   QString fileName("/home/matthieu/dev/BoundingBoxMe/20181226_100838_FCR_SBR_AD1_R04_DC_JSOIMPREZA_noADC.pcap.lidarframes/frame.vtp.series");
   std::cout << "selected file " << fileName.toStdString() << std::endl;
 
-  if (loadDataSet(fileName.toStdString()))
+  if (loadLidarDataSet(fileName.toStdString()))
   {
     m_timeStepsManager.initializeSize(m_lidarFramesManager.getNbFrames());
     m_timeStepsManager.setModeSingle(0);
@@ -426,6 +427,17 @@ void MainWindow::openDataset()
 
     ui->groupBox_TimeSteps_Manager->updateTimeStepsBounds(0, m_lidarFramesManager.getNbFrames());
   }
+}
+
+void MainWindow::saveBoundingBoxDataset()
+{
+  std::cout << "Save bb dataset" << std::endl;
+//  auto fileName = QFileDialog::getSaveFileName(this, tr("Save BBox Dataset"), "./", tr("Series Files (*.series)"));
+  QString fileName("/home/matthieu/dev/BoundingBoxMe/build/test/bb.series");
+
+  std::cout << "selected file " << fileName.toStdString() << std::endl;
+
+  writeBBoxDataSet(fileName.toStdString());
 }
 
 void MainWindow::selectBoundingBox(vtkActor *bbActor)

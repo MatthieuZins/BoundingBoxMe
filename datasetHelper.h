@@ -8,9 +8,12 @@
 
 namespace fs = std::filesystem;
 
-std::vector<std::pair<std::string, double> > loadSeriesFile(const std::string& filename);
+std::vector<std::pair<std::string, double> > loadLidarSeriesFile(const std::string& filename);
 
 std::vector<Eigen::Isometry3d, Eigen::aligned_allocator<Eigen::Isometry3d>> loadPosesFile(const std::string& filename);
 
-bool loadDataSet(const std::string& filename);
+bool loadLidarDataSet(const std::string& filename);
+
+void writeBBoxDataSet(const std::string& filename);
+
 #endif // DATASETHELPER_H

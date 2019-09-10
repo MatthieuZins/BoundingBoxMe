@@ -78,7 +78,8 @@ public:
 
 
 public slots:
-  void openDataset();
+  void openLidarDataset();
+  void saveBoundingBoxDataset();
 
 private:
   Ui::MainWindow *ui;
