@@ -49,8 +49,8 @@ public:
 
     widget->GetTransform(0);  // this is just use to update the internal state of the widget
 
-    auto* actorToModify = widget->GetProp3D();
 
+    auto* actorToModify = vtkActor::SafeDownCast(widget->GetProp3D());
     actorToModify->SetUserMatrix(widget->getPoseMatrix());
     if (m_mainwindowPtr)
     {
@@ -257,7 +257,6 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
   m_bbMappers.emplace_back(mapper);
   m_bbActors.emplace_back(actor);
 
-
   mapper->SetInputConnection(source->GetOutputPort());
   actor->SetMapper(mapper);
   actor->SetUserMatrix(eigenIsometry3dToVtkMatrix4x4(pose));
@@ -280,12 +279,12 @@ void MainWindow::createNewBoundingBox()
   addBoundingBox(pose, dimension);
 }
 
-int MainWindow::findBoundingBoxFromActor(vtkProp3D* actor)
+int MainWindow::findBoundingBoxFromActor(vtkActor* actor)
 {
   int idx = -1;
   for (unsigned int i = 0; i < m_bbActors.size(); ++i)
   {
-    if (actor == static_cast<vtkProp3D*>(m_bbActors[i]))
+    if (actor == m_bbActors[i].Get())
     {
       idx = i;
       break;
@@ -309,9 +308,11 @@ void MainWindow::editBoundingBox(int index)
 
     // update pose
     vtkMatrix4x4 *poseMatrix = m_bbActors[index]->GetUserMatrix();
+//    Eigen::Vector3d scaling;
+    Eigen::Isometry3d poseEigen = eigenIsometry3dFromVtkMatrix4x4(poseMatrix);
+//    bb->setDimensions(scaling);
     if (bb->getState() == BoundingBox::State::STATIC)
     {
-      Eigen::Isometry3d poseEigen = eigenIsometry3dFromVtkMatrix4x4(poseMatrix);
       const auto& frames = bb->getFrames();
       for (const auto& f : frames)
       {
@@ -323,7 +324,7 @@ void MainWindow::editBoundingBox(int index)
       auto [tFirst, tLast] = m_timeStepsManager.getCurrentTimeInterval();
       for (int t = tFirst; t <= tLast; ++t)
       {
-        bb->setPose(t, eigenIsometry3dFromVtkMatrix4x4(poseMatrix));
+        bb->setPose(t, poseEigen);
       }
     }
 
@@ -387,7 +388,7 @@ void MainWindow::openLidarDataset()
 {
   std::cout << "open dataset" << std::endl;
 //  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
-  QString fileName("/home/matthieu/dev/BoundingBoxMe/20181226_100838_FCR_SBR_AD1_R04_DC_JSOIMPREZA_noADC.pcap.lidarframes/frame.vtp.series");
+  QString fileName("/home/matt/dev/BoundingBoxMe/small_dataset/frame.vtp.series");
   std::cout << "selected file " << fileName.toStdString() << std::endl;
 
   if (loadLidarDataSet(fileName.toStdString()))
@@ -424,8 +425,11 @@ void MainWindow::openLidarDataset()
       mapper->ScalarVisibilityOn();
       actor->SetMapper(mapper);
       actor->GetProperty()->SetPointSize(2);
+      m_renderWindow->Render();
+      std::cout << ")))))))))))))))))))))))))) " << actor->GetCenter()[0] << " "
+                    << actor->GetCenter()[1] << " "
+                    << actor->GetCenter()[2] << std::endl;
     }
-
     ui->groupBox_TimeSteps_Manager->updateTimeStepsBounds(0, m_lidarFramesManager.getNbFrames());
   }
 }
@@ -433,7 +437,8 @@ void MainWindow::openLidarDataset()
 void MainWindow::loadBoundingBoxDataset()
 {
 //  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
-  QString fileName("/home/matthieu/dev/BoundingBoxMe/build/test/bb.series");
+  QString fileName("/home/matt/dev/BoundingBoxMe/build/test/bb.series");
+  std::cout << "================+++> load Bounding box " << std::endl;
 
   if (loadBBoxDataSet(fileName.toStdString()))
   {
@@ -466,7 +471,7 @@ void MainWindow::saveBoundingBoxDataset()
 {
   std::cout << "Save bb dataset" << std::endl;
 //  auto fileName = QFileDialog::getSaveFileName(this, tr("Save BBox Dataset"), "./", tr("Series Files (*.series)"));
-  QString fileName("/home/matthieu/dev/BoundingBoxMe/build/test/bb.series");
+  QString fileName("/home/matt/dev/BoundingBoxMe/build/test/bb.series");
 
   std::cout << "selected file " << fileName.toStdString() << std::endl;
 
@@ -475,6 +480,11 @@ void MainWindow::saveBoundingBoxDataset()
 
 void MainWindow::selectBoundingBox(vtkActor *bbActor)
 {
+  double* p = bbActor->GetCenter();
+  std::cout << "bbActor center = " << p[0] << " "  << p[1] << " " << p[2] << std::endl;
+//  bbActor->GetProperty()->SetPointSize(20);
+  m_renderWindow->Render();
+
   int idx = findBoundingBoxFromActor(bbActor);
   if (idx != -1)
   {
@@ -513,5 +523,9 @@ void MainWindow::selectBoundingBox(vtkActor *bbActor)
     this->ui->widget_BB_Information->updateAvailableInstanceIds(availableIds);
 
     this->ui->widget_BB_Information->updateInformation(m_boundingBoxManager.getBoundingBoxFromIndex(idx));
+  }
+  else
+  {
+    qWarning() << "Try to select a bounding box from an inexisting actor";
   }
 }

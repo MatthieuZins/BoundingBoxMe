@@ -16,7 +16,7 @@ vtkSmartPointer<vtkMatrix4x4> eigenIsometry3dToVtkMatrix4x4(const Eigen::Isometr
   return matrix;
 }
 
-Eigen::Isometry3d eigenIsometry3dFromVtkMatrix4x4(vtkMatrix4x4 *matrix)
+Eigen::Isometry3d eigenIsometry3dFromVtkMatrix4x4(vtkMatrix4x4 *matrix, Eigen::Vector3d *scaling)
 {
   // here we assume matrix represents an isometry
   Eigen::Matrix4d iso;
@@ -26,6 +26,24 @@ Eigen::Isometry3d eigenIsometry3dFromVtkMatrix4x4(vtkMatrix4x4 *matrix)
     {
       iso(i, j) = matrix->GetElement(i, j);
     }
+  }
+  Eigen::Vector3d v1 = iso.block<3, 1>(0, 0);
+  Eigen::Vector3d v2 = iso.block<3, 1>(0, 1);
+  Eigen::Vector3d v3 = iso.block<3, 1>(0, 2);
+  double n1 = std::sqrt(v1.dot(v1));
+  double n2 = std::sqrt(v2.dot(v2));
+  double n3 = std::sqrt(v3.dot(v3));
+  for (int i = 0; i < 3; ++i)
+  {
+    iso(i, 0) /= n1;
+    iso(i, 1) /= n2;
+    iso(i, 2) /= n3;
+  }
+  if (scaling)
+  {
+    (*scaling)[0] = n1;
+    (*scaling)[1] = n2;
+    (*scaling)[2] = n3;
   }
   return Eigen::Isometry3d(iso);
 }
