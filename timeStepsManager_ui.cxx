@@ -29,6 +29,16 @@ timeStepsManager_ui::~timeStepsManager_ui()
   delete ui;
 }
 
+void timeStepsManager_ui::updateTimeStepsBounds(int min, int max)
+{
+  ui->spinBox_intervalFirst->setMinimum(min);
+  ui->spinBox_intervalFirst->setMaximum(max);
+  ui->spinBox_intervalLast->setMinimum(min);
+  ui->spinBox_intervalLast->setMaximum(max);
+  ui->spinBox_singleFrame->setMinimum(min);
+  ui->spinBox_singleFrame->setMaximum(max);
+}
+
 void timeStepsManager_ui::selectModeAll()
 {
   auto *mainWindow = dynamic_cast<MainWindow*>(window());

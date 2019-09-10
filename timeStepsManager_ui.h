@@ -15,6 +15,8 @@ public:
   explicit timeStepsManager_ui(QWidget *parent = nullptr);
   ~timeStepsManager_ui();
 
+  void updateTimeStepsBounds(int min, int max);
+
 public slots:
   void selectModeAll();
   void selectModeSingle();

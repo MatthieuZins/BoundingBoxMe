@@ -71,7 +71,7 @@
       <height>0</height>
      </size>
     </property>
-    <widget class="timeStepsManager_ui" name="groupBox">
+    <widget class="timeStepsManager_ui" name="groupBox_TimeSteps_Manager">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -129,6 +129,12 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_2">
+   <property name="minimumSize">
+    <size>
+     <width>49</width>
+     <height>100</height>
+    </size>
+   </property>
    <property name="maximumSize">
     <size>
      <width>524287</width>
@@ -148,7 +154,7 @@
        <x>10</x>
        <y>0</y>
        <width>1111</width>
-       <height>51</height>
+       <height>81</height>
       </rect>
      </property>
     </widget>

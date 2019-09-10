@@ -77,6 +77,9 @@ public:
   void updateBoundingBoxInstanceId(int index, unsigned int id);
 
 
+public slots:
+  void openDataset();
+
 private:
   Ui::MainWindow *ui;
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;

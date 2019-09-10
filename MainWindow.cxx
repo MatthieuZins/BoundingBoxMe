@@ -25,10 +25,12 @@
 #include <vtkObjectFactory.h>
 #include <vtkPropPicker.h>
 #include <QDebug>
+#include <QFileDialog>
 #include <unsupported/Eigen/EulerAngles>
 #include <vtkMatrix4x4.h>
 #include "keyPressInteractorStyle.h"
 #include "vtkEigenUtils.h"
+#include "datasetHelper.h"
 
 class vtkMyCallback : public vtkCommand
 {
@@ -81,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
+  QObject::connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openDataset()));
 
   vtkNew<vtkNamedColors> colors;
 
@@ -100,37 +103,20 @@ MainWindow::MainWindow(QWidget *parent) :
   m_axesWidget->SetEnabled(1);
   m_axesWidget->SetInteractive(0);
 
-  auto reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
+//  auto reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
 //  reader->SetFileName("/home/matthieu/dev/CalibrationDepthPose/data/pc_0000.ply");
 //  reader->Update();
 
-  int NB = 501;
 
-  m_timeStepsManager.initializeSize(NB);
-  m_timeStepsManager.setModeAll();
 
-  for (int i = 0; i < NB; ++i)
-  {
-    reader->SetFileName(std::string("../data/frame_" + std::to_string(i) + ".vtp").c_str());
-    reader->Update();
-    m_lidarFramesManager.addFrame({i, reader->GetOutput()});
-  }
 
-  auto pointsToRender = m_lidarFramesManager.getFramesPoints();
-  for (auto* pts : pointsToRender)
-  {
-    auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    auto vertexFilter = vtkSmartPointer<vtkVertexGlyphFilter>::New();
-    auto actor = vtkSmartPointer<vtkActor>::New();
-    m_pcMappers.emplace_back(mapper);
-    m_pcVertexGlyphFilters.emplace_back(vertexFilter);
-    m_pcActors.emplace_back(actor);
+//  for (int i = 0; i < NB; ++i)
+//  {
+//    reader->SetFileName(std::string("../data/frame_" + std::to_string(i) + ".vtp").c_str());
+//    reader->Update();
+//    m_lidarFramesManager.addFrame({i, reader->GetOutput()});
+//  }
 
-    vertexFilter->SetInputData(pts);
-    mapper->SetInputConnection(vertexFilter->GetOutputPort());
-    actor->SetMapper(mapper);
-    actor->GetProperty()->SetPointSize(3);
-  }
 
 
 //  vtkSmartPointer<vtkCubeSource> sphereSource = vtkSmartPointer<vtkCubeSource>::New();
@@ -236,9 +222,10 @@ void MainWindow::initialize()
   ui->widget_BB_Information->updateAvailableClasses(m_classesManager.getAvailableClasses());
   m_timeStepsManager.setModeSingle(0);
 
-  addBoundingBox(Eigen::Translation3d(0, 0, 0)  * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
-  addBoundingBox(Eigen::Translation3d(2, -1, 0) * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
-  addBoundingBox(Eigen::Translation3d(-2, 2, 0) * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
+//  addBoundingBox(Eigen::Translation3d(0, 0, 0)  * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
+//  addBoundingBox(Eigen::Translation3d(2, -1, 0) * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
+//  addBoundingBox(Eigen::Translation3d(-2, 2, 0) * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
+  openDataset();
 }
 
 void MainWindow::displayLog(const QString& msg)
@@ -305,7 +292,6 @@ int MainWindow::findBoundingBoxFromActor(vtkProp3D* actor)
 
 void MainWindow::disableBoxWidget()
 {
-  std::cout << "====== disable box widget =======\n";
   ui->widget_BB_Information->unselectBoundingBox();
   m_boxWidget->Off();
   m_currentlyEditedBox = -1;
@@ -331,7 +317,6 @@ void MainWindow::editBoundingBox(int index)
     else
     {
       auto [tFirst, tLast] = m_timeStepsManager.getCurrentTimeInterval();
-          std::cout << "edit bb dyn from to " << tFirst << " " << tLast << std::endl;
       for (int t = tFirst; t <= tLast; ++t)
       {
         bb->setPose(t, eigenIsometry3dFromVtkMatrix4x4(poseMatrix));
@@ -351,11 +336,9 @@ void MainWindow::editBoundingBox(int index)
 
 void MainWindow::deleteBoundingBox()
 {
-  std::cout << "Delete bb index " << m_currentlyEditedBox << std::endl;
   if (m_currentlyEditedBox >= 0)
   {
     auto currentFramesInterval = m_timeStepsManager.getCurrentTimeInterval();
-    std::cout << "currentinterval = " << currentFramesInterval.first << " " << currentFramesInterval.second << std::endl;
     // bb manager delete bb
     bool isCompletelyRemoved = m_boundingBoxManager.deleteBoundingBox(m_currentlyEditedBox, currentFramesInterval);
 
@@ -393,6 +376,41 @@ void MainWindow::updateBoundingBoxInstanceId(int index, unsigned int id)
       deleteBoundingBox();
       selectBoundingBox(newSelectedActor);
     }
+  }
+}
+
+void MainWindow::openDataset()
+{
+  std::cout << "open dataset" << std::endl;
+//  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Dataset"), "../", tr("Series Files (*.series)"));
+  QString fileName("/home/matthieu/dev/BoundingBoxMe/20181226_100838_FCR_SBR_AD1_R04_DC_JSOIMPREZA_noADC.pcap.lidarframes/frame.vtp.series");
+  std::cout << "selected file " << fileName.toStdString() << std::endl;
+
+  if (loadDataSet(fileName.toStdString()))
+  {
+    m_timeStepsManager.initializeSize(m_lidarFramesManager.getNbFrames());
+    m_timeStepsManager.setModeSingle(0);
+
+
+
+    // Update vtk stuff
+    auto pointsToRender = m_lidarFramesManager.getFramesPoints();
+    for (auto* pts : pointsToRender)
+    {
+      auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+      auto vertexFilter = vtkSmartPointer<vtkVertexGlyphFilter>::New();
+      auto actor = vtkSmartPointer<vtkActor>::New();
+      m_pcMappers.emplace_back(mapper);
+      m_pcVertexGlyphFilters.emplace_back(vertexFilter);
+      m_pcActors.emplace_back(actor);
+
+      vertexFilter->SetInputData(pts);
+      mapper->SetInputConnection(vertexFilter->GetOutputPort());
+      actor->SetMapper(mapper);
+      actor->GetProperty()->SetPointSize(3);
+    }
+
+    ui->groupBox_TimeSteps_Manager->updateTimeStepsBounds(0, m_lidarFramesManager.getNbFrames());
   }
 }
 

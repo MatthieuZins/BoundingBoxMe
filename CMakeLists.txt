@@ -33,6 +33,8 @@ add_executable(BoundingBoxMe
     boundingBoxInformation_ui.h
     classesManager.cxx
     classesManager.h
+    datasetHelper.cxx
+    datasetHelper.h
     displayManager_ui.cxx
     displayManager_ui.h
     displayManager_ui.ui
@@ -56,6 +58,17 @@ add_executable(BoundingBoxMe
     vtkBoundingBoxManipulatorWidget.h
     vtkEigenUtils.cxx
     vtkEigenUtils.h
+#    vtkTemporalTransformsReader.cxx
+#    vtkTemporalTransformsReader.h
+#    vtkTemporalTransforms.cxx
+#    vtkTemporalTransforms.h
+#    vtkCustomTransformInterpolator.cxx
+#    vtkCustomTransformInterpolator.h
+#    vtkConversions.cxx
+#    vtkConversions.h
+#    vtkEigenTools.cxx
+#    vtkEigenTools.h
+
     main.cxx
 )
 target_include_directories(BoundingBoxMe SYSTEM PRIVATE
@@ -68,4 +81,5 @@ target_link_libraries(BoundingBoxMe PRIVATE
   ${VTK_LIBRARIES}
   Eigen3::Eigen
   ${YAML_CPP_LIBRARIES}
+  stdc++fs          # for std::filesystem
   )
