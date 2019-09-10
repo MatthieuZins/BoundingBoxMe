@@ -10,6 +10,7 @@
 #include <vtkDelimitedTextReader.h>
 #include <vtkTable.h>
 #include <vtkDoubleArray.h>
+#include <vtkPointData.h>
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
 #include "vtkEigenUtils.h"
@@ -190,6 +191,8 @@ bool loadDataSet(const std::string &filename)
       transformFilter->SetTransform(transform);
       transformFilter->Update();
       lidarFramesManager.addFrame({i, transformFilter->GetOutput(), poses[i], listOfFramesAndTimes[i].second});
+      vtkPolyData* pd = transformFilter->GetOutput();
+      pd->GetPointData()->SetActiveScalars("intensity");
     }
     return true;
   }

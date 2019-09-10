@@ -19,6 +19,7 @@
 
 #include <vtkObjectFactory.h>
 #include <vtkRendererCollection.h>
+#include <vtkCamera.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkPropPicker.h>
@@ -61,29 +62,50 @@ void KeyPressInteractorStyle::OnKeyPress()
 
 void KeyPressInteractorStyle::OnLeftButtonDown()
 {
-  int* clickPos = this->GetInteractor()->GetEventPosition();
+  this->m_nbClicks++;
+  int pickPosition[2];
+  this->GetInteractor()->GetEventPosition(pickPosition);
 
-  // Pick from this location.
-  auto picker = vtkSmartPointer<vtkPropPicker>::New();
-  picker->Pick(clickPos[0], clickPos[1], 0, this->GetDefaultRenderer());
+  int xdist = pickPosition[0] - this->m_previousPosition[0];
+  int ydist = pickPosition[1] - this->m_previousPosition[1];
 
-  double* pos = picker->GetPickPosition();
-  std::cout << "Pick position (world coordinates) is: "
-            << pos[0] << " " << pos[1]
-            << " " << pos[2] << std::endl;
+  this->m_previousPosition[0] = pickPosition[0];
+  this->m_previousPosition[1] = pickPosition[1];
 
-  std::cout << "Picked actor: " << picker->GetActor() << std::endl;
+  int moveDistance = (xdist * xdist + ydist * ydist);
 
-  if (picker->GetActor())
+  // Reset numClicks - If mouse moved further than resetPixelDistance
+  if(moveDistance > this->m_maxSqDistFoDoubleClick)
   {
-    if (m_mainWindowPtr)
-      m_mainWindowPtr->selectBoundingBox(picker->GetActor());
+    this->m_nbClicks = 1;
+    // Test if we pick a bounding box
+    auto picker = vtkSmartPointer<vtkPropPicker>::New();
+    picker->Pick(pickPosition[0], pickPosition[1], 0, this->GetDefaultRenderer());
+    if (picker->GetActor())
+    {
+      if (m_mainWindowPtr)
+        m_mainWindowPtr->selectBoundingBox(picker->GetActor());
+    }
+    else
+    {
+      qInfo() << "Unselect all";
+      m_mainWindowPtr->disableBoxWidget();
+    }
   }
-  else
+
+  if(this->m_nbClicks == 2)
   {
-    qInfo() << "Unselect all";
-    m_mainWindowPtr->disableBoxWidget();
+    this->m_nbClicks = 0;
+    this->Interactor->GetPicker()->Pick(this->Interactor->GetEventPosition()[0],
+                                        this->Interactor->GetEventPosition()[1],
+                                        0,  // always zero.
+                                        this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer());
+    double picked[3];
+    this->Interactor->GetPicker()->GetPickPosition(picked);
+    vtkCamera* camera = this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->GetActiveCamera();
+    camera->SetFocalPoint(picked);
   }
+
 
 
   // Forward events

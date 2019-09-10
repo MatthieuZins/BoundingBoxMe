@@ -4,8 +4,9 @@
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkNamedColors.h>
 #include <vtkNew.h>
+#include <vtkColorTransferFunction.h>
 #include <vtkPointPicker.h>
-
+#include <vtkColorSeries.h>
 #include <vtkCamera.h>
 #include <vtkActor.h>
 #include <vtkActorCollection.h>
@@ -19,6 +20,7 @@
 #include <vtkTransform.h>
 #include <vtkCommand.h>
 #include <vtkPLYReader.h>
+#include <vtkLookupTable.h>
 #include <vtkXMLPolyDataReader.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkRendererCollection.h>
@@ -92,7 +94,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   this->ui->qvtkWidget->SetRenderWindow(m_renderWindow);
 
-  m_renderer->SetBackground(colors->GetColor3d("Grey").GetData());
+  m_renderer->SetBackground(colors->GetColor3d("#212e40").GetData());
 
   this->ui->qvtkWidget->GetRenderWindow()->AddRenderer(m_renderer);
 
@@ -238,7 +240,6 @@ void MainWindow::displayLog(const QString& msg)
 void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vector3d& dimensions)
 {
   qInfo() << "Add Bounding Box";
-  std::cout << "===============++> add bb" << std::endl;
   const std::string& initialClass = "car"; // getDefaultClass from ui
   auto currentFrameInterval = m_timeStepsManager.getCurrentTimeInterval();
   auto instanceId = m_boundingBoxManager.findFirstUnusedInstanceId();
@@ -257,7 +258,7 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
 
   mapper->SetInputConnection(source->GetOutputPort());
   actor->SetMapper(mapper);
-  actor->SetUserMatrix(eigenIsometry3dToVtkMatrix4x4(bb->getPose(0)));
+  actor->SetUserMatrix(eigenIsometry3dToVtkMatrix4x4(pose));
   auto col = m_classesManager.getClassColor(bb->getClass());
   actor->GetProperty()->SetColor(col.r, col.g, col.b);
   actor->GetProperty()->SetRepresentationToSurface();
@@ -269,7 +270,8 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
 
 void MainWindow::createNewBoundingBox()
 {
-  double *focalPoint = m_renderer->GetActiveCamera()->GetFocalPoint();
+  double focalPoint[3];
+  m_renderer->GetActiveCamera()->GetFocalPoint(focalPoint);
   Eigen::Isometry3d pose = Eigen::Isometry3d::Identity();
   pose = Eigen::Translation3d(focalPoint[0], focalPoint[1], focalPoint[2]) * pose;
   Eigen::Vector3d dimension(1.0, 1.0, 1.0);
@@ -391,23 +393,35 @@ void MainWindow::openDataset()
     m_timeStepsManager.initializeSize(m_lidarFramesManager.getNbFrames());
     m_timeStepsManager.setModeSingle(0);
 
-
-
     // Update vtk stuff
     auto pointsToRender = m_lidarFramesManager.getFramesPoints();
+
+    auto lookupTable = vtkSmartPointer<vtkColorTransferFunction>::New();
+    lookupTable->SetColorSpaceToDiverging();
+    lookupTable->AddRGBPoint(0, 0.23137254902000001, 0.298039215686, 0.75294117647100001);
+    lookupTable->AddRGBPoint(127, 0.86499999999999999, 0.86499999999999999, 0.86499999999999999);
+    lookupTable->AddRGBPoint(255, 0.70588235294099999, 0.015686274509800001, 0.149019607843);
+    lookupTable->Build();
+
+
     for (auto* pts : pointsToRender)
     {
       auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+      mapper->SetLookupTable(lookupTable);
+      mapper->SetScalarModeToUsePointFieldData();
+      mapper->SetColorModeToMapScalars();
+      mapper->SetUseLookupTableScalarRange(1);
       auto vertexFilter = vtkSmartPointer<vtkVertexGlyphFilter>::New();
       auto actor = vtkSmartPointer<vtkActor>::New();
       m_pcMappers.emplace_back(mapper);
       m_pcVertexGlyphFilters.emplace_back(vertexFilter);
       m_pcActors.emplace_back(actor);
-
       vertexFilter->SetInputData(pts);
       mapper->SetInputConnection(vertexFilter->GetOutputPort());
+      mapper->SelectColorArray("intensity");
+      mapper->ScalarVisibilityOn();
       actor->SetMapper(mapper);
-      actor->GetProperty()->SetPointSize(3);
+      actor->GetProperty()->SetPointSize(2);
     }
 
     ui->groupBox_TimeSteps_Manager->updateTimeStepsBounds(0, m_lidarFramesManager.getNbFrames());
