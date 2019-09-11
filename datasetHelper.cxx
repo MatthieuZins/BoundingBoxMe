@@ -93,7 +93,7 @@ std::vector<Eigen::Isometry3d, Eigen::aligned_allocator<Eigen::Isometry3d> > loa
   if (file.is_open())
   {
     // Read the data from the file
-    vtkNew<vtkDelimitedTextReader> csvReader;
+    auto csvReader = vtkSmartPointer<vtkDelimitedTextReader>::New();
     csvReader->SetFileName(filename.c_str());
     csvReader->DetectNumericColumnsOn();
     csvReader->SetFieldDelimiterCharacters(",");

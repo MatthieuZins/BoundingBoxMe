@@ -58,7 +58,7 @@ public:
 
 
   void selectBoundingBox(vtkActor* bbActor);
-  int findBoundingBoxFromActor(vtkProp3D *actor);
+  int findBoundingBoxFromActor(vtkActor *actor);
 
   void disableBoxWidget();
 

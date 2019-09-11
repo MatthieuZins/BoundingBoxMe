@@ -7,7 +7,6 @@
 
 vtkSmartPointer<vtkMatrix4x4> eigenIsometry3dToVtkMatrix4x4(const Eigen::Isometry3d& isometry);
 
-Eigen::Isometry3d eigenIsometry3dFromVtkMatrix4x4(vtkMatrix4x4* matrix);
-
+Eigen::Isometry3d eigenIsometry3dFromVtkMatrix4x4(vtkMatrix4x4* matrix, Eigen::Vector3d* scaling=nullptr);
 
 #endif // VTKEIGENUTILS_H

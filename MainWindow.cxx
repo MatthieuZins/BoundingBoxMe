@@ -49,7 +49,7 @@ public:
 
     widget->GetTransform(0);  // this is just use to update the internal state of the widget
 
-    auto* actorToModify = widget->GetProp3D();
+    auto* actorToModify = vtkActor::SafeDownCast(widget->GetProp3D());
 
     actorToModify->SetUserMatrix(widget->getPoseMatrix());
     if (m_mainwindowPtr)
@@ -197,8 +197,17 @@ void MainWindow::update()
         || bb_state == BoundingBox::State::DYNAMIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_DYNAMIC)
     {
 
-      const Eigen::Isometry3d& pose = m_boundingBoxManager.getBoundingBoxFromIndex(i)->getPose(first_frame);
+      BoundingBox* bbToDisplay = m_boundingBoxManager.getBoundingBoxFromIndex(i);
+      const Eigen::Isometry3d& pose = bbToDisplay->getPose(first_frame);
+      const Eigen::Vector3d dimensions = bbToDisplay->getDimensions();
+
       vtkSmartPointer<vtkMatrix4x4> matrix = eigenIsometry3dToVtkMatrix4x4(pose);
+      for (int i = 0; i < 3; ++i)
+      {
+        matrix->SetElement(i, 0, matrix->GetElement(i, 0) * dimensions[0]);
+        matrix->SetElement(i, 1, matrix->GetElement(i, 1) * dimensions[1]);
+        matrix->SetElement(i, 2, matrix->GetElement(i, 2) * dimensions[2]);
+      }
       m_bbActors[i]->SetUserMatrix(matrix);
       m_renderer->AddActor(m_bbActors[i]);
     }
@@ -257,7 +266,6 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
   m_bbMappers.emplace_back(mapper);
   m_bbActors.emplace_back(actor);
 
-
   mapper->SetInputConnection(source->GetOutputPort());
   actor->SetMapper(mapper);
   actor->SetUserMatrix(eigenIsometry3dToVtkMatrix4x4(pose));
@@ -280,12 +288,12 @@ void MainWindow::createNewBoundingBox()
   addBoundingBox(pose, dimension);
 }
 
-int MainWindow::findBoundingBoxFromActor(vtkProp3D* actor)
+int MainWindow::findBoundingBoxFromActor(vtkActor* actor)
 {
   int idx = -1;
   for (unsigned int i = 0; i < m_bbActors.size(); ++i)
   {
-    if (actor == static_cast<vtkProp3D*>(m_bbActors[i]))
+    if (actor == m_bbActors[i].Get())
     {
       idx = i;
       break;
@@ -309,9 +317,12 @@ void MainWindow::editBoundingBox(int index)
 
     // update pose
     vtkMatrix4x4 *poseMatrix = m_bbActors[index]->GetUserMatrix();
+    Eigen::Vector3d scaling;
+    // Get rigid transform + scaling
+    Eigen::Isometry3d poseEigen = eigenIsometry3dFromVtkMatrix4x4(poseMatrix, &scaling);
+    bb->setDimensions(scaling);
     if (bb->getState() == BoundingBox::State::STATIC)
     {
-      Eigen::Isometry3d poseEigen = eigenIsometry3dFromVtkMatrix4x4(poseMatrix);
       const auto& frames = bb->getFrames();
       for (const auto& f : frames)
       {
@@ -323,7 +334,7 @@ void MainWindow::editBoundingBox(int index)
       auto [tFirst, tLast] = m_timeStepsManager.getCurrentTimeInterval();
       for (int t = tFirst; t <= tLast; ++t)
       {
-        bb->setPose(t, eigenIsometry3dFromVtkMatrix4x4(poseMatrix));
+        bb->setPose(t, poseEigen);
       }
     }
 
@@ -513,5 +524,9 @@ void MainWindow::selectBoundingBox(vtkActor *bbActor)
     this->ui->widget_BB_Information->updateAvailableInstanceIds(availableIds);
 
     this->ui->widget_BB_Information->updateInformation(m_boundingBoxManager.getBoundingBoxFromIndex(idx));
+  }
+  else
+  {
+    qWarning() << "Try to select a bounding box from an inexisting actor";
   }
 }
