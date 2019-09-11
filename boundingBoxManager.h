@@ -21,7 +21,7 @@ public:
   /// Returns a pointer to the new bounding box
   const BoundingBox *addBoundingBox(BoundingBox::Id id, const std::string& classe,
                                     const Eigen::Isometry3d& pose, const Eigen::Vector3d& dimension,
-                                    const std::pair<int, int> &framesInterval);
+                                    const std::pair<int, int> &framesInterval, BoundingBox::State state);
 
 
   /// Get a const pointer to a bounding box from its index (or storing id)

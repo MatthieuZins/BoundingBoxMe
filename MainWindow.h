@@ -66,9 +66,9 @@ public:
     m_renderWindow->Render();
   }
 
-  void addBoundingBox(const Eigen::Isometry3d &pose, const Eigen::Vector3d &dimensions);
+  void addBoundingBox(const Eigen::Isometry3d &pose, const Eigen::Vector3d &dimensions, BoundingBox::State state);
   // this function create a new bounding box from camera position
-  void createNewBoundingBox();
+  void createNewBoundingBox(BoundingBox::State state);
 
   void editBoundingBox(int index);
 

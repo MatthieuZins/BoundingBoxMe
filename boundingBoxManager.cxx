@@ -24,7 +24,8 @@ const BoundingBox* BoundingBoxManager::addBoundingBox(BoundingBox::Id id,
                                                       const std::string &classe,
                                                       const Eigen::Isometry3d &pose,
                                                       const Eigen::Vector3d &dimension,
-                                                      const std::pair<int, int>& framesInterval)
+                                                      const std::pair<int, int>& framesInterval,
+                                                      BoundingBox::State state)
 {
   BoundingBox* existingBoundingBox = nullptr;
 
@@ -39,6 +40,7 @@ const BoundingBox* BoundingBoxManager::addBoundingBox(BoundingBox::Id id,
 
   if (existingBoundingBox)
   {
+    std::cout << "Add existing BBox!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
     // storing id does not change
     // instance id does not change
     // add the new frames and poses
@@ -64,9 +66,6 @@ const BoundingBox* BoundingBoxManager::addBoundingBox(BoundingBox::Id id,
   else
   {
     BoundingBox::Id storing_id = m_bbs.size();
-    BoundingBox::State state = BoundingBox::State::DYNAMIC;
-    if (TimeStepsManager::getInstance().isModeAll())
-      state = BoundingBox::State::STATIC;
     auto new_bb = std::make_shared<BoundingBox>(storing_id, id, classe, dimension, state);
     for (int f = framesInterval.first; f <= framesInterval.second; ++f)
     {

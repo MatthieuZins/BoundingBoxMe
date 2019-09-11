@@ -49,10 +49,15 @@ void KeyPressInteractorStyle::OnKeyPress()
     qInfo() << "Remove bounding box";
     m_mainWindowPtr->deleteBoundingBox();
   }
-  else if (key == "n")
+  else if (key == "s" || key == "S")
   {
-    qInfo() << "Create new bounding box";
-    m_mainWindowPtr->createNewBoundingBox();
+    qInfo() << "Create new static bounding box";
+    m_mainWindowPtr->createNewBoundingBox(BoundingBox::State::STATIC);
+  }
+  else if (key == "d" || key == "D")
+  {
+    qInfo() << "Create new dynamic bounding box";
+    m_mainWindowPtr->createNewBoundingBox(BoundingBox::State::DYNAMIC);
   }
 
   // Forward events

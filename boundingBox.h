@@ -48,6 +48,10 @@ public:
   /// Return true if the bounding box is present in the interval (both inclusive)
   bool isPresentInInterval(int first, int last) const;
 
+  /// Returns the the Id of the first frame of the interval where the BBox is present.
+  /// If the BBox is not present in the interval it returns -1
+  int getFirstFrameOfPresenceInInterval(int first, int last) const;
+
 
   /// Get / Set the pose of the bounding box in frame frameId
   Eigen::Isometry3d getPose(unsigned int frameId) const;

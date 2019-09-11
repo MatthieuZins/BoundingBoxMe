@@ -228,16 +228,16 @@ void MainWindow::update()
   // Display bounding boxes
   for (int i = 0; i < m_bbActors.size(); ++i)
   {
-    auto visible = m_boundingBoxManager.getBoundingBoxFromIndex(i)->isPresentInInterval(first_frame, last_frame);
+    BoundingBox* bbToDisplay = m_boundingBoxManager.getBoundingBoxFromIndex(i);
+    int firstFrameOfPresence = bbToDisplay->getFirstFrameOfPresenceInInterval(first_frame, last_frame);
     auto bb_state = m_boundingBoxManager.getBoundingBoxFromIndex(i)->getState();
     auto displayMode = ui->groupBox_DisplayManager->getDisplayMode();
-    if (visible && displayMode == DisplayManager_ui::DisplayMode::BOTH
-        || bb_state == BoundingBox::State::STATIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_STATIC
-        || bb_state == BoundingBox::State::DYNAMIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_DYNAMIC)
-    {
 
-      BoundingBox* bbToDisplay = m_boundingBoxManager.getBoundingBoxFromIndex(i);
-      const Eigen::Isometry3d& pose = bbToDisplay->getPose(first_frame);
+    bool isStaticAndOnlyStatic = bb_state == BoundingBox::State::STATIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_STATIC;
+    bool isdynAndOnlyDyn = bb_state == BoundingBox::State::DYNAMIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_DYNAMIC;
+    if (firstFrameOfPresence >= 0 && (displayMode == DisplayManager_ui::DisplayMode::BOTH || isStaticAndOnlyStatic || isdynAndOnlyDyn))
+    {
+      const Eigen::Isometry3d& pose = bbToDisplay->getPose(firstFrameOfPresence);
       const Eigen::Vector3d dimensions = bbToDisplay->getDimensions();
 
       vtkSmartPointer<vtkMatrix4x4> matrix = eigenIsometry3dToVtkMatrix4x4(pose);
@@ -287,14 +287,14 @@ void MainWindow::displayLog(const QString& msg)
 
 
 
-void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vector3d& dimensions)
+void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vector3d& dimensions, BoundingBox::State state)
 {
   qInfo() << "Add Bounding Box";
   const std::string& initialClass = "car"; // getDefaultClass from ui
   auto currentFrameInterval = m_timeStepsManager.getCurrentTimeInterval();
   auto instanceId = m_boundingBoxManager.findFirstUnusedInstanceId();
 
-  const BoundingBox* bb = m_boundingBoxManager.addBoundingBox(instanceId, initialClass, pose, dimensions, currentFrameInterval);
+  const BoundingBox* bb = m_boundingBoxManager.addBoundingBox(instanceId, initialClass, pose, dimensions, currentFrameInterval, state);
 
 //  bb->addPresenceInFrame( temp_transl * Eigen::Isometry3d::Identity() * Eigen::EulerAnglesXYZd(10, 20, 30), 0);
 
@@ -317,14 +317,14 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
   // maybe return the corresponding actor so that we can continue to and call edit
 }
 
-void MainWindow::createNewBoundingBox()
+void MainWindow::createNewBoundingBox(BoundingBox::State state)
 {
   double focalPoint[3];
   m_renderer->GetActiveCamera()->GetFocalPoint(focalPoint);
   Eigen::Isometry3d pose = Eigen::Isometry3d::Identity();
   pose = Eigen::Translation3d(focalPoint[0], focalPoint[1], focalPoint[2]) * pose;
   Eigen::Vector3d dimension(1.0, 1.0, 1.0);
-  addBoundingBox(pose, dimension);
+  addBoundingBox(pose, dimension, state);
 }
 
 int MainWindow::findBoundingBoxFromActor(vtkActor* actor)
@@ -437,7 +437,7 @@ void MainWindow::openLidarDataset()
 {
   std::cout << "open dataset" << std::endl;
 //  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
-  QString fileName("/home/matthieu/dev/BoundingBoxMe/20181226_100838_FCR_SBR_AD1_R04_DC_JSOIMPREZA_noADC.pcap.lidarframes/frame.vtp.series");
+  QString fileName("/home/matthieu/dev/BoundingBoxMe/small_dataset/frame.vtp.series");
   std::cout << "selected file " << fileName.toStdString() << std::endl;
 
   if (loadLidarDataSet(fileName.toStdString()))
@@ -477,6 +477,7 @@ void MainWindow::openLidarDataset()
     }
 
     ui->groupBox_TimeSteps_Manager->updateTimeStepsBounds(0, m_lidarFramesManager.getNbFrames());
+    update();
   }
 }
 

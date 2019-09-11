@@ -72,3 +72,21 @@ bool BoundingBox::isPresentInInterval(int first, int last) const
   return false;
 }
 
+int BoundingBox::getFirstFrameOfPresenceInInterval(int first, int last) const
+{
+  int min = last;
+  bool found = false;
+  for (auto& f : m_framesIds)
+  {
+    if (f >= first && f <= last)
+    {
+      if (f < min)
+        min = f;
+      found = true;
+    }
+  }
+  if (!found)
+    return -1;
+  return min;
+}
+

@@ -72,61 +72,45 @@
       <height>0</height>
      </size>
     </property>
-    <widget class="timeStepsManager_ui" name="groupBox_TimeSteps_Manager">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>231</width>
-       <height>241</height>
-      </rect>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="title">
-      <string>Time Steps Manager</string>
-     </property>
-    </widget>
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>270</y>
-       <width>231</width>
-       <height>211</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Bounding Box Information</string>
-     </property>
-     <widget class="BoundingBoxInformation_ui" name="widget_BB_Information" native="true">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>30</y>
-        <width>201</width>
-        <height>171</height>
-       </rect>
-      </property>
-     </widget>
-    </widget>
-    <widget class="DisplayManager_ui" name="groupBox_DisplayManager">
-     <property name="geometry">
-      <rect>
-       <x>9</x>
-       <y>489</y>
-       <width>231</width>
-       <height>161</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Display</string>
-     </property>
-    </widget>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="timeStepsManager_ui" name="groupBox_TimeSteps_Manager">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="title">
+        <string>Time Steps Manager</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>Bounding Box Information</string>
+       </property>
+       <widget class="BoundingBoxInformation_ui" name="widget_BB_Information" native="true">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>201</width>
+          <height>151</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="DisplayManager_ui" name="groupBox_DisplayManager">
+       <property name="title">
+        <string>Display</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_2">
@@ -152,7 +136,7 @@
     <widget class="QTextBrowser" name="textBrowser_logger">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>20</x>
        <y>0</y>
        <width>1111</width>
        <height>81</height>
