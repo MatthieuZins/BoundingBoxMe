@@ -10,6 +10,10 @@ timeStepsManager_ui::timeStepsManager_ui(QWidget *parent) :
 {
   ui->setupUi(this);
 
+  // By default, "single frame" is selected
+  ui->spinBox_intervalFirst->setDisabled(true);
+  ui->spinBox_intervalLast->setDisabled(true);
+
   QObject::connect(ui->radioButton_all, SIGNAL(toggled(bool)), this, SLOT(selectModeAll()));
   QObject::connect(ui->radioButton_single, SIGNAL(toggled(bool)), this, SLOT(selectModeSingle()));
   QObject::connect(ui->radioButton_interval, SIGNAL(toggled(bool)), this, SLOT(selectModeInterval()));
@@ -41,6 +45,9 @@ void timeStepsManager_ui::updateTimeStepsBounds(int min, int max)
 
 void timeStepsManager_ui::selectModeAll()
 {
+  ui->spinBox_intervalFirst->setDisabled(true);
+  ui->spinBox_intervalLast->setDisabled(true);
+  ui->spinBox_singleFrame->setDisabled(true);
   auto *mainWindow = dynamic_cast<MainWindow*>(window());
   mainWindow->m_timeStepsManager.setModeAll();
   mainWindow->update();
@@ -48,6 +55,10 @@ void timeStepsManager_ui::selectModeAll()
 
 void timeStepsManager_ui::selectModeSingle()
 {
+  ui->spinBox_intervalFirst->setDisabled(true);
+  ui->spinBox_intervalLast->setDisabled(true);
+  ui->spinBox_singleFrame->setEnabled(true);
+
   auto *mainWindow = dynamic_cast<MainWindow*>(window());
   auto val = ui->spinBox_singleFrame->value();
   mainWindow->m_timeStepsManager.setModeSingle(val);
@@ -56,6 +67,10 @@ void timeStepsManager_ui::selectModeSingle()
 
 void timeStepsManager_ui::selectModeInterval()
 {
+  ui->spinBox_intervalFirst->setEnabled(true);
+  ui->spinBox_intervalLast->setEnabled(true);
+  ui->spinBox_singleFrame->setDisabled(true);
+
   auto *mainWindow = dynamic_cast<MainWindow*>(window());
   auto first = ui->spinBox_intervalFirst->value();
   auto last = ui->spinBox_intervalLast->value();
