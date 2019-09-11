@@ -1,21 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>DisplayManager_ui</class>
- <widget class="QGroupBox" name="DisplayManager_ui">
+ <widget class="QWidget" name="DisplayManager_ui">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>236</width>
-    <height>251</height>
+    <width>209</width>
+    <height>260</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>GroupBox</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QGroupBox" name="groupBox_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
       <string>Fast Interaction</string>
      </property>
@@ -24,6 +48,9 @@
        <layout class="QFormLayout" name="formLayout">
         <item row="0" column="0">
          <widget class="QLabel" name="label">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Threshold used for Fast Rendering. If there are more frames, Fast Rendering is enabled&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
            <string>Threshold</string>
           </property>
@@ -31,18 +58,28 @@
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_2">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Percentage of frames displayed in Fast Rendering mode&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
            <string>% frames</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QSpinBox" name="spinBox_Threshold"/>
+         <widget class="QSpinBox" name="spinBox_Threshold">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Threshold used for Fast Rendering. If there are more frames, Fast Rendering is enabled&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
         </item>
         <item row="1" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QSlider" name="horizontalSlider_Percentage">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Percentage of frames displayed in Fast Rendering mode&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="value">
              <number>4</number>
             </property>
@@ -59,6 +96,9 @@
           </item>
           <item>
            <widget class="QLabel" name="label_Percentage">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Percentage of frames displayed in Fast Rendering mode&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>1.0</string>
             </property>
@@ -73,6 +113,12 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
       <string>Filter by state</string>
      </property>
@@ -81,6 +127,9 @@
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QRadioButton" name="radioButton_Both">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display both static and dynamic bounding boxes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
            <string>Both</string>
           </property>
@@ -91,6 +140,9 @@
         </item>
         <item>
          <widget class="QRadioButton" name="radioButton_Only_Static">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display only static bounding boxes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
            <string>Only Static</string>
           </property>
@@ -107,6 +159,19 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

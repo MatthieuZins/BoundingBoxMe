@@ -4,5 +4,8 @@
     	<file>redo-alt-solid.svg</file>
     	<file>save-solid.svg</file>
     	<file>box-open-solid.svg</file>
+    	<file>cube.svg</file>
+    	<file>cube1.svg</file>
+        <file>cube2.svg</file>
     </qresource>
 </RCC>

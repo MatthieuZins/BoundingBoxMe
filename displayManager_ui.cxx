@@ -6,7 +6,7 @@
 #include "MainWindow.h"
 
 DisplayManager_ui::DisplayManager_ui(QWidget *parent) :
-  QGroupBox(parent),
+  QWidget(parent),
   ui(new Ui::DisplayManager_ui)
 {
   ui->setupUi(this);

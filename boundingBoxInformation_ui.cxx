@@ -33,6 +33,7 @@ void BoundingBoxInformation_ui::updateInformation(BoundingBox *bb)
   ui->comboBox_BB_Id->setCurrentText(QString::number(bb->getInstanceId()));
   ui->comboBox_BB_Class->setCurrentText(QString::fromStdString(bb->getClass()));
   std::stringstream ss;
+  ss << std::setprecision(2);
 
   const Eigen::Vector3d& center = bb->getCenter(frameToDisplay);
   ss << center.x() << ", " << center.y() << ", " << center.z();

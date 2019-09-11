@@ -113,6 +113,8 @@ private:
   // 3 -> display 75% (3 out of 4)
   // 4 -> display all
   int m_skipFramesMode = 0;
+
+  double m_boundingBoxOpacity = 0.3;
 };
 
 

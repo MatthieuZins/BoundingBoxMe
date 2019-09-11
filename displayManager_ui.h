@@ -1,13 +1,13 @@
 #ifndef DISPLAYMANAGER_UI_H
 #define DISPLAYMANAGER_UI_H
 
-#include <QGroupBox>
+#include <QWidget>
 
 namespace Ui {
 class DisplayManager_ui;
 }
 
-class DisplayManager_ui : public QGroupBox
+class DisplayManager_ui : public QWidget
 {
   Q_OBJECT
 

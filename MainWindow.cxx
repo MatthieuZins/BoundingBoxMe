@@ -85,6 +85,9 @@ MainWindow::MainWindow(QWidget *parent) :
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
+
+  tabifyDockWidget(ui->dockWidget_Display, ui->dockWidget_Manager);
+
   QObject::connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openLidarDataset()));
   QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveBoundingBoxDataset()));
   QObject::connect(ui->actionOpenBBox, SIGNAL(triggered()), this, SLOT(loadBoundingBoxDataset()));
@@ -162,9 +165,6 @@ MainWindow::MainWindow(QWidget *parent) :
   style3->SetDefaultRenderer(m_renderer);
   style3->setMainWindow(this);
   ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style3);
-
-
-  vtkCamera *cam =  m_renderer->GetActiveCamera();
 }
 
 MainWindow::~MainWindow()
@@ -231,12 +231,13 @@ void MainWindow::update()
     BoundingBox* bbToDisplay = m_boundingBoxManager.getBoundingBoxFromIndex(i);
     int firstFrameOfPresence = bbToDisplay->getFirstFrameOfPresenceInInterval(first_frame, last_frame);
     auto bb_state = m_boundingBoxManager.getBoundingBoxFromIndex(i)->getState();
-    auto displayMode = ui->groupBox_DisplayManager->getDisplayMode();
+    auto displayMode = ui->widget_DisplayManager->getDisplayMode();
 
     bool isStaticAndOnlyStatic = bb_state == BoundingBox::State::STATIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_STATIC;
-    bool isdynAndOnlyDyn = bb_state == BoundingBox::State::DYNAMIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_DYNAMIC;
-    if (firstFrameOfPresence >= 0 && (displayMode == DisplayManager_ui::DisplayMode::BOTH || isStaticAndOnlyStatic || isdynAndOnlyDyn))
+    bool isDynAndOnlyDyn = bb_state == BoundingBox::State::DYNAMIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_DYNAMIC;
+    if (firstFrameOfPresence >= 0 && (displayMode == DisplayManager_ui::DisplayMode::BOTH || isStaticAndOnlyStatic || isDynAndOnlyDyn))
     {
+      std::cout << "idps bb" << std::endl;
       const Eigen::Isometry3d& pose = bbToDisplay->getPose(firstFrameOfPresence);
       const Eigen::Vector3d dimensions = bbToDisplay->getDimensions();
 
@@ -256,7 +257,7 @@ void MainWindow::update()
     }
   }
 
-  // Dislpay the bounding box manipulator widget
+  // Hide the BBox manipulator widget
   if (m_currentlyEditedBox >= 0)
   {
     if (!m_boundingBoxManager.getBoundingBoxFromIndex(m_currentlyEditedBox)->isPresentInInterval(first_frame, last_frame))
@@ -264,7 +265,6 @@ void MainWindow::update()
       disableBoxWidget();
     }
   }
-  disableBoxWidget();
   m_renderWindow->Render();
 }
 
@@ -274,9 +274,6 @@ void MainWindow::initialize()
   ui->groupBox_BB_Information->updateAvailableClasses(m_classesManager.getAvailableClasses());
   m_timeStepsManager.setModeSingle(0);
 
-//  addBoundingBox(Eigen::Translation3d(0, 0, 0)  * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
-//  addBoundingBox(Eigen::Translation3d(2, -1, 0) * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
-//  addBoundingBox(Eigen::Translation3d(-2, 2, 0) * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
   openLidarDataset();
 }
 
@@ -308,13 +305,14 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
   mapper->SetInputConnection(source->GetOutputPort());
   actor->SetMapper(mapper);
   actor->SetUserMatrix(eigenIsometry3dToVtkMatrix4x4(pose));
+//  actor->GetProperty()->SetRepresentationToSurface();
   auto col = m_classesManager.getClassColor(bb->getClass());
   actor->GetProperty()->SetColor(col.r, col.g, col.b);
-  actor->GetProperty()->SetRepresentationToSurface();
-  actor->GetProperty()->SetOpacity(0.2);
+  actor->GetProperty()->SetOpacity(m_boundingBoxOpacity);
   m_renderer->AddActor(actor);
 
-  // maybe return the corresponding actor so that we can continue to and call edit
+  update();
+  selectBoundingBox(actor);
 }
 
 void MainWindow::createNewBoundingBox(BoundingBox::State state)
@@ -350,6 +348,7 @@ void MainWindow::disableBoxWidget()
 
 void MainWindow::editBoundingBox(int index)
 {
+  std::cout << "EDIT BBOox" << std::endl;
   if (index >= 0)
   {
     auto *bb = m_boundingBoxManager.getBoundingBoxFromIndex(index);
@@ -506,7 +505,7 @@ void MainWindow::loadBoundingBoxDataset()
       auto col = m_classesManager.getClassColor(bbPtr->getClass());
       actor->GetProperty()->SetColor(col.r, col.g, col.b);
       actor->GetProperty()->SetRepresentationToSurface();
-      actor->GetProperty()->SetOpacity(0.2);
+      actor->GetProperty()->SetOpacity(m_boundingBoxOpacity);
       m_renderer->AddActor(actor);
     }
   }

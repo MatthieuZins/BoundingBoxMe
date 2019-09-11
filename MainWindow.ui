@@ -13,6 +13,11 @@
   <property name="windowTitle">
    <string>Bounding Box Me!</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normalon>:/icon/cube1.svg</normalon>
+   </iconset>
+  </property>
   <widget class="QVTKOpenGLWidget" name="qvtkWidget">
    <layout class="QGridLayout" name="gridLayout"/>
   </widget>
@@ -58,14 +63,20 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QDockWidget" name="dockWidget">
+  <widget class="QDockWidget" name="dockWidget_Manager">
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
    <property name="windowTitle">
-    <string>Map</string>
+    <string>Tools</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
-   <widget class="QWidget" name="dockWidgetContents">
+   <widget class="QWidget" name="dockWidgetContents_1">
     <property name="minimumSize">
      <size>
       <width>270</width>
@@ -75,6 +86,12 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="timeStepsManager_ui" name="groupBox_TimeSteps_Manager">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -88,51 +105,89 @@
      </item>
      <item>
       <widget class="BoundingBoxInformation_ui" name="groupBox_BB_Information">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="title">
         <string>Bounding Box Information</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="DisplayManager_ui" name="groupBox_DisplayManager">
-       <property name="title">
-        <string>Display</string>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
-      </widget>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_2">
+  <widget class="QDockWidget" name="dockWidget_Logger">
    <property name="minimumSize">
     <size>
-     <width>49</width>
+     <width>200</width>
      <height>100</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
      <width>524287</width>
-     <height>100</height>
+     <height>524287</height>
     </size>
    </property>
    <property name="floating">
     <bool>false</bool>
    </property>
+   <property name="windowTitle">
+    <string>Logger</string>
+   </property>
    <attribute name="dockWidgetArea">
     <number>8</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_2">
-    <widget class="QTextBrowser" name="textBrowser_logger">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>0</y>
-       <width>1111</width>
-       <height>81</height>
-      </rect>
-     </property>
-    </widget>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <widget class="QTextBrowser" name="textBrowser_logger">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_Display">
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Display</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="DisplayManager_ui" name="widget_DisplayManager" native="true"/>
+     </item>
+    </layout>
    </widget>
   </widget>
   <action name="actionOpen">
@@ -185,8 +240,9 @@
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open Bounding Box Dataset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
-  <zorder>dockWidget</zorder>
-  <zorder>dockWidget_2</zorder>
+  <zorder>dockWidget_Manager</zorder>
+  <zorder>dockWidget_Logger</zorder>
+  <zorder>dockWidget_Display</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -203,15 +259,15 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>DisplayManager_ui</class>
-   <extends>QGroupBox</extends>
-   <header>displayManager_ui.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>BoundingBoxInformation_ui</class>
    <extends>QGroupBox</extends>
    <header>boundingBoxInformation_ui.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DisplayManager_ui</class>
+   <extends>QWidget</extends>
+   <header>displayManager_ui.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

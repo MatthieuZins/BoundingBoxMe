@@ -49,7 +49,7 @@ void KeyPressInteractorStyle::OnKeyPress()
     qInfo() << "Remove bounding box";
     m_mainWindowPtr->deleteBoundingBox();
   }
-  else if (key == "s" || key == "S")
+  else if (key == "q" || key == "Q")
   {
     qInfo() << "Create new static bounding box";
     m_mainWindowPtr->createNewBoundingBox(BoundingBox::State::STATIC);
