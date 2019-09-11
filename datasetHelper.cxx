@@ -223,7 +223,7 @@ void writeBBoxDataSet(const std::string &filename)
 
   for (int frameId = 0; frameId < N; ++frameId)
   {
-    Eigen::Isometry3d pose = lidarFramesManager.getFramePose(frameId);
+    Eigen::Isometry3d lidarFramePoseInv = lidarFramesManager.getFramePose(frameId).inverse();
     auto bbsPresent = bboxManager.findBoundingBoxesPresentInFrame(frameId);
     YAML::Node ymlFile;
     ymlFile["meta"] = YAML::Node();
@@ -238,7 +238,10 @@ void writeBBoxDataSet(const std::string &filename)
       YAML::Node bbNode;
       bbNode["label"] = bb->getClass();
 
-      Eigen::Vector3d center = bb->getCenter(frameId);
+      Eigen::Isometry3d worldBoxPose = bb->getPose(frameId);
+      Eigen::Isometry3d lidarBoxPose = lidarFramePoseInv * worldBoxPose;
+
+      Eigen::Vector3d center = lidarBoxPose.translation();
       bbNode["selector"] = YAML::Node();
       bbNode["selector"]["center"].push_back(center.x());
       bbNode["selector"]["center"].push_back(center.y());
@@ -251,7 +254,7 @@ void writeBBoxDataSet(const std::string &filename)
       bbNode["selector"]["type"] = "3D bounding box";
 
 
-      Eigen::EulerAnglesXYZd rot(bb->getPose(frameId).matrix().block<3, 3>(0, 0));
+      Eigen::EulerAnglesXYZd rot(lidarBoxPose.matrix().block<3, 3>(0, 0));
       bbNode["selector"]["orientation"].push_back(rot.alpha());
       bbNode["selector"]["orientation"].push_back(rot.beta());
       bbNode["selector"]["orientation"].push_back(rot.gamma());
@@ -295,6 +298,8 @@ void writeBBoxDataSet(const std::string &filename)
 
 bool loadBBoxDataSet(const std::string &filename)
 {
+  auto& lidarFramesManager = LidarFrameManager::getInstance();
+
   const auto& listOfBBFilesAndTimes = loadSeriesFile(filename);
 
   std::unordered_map<BoundingBox::Id, std::shared_ptr<BoundingBox>> bbMap;
@@ -303,6 +308,7 @@ bool loadBBoxDataSet(const std::string &filename)
   {
     for (int frameId = 0; frameId < listOfBBFilesAndTimes.size(); ++frameId)
     {
+      Eigen::Isometry3d lidarFramePose = lidarFramesManager.getFramePose(frameId);
       YAML::Node node = YAML::LoadFile(listOfBBFilesAndTimes[frameId].first);
       YAML::Node objects = node["objects"];
       for (size_t i = 0; i < objects.size(); ++i)
@@ -320,8 +326,7 @@ bool loadBBoxDataSet(const std::string &filename)
           state = BoundingBox::State::DYNAMIC;
 
         Eigen::EulerAnglesXYZd rot(orientation[0], orientation[1], orientation[2]);
-        Eigen::Isometry3d pose = Eigen::Translation3d(center[0], center[1], center[2]) * rot;
-
+        Eigen::Isometry3d pose = lidarFramePose * Eigen::Translation3d(center[0], center[1], center[2]) * rot;
 
         if (bbMap.find(instanceId) == bbMap.end())
         {

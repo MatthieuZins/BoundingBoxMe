@@ -29,24 +29,31 @@ BoundingBoxInformation_ui::~BoundingBoxInformation_ui()
 void BoundingBoxInformation_ui::updateInformation(BoundingBox *bb)
 {
   m_bb = bb;
-  unsigned int frameToDisplay = TimeStepsManager::getInstance().getCurrentTimeInterval().first;
+  auto [firstFrame, lastFrame] = TimeStepsManager::getInstance().getCurrentTimeInterval();
+  unsigned int frameToDisplay = bb->getFirstFrameOfPresenceInInterval(firstFrame, lastFrame);
+
   ui->comboBox_BB_Id->setCurrentText(QString::number(bb->getInstanceId()));
   ui->comboBox_BB_Class->setCurrentText(QString::fromStdString(bb->getClass()));
   std::stringstream ss;
+  int space = 5;
   ss << std::setprecision(2);
+  ss.setf(std::ios::fixed);
 
   const Eigen::Vector3d& center = bb->getCenter(frameToDisplay);
-  ss << center.x() << ", " << center.y() << ", " << center.z();
+  ss << std::setw(space) << center.x() << ", " << std::setw(space) << center.y() << ", "
+     << std::setw(space) << center.z();
   ui->label_BB_Position->setText(QString::fromStdString(ss.str()));
   ss.str("");
 
   const Eigen::Quaterniond& orientation = bb->getOrientation(frameToDisplay);
-  ss << orientation.w() << ", " << orientation.x() << ", " << orientation.y() << ", " << orientation.z();
+  ss << std::setw(space) << orientation.w() << ", " << std::setw(space) << orientation.x() << ", "
+     << std::setw(space) << orientation.y() << ", " << std::setw(space) << orientation.z();
   ui->label_BB_Orientation->setText(QString::fromStdString(ss.str()));
   ss.str("");
 
   const Eigen::Vector3d& dimensions = bb->getDimensions();
-  ss << dimensions.x() << ", " << dimensions.y() << ", " << dimensions.z();
+  ss << std::setw(space) << dimensions.x() << ", " << std::setw(space) << dimensions.y() << ", "
+     << std::setw(space) << dimensions.z();
   ui->label_BB_Dimensions->setText(QString::fromStdString(ss.str()));
   ss.str("");
 
@@ -107,6 +114,7 @@ void BoundingBoxInformation_ui::updateBoundingBoxClass(int index)
     if (mainWindow)
     {
       mainWindow->editBoundingBox(m_bb->getStoringId());
+      mainWindow->forceRender();
     }
   }
 }

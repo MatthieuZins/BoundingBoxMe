@@ -6,10 +6,10 @@
 
 struct LidarFrame
 {
-  LidarFrame(int id, vtkSmartPointer<vtkPolyData> points,
+  LidarFrame(size_t id, vtkSmartPointer<vtkPolyData> points,
              const Eigen::Isometry3d& pose=Eigen::Isometry3d::Identity(), double time=0.0);
 
-  int m_id;
+  size_t m_id;
   vtkSmartPointer<vtkPolyData> m_points;
   Eigen::Isometry3d m_pose;
   double m_timestamp;

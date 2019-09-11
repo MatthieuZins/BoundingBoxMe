@@ -28,14 +28,15 @@ bool ClassesManager::loadFromYaml(const std::string &filename)
     for (auto cl : classes)
     {
       std::string name = cl["name"].as<std::string>();
-      qInfo() << name.c_str();
       Color color;
       color.r = static_cast<unsigned char>(cl["color"][0].as<int>());     // need to convert first to int because yaml-cpp can't convert to unsigned char
       color.g = static_cast<unsigned char>(cl["color"][1].as<int>());
       color.b = static_cast<unsigned char>(cl["color"][2].as<int>());
+      Colord colord(color);
       m_map[name] = color;
+      m_mapd[name] = colord;
+      qInfo() << name.c_str() << color.r << " " << color.g << " " << color.b;
     }
-    m_defaultClass = m_map.begin()->first;
   } catch (std::exception& e)
   {
     std::cerr << "Error while loading the classes configuration file: " << e.what() << std::endl;
@@ -60,7 +61,21 @@ ClassesManager::Color ClassesManager::getClassColor(const std::string &classe) c
   }
   else
   {
-    std::cerr << "Class " << classe << " not found" << std::endl;
+    qWarning() << "Class " << QString::fromStdString(classe) << " not found";
     return Color(0, 0, 0);
+  }
+}
+
+
+ClassesManager::Colord ClassesManager::getClassColord(const std::string &classe) const
+{
+  if (m_map.find(classe) != m_map.end())
+  {
+    return m_mapd.at(classe);
+  }
+  else
+  {
+    qWarning() << "Class " << QString::fromStdString(classe) << " not found";
+    return Colord(Color(0, 0, 0));
   }
 }

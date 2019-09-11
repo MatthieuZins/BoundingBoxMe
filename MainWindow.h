@@ -63,13 +63,14 @@ public:
   void disableBoxWidget();
 
   void forceRender() {
-    m_renderWindow->Render();
+    update();
   }
 
   void addBoundingBox(const Eigen::Isometry3d &pose, const Eigen::Vector3d &dimensions, BoundingBox::State state);
   // this function create a new bounding box from camera position
   void createNewBoundingBox(BoundingBox::State state);
 
+  // edit only the BBox pose and dimensions
   void editBoundingBox(int index);
 
   void deleteBoundingBox();
@@ -114,7 +115,7 @@ private:
   // 4 -> display all
   int m_skipFramesMode = 0;
 
-  double m_boundingBoxOpacity = 0.3;
+  double m_boundingBoxOpacity = 0.5;
 };
 
 

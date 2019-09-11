@@ -230,14 +230,16 @@ void MainWindow::update()
   {
     BoundingBox* bbToDisplay = m_boundingBoxManager.getBoundingBoxFromIndex(i);
     int firstFrameOfPresence = bbToDisplay->getFirstFrameOfPresenceInInterval(first_frame, last_frame);
-    auto bb_state = m_boundingBoxManager.getBoundingBoxFromIndex(i)->getState();
+    auto bb_state = bbToDisplay->getState();
     auto displayMode = ui->widget_DisplayManager->getDisplayMode();
+    // update color
+    auto color = m_classesManager.getClassColord(bbToDisplay->getClass());
+    m_bbActors[i]->GetProperty()->SetColor(color.r, color.g, color.b);
 
     bool isStaticAndOnlyStatic = bb_state == BoundingBox::State::STATIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_STATIC;
     bool isDynAndOnlyDyn = bb_state == BoundingBox::State::DYNAMIC && displayMode == DisplayManager_ui::DisplayMode::ONLY_DYNAMIC;
     if (firstFrameOfPresence >= 0 && (displayMode == DisplayManager_ui::DisplayMode::BOTH || isStaticAndOnlyStatic || isDynAndOnlyDyn))
     {
-      std::cout << "idps bb" << std::endl;
       const Eigen::Isometry3d& pose = bbToDisplay->getPose(firstFrameOfPresence);
       const Eigen::Vector3d dimensions = bbToDisplay->getDimensions();
 
@@ -249,6 +251,7 @@ void MainWindow::update()
         matrix->SetElement(i, 2, matrix->GetElement(i, 2) * dimensions[2]);
       }
       m_bbActors[i]->SetUserMatrix(matrix);
+
       m_renderer->AddActor(m_bbActors[i]);
     }
     else
@@ -305,9 +308,6 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
   mapper->SetInputConnection(source->GetOutputPort());
   actor->SetMapper(mapper);
   actor->SetUserMatrix(eigenIsometry3dToVtkMatrix4x4(pose));
-//  actor->GetProperty()->SetRepresentationToSurface();
-  auto col = m_classesManager.getClassColor(bb->getClass());
-  actor->GetProperty()->SetColor(col.r, col.g, col.b);
   actor->GetProperty()->SetOpacity(m_boundingBoxOpacity);
   m_renderer->AddActor(actor);
 
@@ -353,14 +353,15 @@ void MainWindow::editBoundingBox(int index)
   {
     auto *bb = m_boundingBoxManager.getBoundingBoxFromIndex(index);
 
-    // update pose
     vtkMatrix4x4 *poseMatrix = m_bbActors[index]->GetUserMatrix();
     Eigen::Vector3d scaling;
-    // Get rigid transform + scaling
+    // Extract rigid transform and scaling
     Eigen::Isometry3d poseEigen = eigenIsometry3dFromVtkMatrix4x4(poseMatrix, &scaling);
+    // Update scaling
     bb->setDimensions(scaling);
     if (bb->getState() == BoundingBox::State::STATIC)
     {
+      // update the pose in all the frames where it is present
       const auto& frames = bb->getFrames();
       for (const auto& f : frames)
       {
@@ -369,6 +370,7 @@ void MainWindow::editBoundingBox(int index)
     }
     else
     {
+      // update the pose only in the current time interval
       auto [tFirst, tLast] = m_timeStepsManager.getCurrentTimeInterval();
       for (int t = tFirst; t <= tLast; ++t)
       {
@@ -380,10 +382,10 @@ void MainWindow::editBoundingBox(int index)
     ui->groupBox_BB_Information->updateInformation(bb);
 
     // update color from class
-    auto col = m_classesManager.getClassColor(bb->getClass());
-    m_bbActors[index]->GetProperty()->SetColor(col.r, col.g, col.b);
+//    auto col = m_classesManager.getClassColor(bb->getClass());
+//    m_bbActors[index]->GetProperty()->SetColor(col.r, col.g, col.b);
 
-    m_renderer->Render();
+//    m_renderer->Render();
   }
 }
 
@@ -501,11 +503,8 @@ void MainWindow::loadBoundingBoxDataset()
 
       mapper->SetInputConnection(source->GetOutputPort());
       actor->SetMapper(mapper);
-  //    actor->SetUserMatrix(eigenIsometry3dToVtkMatrix4x4(pose));
-      auto col = m_classesManager.getClassColor(bbPtr->getClass());
-      actor->GetProperty()->SetColor(col.r, col.g, col.b);
-      actor->GetProperty()->SetRepresentationToSurface();
       actor->GetProperty()->SetOpacity(m_boundingBoxOpacity);
+      actor->GetProperty()->SetAmbient(1.0);
       m_renderer->AddActor(actor);
     }
   }

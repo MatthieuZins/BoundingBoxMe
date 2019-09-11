@@ -1,5 +1,17 @@
 classes:
     - name: car
-      color: [255, 0, 0]
+      color: [0, 0, 142]
+    - name: truck
+      color: [0, 0, 70]
+    - name: bus
+      color: [0, 60, 100]
+    - name: bicycle
+      color: [119, 11, 32]
+    - name: motorbike
+      color: [0, 0, 230]
+    - name: stop sign
+      color: [255, 220, 0]
+    - name: traffic light
+      color: [220, 220, 0]
     - name: person
-      color: [0, 255, 0]
+      color: [220, 20, 60]
