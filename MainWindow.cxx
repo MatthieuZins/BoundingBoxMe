@@ -174,6 +174,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::update()
 {
+  // in this function we can add/remove the same actor multiple times
+  // it is ok because VTK checks if this actor was already added/removed
+
   auto [first_frame, last_frame] = m_timeStepsManager.getCurrentTimeInterval();
   qDebug() << "interval = " << first_frame << " -> " << last_frame;
 
