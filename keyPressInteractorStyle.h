@@ -17,7 +17,6 @@
 
 #ifndef KEYPRESSINTERACTORSTYLE_H
 #define KEYPRESSINTERACTORSTYLE_H
-
 #include <vtkInteractorStyleTrackballCamera.h>
 
 
@@ -31,11 +30,9 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
     vtkTypeMacro(KeyPressInteractorStyle, vtkInteractorStyleTrackballCamera);
 
     KeyPressInteractorStyle() = default;
-
     ~KeyPressInteractorStyle() = default;
 
     virtual void OnKeyPress();
-
 
     virtual void OnLeftButtonDown();
 

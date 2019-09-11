@@ -268,6 +268,8 @@ void MainWindow::update()
       disableBoxWidget();
     }
   }
+
+  m_boxWidget->forceRepresentationToSurface();
   m_renderWindow->Render();
 }
 

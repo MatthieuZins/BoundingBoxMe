@@ -23,7 +23,6 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkPropPicker.h>
-#include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
 #include <QDebug>
 
