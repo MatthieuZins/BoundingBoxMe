@@ -11,7 +11,7 @@
 #include "MainWindow.h"
 
 BoundingBoxInformation_ui::BoundingBoxInformation_ui(QWidget *parent) :
-  QWidget(parent),
+  QGroupBox(parent),
   ui(new Ui::BoundingBoxInformation_ui)
 {
   ui->setupUi(this);

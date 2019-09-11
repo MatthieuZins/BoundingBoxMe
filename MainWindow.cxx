@@ -271,7 +271,7 @@ void MainWindow::update()
 void MainWindow::initialize()
 {
   m_classesManager.loadFromYaml("../classes.yaml");
-  ui->widget_BB_Information->updateAvailableClasses(m_classesManager.getAvailableClasses());
+  ui->groupBox_BB_Information->updateAvailableClasses(m_classesManager.getAvailableClasses());
   m_timeStepsManager.setModeSingle(0);
 
 //  addBoundingBox(Eigen::Translation3d(0, 0, 0)  * Eigen::Quaterniond::Identity(), Eigen::Vector3d::Ones());
@@ -343,7 +343,7 @@ int MainWindow::findBoundingBoxFromActor(vtkActor* actor)
 
 void MainWindow::disableBoxWidget()
 {
-  ui->widget_BB_Information->unselectBoundingBox();
+  ui->groupBox_BB_Information->unselectBoundingBox();
   m_boxWidget->Off();
   m_currentlyEditedBox = -1;
 }
@@ -378,7 +378,7 @@ void MainWindow::editBoundingBox(int index)
     }
 
 //    bb->setClass();
-    ui->widget_BB_Information->updateInformation(bb);
+    ui->groupBox_BB_Information->updateInformation(bb);
 
     // update color from class
     auto col = m_classesManager.getClassColor(bb->getClass());
@@ -561,8 +561,8 @@ void MainWindow::selectBoundingBox(vtkActor *bbActor)
         }
       }
     }
-    this->ui->widget_BB_Information->updateAvailableInstanceIds(availableIds);
+    this->ui->groupBox_BB_Information->updateAvailableInstanceIds(availableIds);
 
-    this->ui->widget_BB_Information->updateInformation(m_boundingBoxManager.getBoundingBoxFromIndex(idx));
+    this->ui->groupBox_BB_Information->updateInformation(m_boundingBoxManager.getBoundingBoxFromIndex(idx));
   }
 }

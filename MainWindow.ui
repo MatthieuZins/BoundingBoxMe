@@ -87,20 +87,10 @@
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox_2">
+      <widget class="BoundingBoxInformation_ui" name="groupBox_BB_Information">
        <property name="title">
         <string>Bounding Box Information</string>
        </property>
-       <widget class="BoundingBoxInformation_ui" name="widget_BB_Information" native="true">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>30</y>
-          <width>201</width>
-          <height>151</height>
-         </rect>
-        </property>
-       </widget>
       </widget>
      </item>
      <item>
@@ -213,15 +203,15 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>BoundingBoxInformation_ui</class>
-   <extends>QWidget</extends>
-   <header>boundingBoxInformation_ui.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>DisplayManager_ui</class>
    <extends>QGroupBox</extends>
    <header>displayManager_ui.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>BoundingBoxInformation_ui</class>
+   <extends>QGroupBox</extends>
+   <header>boundingBoxInformation_ui.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

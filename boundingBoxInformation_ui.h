@@ -1,7 +1,7 @@
 #ifndef BOUNDINGBOXINFORMATION_UI_H
 #define BOUNDINGBOXINFORMATION_UI_H
 
-#include <QWidget>
+#include <QGroupBox>
 
 class BoundingBox;
 
@@ -9,7 +9,7 @@ namespace Ui {
 class BoundingBoxInformation_ui;
 }
 
-class BoundingBoxInformation_ui : public QWidget
+class BoundingBoxInformation_ui : public QGroupBox
 {
   Q_OBJECT
 
