@@ -17,8 +17,6 @@ DisplayManager_ui::DisplayManager_ui(QWidget *parent) :
 
   ui->horizontalSlider_Percentage->setMinimum(1);
   ui->horizontalSlider_Percentage->setMaximum(4);
-//  ui->horizontalSlider_Percentage->setTickPosition(QSlider::TicksBelow);
-//  ui->horizontalSlider_Percentage->setTickInterval(1);
   ui->horizontalSlider_Percentage->setValue(4);
 
   QObject::connect(ui->horizontalSlider_Percentage, SIGNAL(valueChanged(int)), this, SLOT(updateSkipMode(int)));

@@ -58,16 +58,6 @@ add_executable(BoundingBoxMe
     vtkBoundingBoxManipulatorWidget.h
     vtkEigenUtils.cxx
     vtkEigenUtils.h
-#    vtkTemporalTransformsReader.cxx
-#    vtkTemporalTransformsReader.h
-#    vtkTemporalTransforms.cxx
-#    vtkTemporalTransforms.h
-#    vtkCustomTransformInterpolator.cxx
-#    vtkCustomTransformInterpolator.h
-#    vtkConversions.cxx
-#    vtkConversions.h
-#    vtkEigenTools.cxx
-#    vtkEigenTools.h
 
     main.cxx
 )

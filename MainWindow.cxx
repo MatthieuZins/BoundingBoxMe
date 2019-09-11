@@ -94,12 +94,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
   vtkNew<vtkNamedColors> colors;
 
-//  m_boundingBoxManager.appendBoundingBox(0, "car", Eigen::Translation3d(1, 1, 0) * Eigen::Isometry3d::Identity(), Eigen::Vector3d::Ones(), 0);
-//  m_boundingBoxManager.appendBoundingBox(1, "car", Eigen::Translation3d(-1, -2, 0) * Eigen::Isometry3d::Identity(), Eigen::Vector3d::Ones(), 0);
 
   this->ui->qvtkWidget->SetRenderWindow(m_renderWindow);
 
-  m_renderer->SetBackground(colors->GetColor3d("#212e40").GetData());
+  vtkColor3ub col = colors->HTMLColorToRGB(m_backgroundColor);
+  m_renderer->SetBackground(static_cast<double>(col.GetRed()) / 255,
+                            static_cast<double>(col.GetGreen()) / 255,
+                            static_cast<double>(col.GetBlue()) / 255);
 
   this->ui->qvtkWidget->GetRenderWindow()->AddRenderer(m_renderer);
 
@@ -110,38 +111,6 @@ MainWindow::MainWindow(QWidget *parent) :
   m_axesWidget->SetEnabled(1);
   m_axesWidget->SetInteractive(0);
 
-//  auto reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
-//  reader->SetFileName("/home/matthieu/dev/CalibrationDepthPose/data/pc_0000.ply");
-//  reader->Update();
-
-
-
-
-//  for (int i = 0; i < NB; ++i)
-//  {
-//    reader->SetFileName(std::string("../data/frame_" + std::to_string(i) + ".vtp").c_str());
-//    reader->Update();
-//    m_lidarFramesManager.addFrame({i, reader->GetOutput()});
-//  }
-
-
-
-//  vtkSmartPointer<vtkCubeSource> sphereSource = vtkSmartPointer<vtkCubeSource>::New();
-//  sphereSource->Update();
-//  vtkSmartPointer<vtkPolyDataMapper> sphereMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-//  sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
-//  vtkSmartPointer<vtkActor> sphereActor = vtkSmartPointer<vtkActor>::New();
-//  sphereActor->SetMapper(sphereMapper);
-//  sphereActor->GetProperty()->SetColor(colors->GetColor4d("OrangeRed").GetData());
-//  sphereActor->GetProperty()->SetRepresentationToWireframe();
-//  m_renderer->AddActor(sphereActor);
-
-//  auto* boxWidget = vtkBoxWidget::New();
-//   boxWidget->SetInteractor( m_renderWindow->GetInteractor() );
-
-//   boxWidget->SetProp3D( sphereActor );
-//   boxWidget->SetPlaceFactor(1.0);
-//   boxWidget->PlaceWidget();
 
   auto callback = vtkSmartPointer<vtkMyCallback>::New();
   callback->setMainWindow(this);
@@ -149,17 +118,6 @@ MainWindow::MainWindow(QWidget *parent) :
   m_boxWidget->AddObserver(vtkCommand::InteractionEvent, callback);
   m_boxWidget->SetPlaceFactor(1.0);
   m_boxWidget->Off();
-
-
-//  auto pointPicker = vtkSmartPointer<vtkPointPicker>::New();
-//  auto style = vtkSmartPointer<MouseInteractorStylePP>::New();
-//  style->SetDefaultRenderer(m_renderer);
-//  ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style);
-
-//  auto style2 = vtkSmartPointer<MouseInteractorStyle2>::New();
-//  style2->SetDefaultRenderer(m_renderer);
-//  style2->setMainWindow(this);
-//  ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style2);
 
   auto style3 = vtkSmartPointer<KeyPressInteractorStyle>::New();
   style3->SetDefaultRenderer(m_renderer);
@@ -292,13 +250,11 @@ void MainWindow::displayLog(const QString& msg)
 void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vector3d& dimensions, BoundingBox::State state)
 {
   qInfo() << "Add Bounding Box";
-  const std::string& initialClass = "car"; // getDefaultClass from ui
+  const std::string& initialClass = ui->groupBox_BB_Information->getCurrentlySelectedClass(); // getDefaultClass from ui
   auto currentFrameInterval = m_timeStepsManager.getCurrentTimeInterval();
   auto instanceId = m_boundingBoxManager.findFirstUnusedInstanceId();
 
-  const BoundingBox* bb = m_boundingBoxManager.addBoundingBox(instanceId, initialClass, pose, dimensions, currentFrameInterval, state);
-
-//  bb->addPresenceInFrame( temp_transl * Eigen::Isometry3d::Identity() * Eigen::EulerAnglesXYZd(10, 20, 30), 0);
+  m_boundingBoxManager.addBoundingBox(instanceId, initialClass, pose, dimensions, currentFrameInterval, state);
 
   auto source = vtkSmartPointer<vtkCubeSource>::New();
   auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -311,6 +267,7 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
   actor->SetMapper(mapper);
   actor->SetUserMatrix(eigenIsometry3dToVtkMatrix4x4(pose));
   actor->GetProperty()->SetOpacity(m_boundingBoxOpacity);
+  actor->GetProperty()->SetAmbient(1.0);
   m_renderer->AddActor(actor);
 
   update();

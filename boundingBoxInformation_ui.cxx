@@ -93,7 +93,8 @@ void BoundingBoxInformation_ui::updateAvailableInstanceIds(const std::vector<uns
   ui->comboBox_BB_Id->addItems(l);
 }
 
-void BoundingBoxInformation_ui::unselectBoundingBox() {
+void BoundingBoxInformation_ui::unselectBoundingBox()
+{
   m_bb = nullptr;
   ui->comboBox_BB_Id->clear();
   ui->label_BB_Position->setText(QString());
@@ -101,6 +102,11 @@ void BoundingBoxInformation_ui::unselectBoundingBox() {
   ui->label_BB_Frames->setText(QString());
   ui->label_BB_Dimensions->setText(QString());
   ui->label_BB_State->setText(QString());
+}
+
+std::string BoundingBoxInformation_ui::getCurrentlySelectedClass()
+{
+  return ui->comboBox_BB_Class->currentText().toStdString();
 }
 
 void BoundingBoxInformation_ui::updateBoundingBoxClass(int index)

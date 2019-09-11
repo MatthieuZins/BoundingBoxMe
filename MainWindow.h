@@ -115,7 +115,10 @@ private:
   // 4 -> display all
   int m_skipFramesMode = 0;
 
+
+  // Cosmetic Parameters
   double m_boundingBoxOpacity = 0.5;
+  const std::string m_backgroundColor = "#202333";
 };
 
 

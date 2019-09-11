@@ -24,6 +24,8 @@ public:
 
   void unselectBoundingBox();
 
+  std::string getCurrentlySelectedClass();
+
 public slots:
   void updateBoundingBoxClass(int index);
   void updateBoundingBoxInstanceId(int index);
