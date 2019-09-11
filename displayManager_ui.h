@@ -31,11 +31,17 @@ public slots:
   void selectModeBoth();
   void selectModeOnlyStatic();
   void selectModeOnlyDynamic();
+  void updateSkipMode(int v);
+  void updateThreshold(int v);
 
 private:
   Ui::DisplayManager_ui *ui;
 
   DisplayMode m_displayMode = DisplayMode::BOTH;
+
+  std::vector<double> m_precentages = {0.25, 0.5, 0.75, 1.0};
+
+
 };
 
 #endif // DISPLAYMANAGER_UI_H

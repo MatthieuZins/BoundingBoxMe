@@ -178,13 +178,49 @@ void MainWindow::update()
   qDebug() << "interval = " << first_frame << " -> " << last_frame;
 
   // Display Lidar frames
+  // first clean all actors
   for (unsigned int i = 0; i < m_lidarFramesManager.getNbFrames(); ++i)
   {
-    if (i >= first_frame && i <= last_frame)
-      m_renderer->AddActor(m_pcActors[i]);
-    else
-      m_renderer->RemoveActor(m_pcActors[i]);
+    m_renderer->RemoveActor(m_pcActors[i]);
   }
+
+  // select skip mode
+  int skip_mode = 0;
+  if (last_frame - first_frame + 1 >= m_fastRenderingThreshold)
+  {
+    skip_mode = m_skipFramesMode;
+  }
+
+  if (skip_mode == 0 || skip_mode == 4)
+  {
+    for (int i = first_frame; i <= last_frame; ++i)
+    {
+      m_renderer->AddActor(m_pcActors[i]);
+    }
+  }
+  else if (skip_mode == 1 || skip_mode == 2)
+  {
+    int incr = (3 - skip_mode) * 2;
+    for (int i = first_frame; i <= last_frame; i += incr)
+    {
+      m_renderer->AddActor(m_pcActors[i]);
+    }
+  }
+  else if (skip_mode == 3)
+  {
+    for (int i = first_frame; i <= last_frame; ++i)
+    {
+      m_renderer->AddActor(m_pcActors[i]);
+    }
+
+    for (int i = first_frame; i <= last_frame; i += 4)
+    {
+      m_renderer->RemoveActor(m_pcActors[i]);
+    }
+  }
+  // Force to display the first and last frames
+  m_renderer->AddActor(m_pcActors[last_frame]);
+  m_renderer->AddActor(m_pcActors[first_frame]);
 
   // Display bounding boxes
   for (int i = 0; i < m_bbActors.size(); ++i)
@@ -431,7 +467,7 @@ void MainWindow::openLidarDataset()
       m_pcActors.emplace_back(actor);
       vertexFilter->SetInputData(pts);
       mapper->SetInputConnection(vertexFilter->GetOutputPort());
-      mapper->SelectColorArray("intensity");
+      mapper->SelectColorArray("intensity");    // TODO: check if exists
       mapper->ScalarVisibilityOn();
       actor->SetMapper(mapper);
       actor->GetProperty()->SetPointSize(2);
@@ -524,9 +560,5 @@ void MainWindow::selectBoundingBox(vtkActor *bbActor)
     this->ui->widget_BB_Information->updateAvailableInstanceIds(availableIds);
 
     this->ui->widget_BB_Information->updateInformation(m_boundingBoxManager.getBoundingBoxFromIndex(idx));
-  }
-  else
-  {
-    qWarning() << "Try to select a bounding box from an inexisting actor";
   }
 }

@@ -77,6 +77,9 @@ public:
   void updateBoundingBoxInstanceId(int index, unsigned int id);
 
 
+  void setFastRenderingThreshold(int th);
+  void setSkipFramesMode(int mode);
+
 public slots:
   void openLidarDataset();
   void loadBoundingBoxDataset();
@@ -101,6 +104,26 @@ private:
 
   int m_currentlyEditedBox = -1;
 
+  // Fast rendering parameters
+  int m_fastRenderingThreshold = 1500;    // fast rendering is enabled only if more frames
+                                          // than this value are tried to be displayed
+  // 0 -> display all
+  // 1 -> display 25% (1 out of 4)
+  // 2 -> display 50% (1 out of 2)
+  // 3 -> display 75% (3 out of 4)
+  // 4 -> display all
+  int m_skipFramesMode = 0;
 };
+
+
+inline void MainWindow::setFastRenderingThreshold(int th)
+{
+  m_fastRenderingThreshold = th;
+}
+
+inline void MainWindow::setSkipFramesMode(int mode)
+{
+  m_skipFramesMode = mode;
+}
 
 #endif // MAINWINDOW_H
