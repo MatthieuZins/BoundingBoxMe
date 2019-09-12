@@ -351,7 +351,7 @@ bool loadBBoxDataSet(const std::string &filename)
   for (auto it = bbMap.begin(); it != bbMap.end(); ++it)
   {
     listOfBBoxes.push_back(it->second);
-    listOfBBoxes.back()->setStoringId(listOfBBFilesAndTimes.size()-1);
+    listOfBBoxes.back()->setStoringId(listOfBBoxes.size()-1);
   }
   return true;
 }

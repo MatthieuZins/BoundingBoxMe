@@ -127,13 +127,13 @@ void BoundingBoxInformation_ui::updateBoundingBoxClass(int index)
 
 void BoundingBoxInformation_ui::updateBoundingBoxInstanceId(int index)
 {
-  const auto& classe = ui->comboBox_BB_Id->itemText(index);
+  const auto& instanceIdStr = ui->comboBox_BB_Id->itemText(index);
   if (m_bb)
   {
     auto *mainWindow = dynamic_cast<MainWindow*>(window());
     if (mainWindow)
     {
-      mainWindow->updateBoundingBoxInstanceId(m_bb->getStoringId(), classe.toUInt());
+      mainWindow->updateBoundingBoxInstanceId(m_bb->getStoringId(), instanceIdStr.toUInt());
     }
   }
 }
