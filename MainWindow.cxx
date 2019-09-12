@@ -488,6 +488,7 @@ void MainWindow::saveBoundingBoxDataset()
     filename.replace_extension("series");
     m_autoSaveOutputFile = filename.generic_string();
     m_autoSaveOn = true;
+    statusBar()->showMessage(QString::fromStdString("Auto save: " + m_autoSaveOutputFile));
     writeBBoxDataSet(m_autoSaveOutputFile);
   }
 }
@@ -496,7 +497,6 @@ void MainWindow::autoSaveBoundingBoxDataset()
 {
   if (m_autoSaveOn)
   {
-    statusBar()->showMessage(QString::fromStdString("Auto save: " + m_autoSaveOutputFile));
     writeBBoxDataSet(m_autoSaveOutputFile);
   }
 }

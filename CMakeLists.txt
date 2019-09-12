@@ -4,6 +4,13 @@ project(BoundingBoxMe LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
+
+# Find current commit hash
+include(${CMAKE_CURRENT_SOURCE_DIR}/git.cmake)
+determine_current_commit_hash(${CMAKE_CURRENT_SOURCE_DIR} ${GIT_EXECUTABLE})
+message("Current build commit hash is ${BUILD_COMMIT_HASH}")
+add_definitions(-DBUILD_COMMIT_HASH="${BUILD_COMMIT_HASH}")
+
 # Eigen
 find_package(Eigen3 REQUIRED)
 
@@ -62,6 +69,7 @@ add_executable(BoundingBoxMe
     vtkBoundingBoxSource.cxx
     main.cxx
 )
+
 target_include_directories(BoundingBoxMe SYSTEM PRIVATE
     ${VTK_INCLUDE_DIRS}
     ${YAML_CPP_INCLUDE_DIR}
@@ -74,3 +82,6 @@ target_link_libraries(BoundingBoxMe PRIVATE
   ${YAML_CPP_LIBRARIES}
   stdc++fs          # for std::filesystem
   )
+
+
+

@@ -25,6 +25,7 @@
 #include "lidarFrameManager.h"
 #include <unsupported/Eigen/EulerAngles>
 
+
 namespace
 {
 vtkDoubleArray* foundArray(vtkTable* table, std::vector<std::string> potentialName)
@@ -289,6 +290,7 @@ void writeBBoxDataSet(const std::string &filename)
 
   outputSeries["files"] = files;
   outputSeries["file-series-version"] = "1.0";
+  outputSeries["build_commit_hash"] = std::string(BUILD_COMMIT_HASH);    // this is filled by cmake
 
   std::ofstream outputFileSeries(filename);
   outputFileSeries << outputSeries;
