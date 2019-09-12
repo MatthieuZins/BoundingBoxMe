@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 #include <vtkGenericOpenGLRenderWindow.h>
+#include <vtkCamera.h>
 #include <vtkNamedColors.h>
 #include <vtkNew.h>
 #include <vtkActor.h>
@@ -83,6 +84,8 @@ public:
   void setFastRenderingThreshold(int th);
   void setSkipFramesMode(int mode);
 
+  void setFocalPoint(double pt[3]);
+
 public slots:
   void openLidarDataset();
   void loadBoundingBoxDataset();
@@ -158,6 +161,14 @@ inline void MainWindow::setFastRenderingThreshold(int th)
 inline void MainWindow::setSkipFramesMode(int mode)
 {
   m_skipFramesMode = mode;
+}
+
+inline void MainWindow::setFocalPoint(double pt[])
+{
+  m_renderer->GetActiveCamera()->SetFocalPoint(pt);
+  m_renderer2->GetActiveCamera()->SetFocalPoint(pt);
+  m_renderer3->GetActiveCamera()->SetFocalPoint(pt);
+  m_renderer4->GetActiveCamera()->SetFocalPoint(pt);
 }
 
 

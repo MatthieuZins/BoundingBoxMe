@@ -104,8 +104,7 @@ void KeyPressInteractorStyle::OnLeftButtonDown()
                                         this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer());
     double picked[3];
     this->Interactor->GetPicker()->GetPickPosition(picked);
-    vtkCamera* camera = this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->GetActiveCamera();
-    camera->SetFocalPoint(picked);
+    m_mainWindowPtr->setFocalPoint(picked);
   }
 
 
