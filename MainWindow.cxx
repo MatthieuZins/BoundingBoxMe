@@ -268,7 +268,7 @@ MainWindow::MainWindow(QWidget *parent) :
   cam2->SetFocalPoint(0.0, 0.0, 0.0);
   cam2->SetViewUp(0.0, 0.0, 1.0);
   cam2->SetParallelProjection(true);
-
+  cam2->SetParallelScale(10.0);
 
   // Renderer 3
   m_renderWindow->AddRenderer(m_renderer3);
@@ -288,6 +288,7 @@ MainWindow::MainWindow(QWidget *parent) :
   cam3->SetFocalPoint(0.0, 0.0, 0.0);
   cam3->SetViewUp(0.0, 1.0, 0.0);
   cam3->SetParallelProjection(true);
+  cam3->SetParallelScale(20.0);
 
   // Renderer 4
   m_renderWindow->AddRenderer(m_renderer4);
@@ -307,6 +308,7 @@ MainWindow::MainWindow(QWidget *parent) :
   cam4->SetFocalPoint(0.0, 0.0, 0.0);
   cam4->SetViewUp(0.0, 0.0, 1.0);
   cam4->SetParallelProjection(true);
+  cam4->SetParallelScale(10.0);
 
   // call back to change style interaction according to the renderer
   auto callback2 = vtkSmartPointer<vtkVolumeInteractionCallback>::New();
