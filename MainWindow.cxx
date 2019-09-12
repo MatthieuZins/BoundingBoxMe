@@ -3,6 +3,7 @@
 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkNamedColors.h>
+#include <vtkCamera.h>
 #include <vtkNew.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkPointPicker.h>
@@ -133,6 +134,9 @@ MainWindow::MainWindow(QWidget *parent) :
   style3->SetDefaultRenderer(m_renderer);
   style3->setMainWindow(this);
   ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style3);
+
+  vtkCamera *camera = m_renderer->GetActiveCamera();
+  camera->SetPosition(0.0, 0.0, 40.0);
 }
 
 MainWindow::~MainWindow()
