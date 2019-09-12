@@ -33,6 +33,7 @@
 #include "keyPressInteractorStyle.h"
 #include "vtkEigenUtils.h"
 #include "datasetHelper.h"
+#include "vtkBoundingBoxSource.h"
 
 class vtkMyCallback : public vtkCommand
 {
@@ -257,7 +258,7 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
 
   m_boundingBoxManager.addBoundingBox(instanceId, initialClass, pose, dimensions, currentFrameInterval, state);
 
-  auto source = vtkSmartPointer<vtkCubeSource>::New();
+  auto source = vtkSmartPointer<vtkBoundingBoxSource>::New();
   auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   auto actor = vtkSmartPointer<vtkActor>::New();
   m_bbSources.emplace_back(source);
@@ -454,7 +455,7 @@ void MainWindow::loadBoundingBoxDataset()
 
     for (auto bbPtr : BBoxes)
     {
-      auto source = vtkSmartPointer<vtkCubeSource>::New();
+      auto source = vtkSmartPointer<vtkBoundingBoxSource>::New();
       auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
       auto actor = vtkSmartPointer<vtkActor>::New();
       m_bbSources.emplace_back(source);

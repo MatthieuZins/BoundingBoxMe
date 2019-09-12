@@ -58,7 +58,8 @@ add_executable(BoundingBoxMe
     vtkBoundingBoxManipulatorWidget.h
     vtkEigenUtils.cxx
     vtkEigenUtils.h
-
+    vtkBoundingBoxSource.h
+    vtkBoundingBoxSource.cxx
     main.cxx
 )
 target_include_directories(BoundingBoxMe SYSTEM PRIVATE
