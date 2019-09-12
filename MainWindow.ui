@@ -39,7 +39,7 @@
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
-    <addaction name="actionReload"/>
+    <addaction name="actionRestart"/>
     <addaction name="actionQuit"/>
    </widget>
    <addaction name="menuFile"/>
@@ -57,6 +57,7 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="actionOpenBBox"/>
+   <addaction name="actionRestart"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="enabled">
@@ -238,13 +239,16 @@
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save Bounding Box Dataset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
-  <action name="actionReload">
+  <action name="actionRestart">
    <property name="icon">
     <iconset resource="assets/resources.qrc">
      <normaloff>:/icon/redo-alt-solid.svg</normaloff>:/icon/redo-alt-solid.svg</iconset>
    </property>
    <property name="text">
-    <string>Reload</string>
+    <string>Restart</string>
+   </property>
+   <property name="toolTip">
+    <string>Restart</string>
    </property>
   </action>
   <action name="actionQuit">

@@ -94,6 +94,7 @@ MainWindow::MainWindow(QWidget *parent) :
   QObject::connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openLidarDataset()));
   QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveBoundingBoxDataset()));
   QObject::connect(ui->actionOpenBBox, SIGNAL(triggered()), this, SLOT(loadBoundingBoxDataset()));
+  QObject::connect(ui->actionRestart, SIGNAL(triggered()), this, SLOT(restart()));
 
 
   /// Setup the time for AutoSave
@@ -506,24 +507,49 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
   if (m_boundingBoxManager.getBoundingBoxes().size() > 0)
   {
-    QMessageBox::StandardButton resBtn =
-    QMessageBox::warning(this, "Warning",tr("Some of your work might no be saved. Are you sure to quit ?\n"),
-    QMessageBox::Yes | QMessageBox::Save| QMessageBox::Cancel,
-    QMessageBox::Yes);
-    if (resBtn == QMessageBox::Save)
+    QMessageBox::StandardButton ret = QMessageBox::warning(this, "Warning",
+                 tr("Some of your work might no be saved. Are you sure to quit ?\n"),
+                 QMessageBox::Yes | QMessageBox::Save| QMessageBox::Cancel,
+                 QMessageBox::Yes);
+    if (ret == QMessageBox::Save)
     {
-        event->ignore();
         saveBoundingBoxDataset();
+        event->accept();
     }
-    else if (resBtn == QMessageBox::Cancel)
+    else if (ret == QMessageBox::Cancel)
     {
       event->ignore();
     }
     else
     {
-        event->accept();
+      event->accept();
     }
   }
+}
+
+void MainWindow::restart()
+{
+  if (m_boundingBoxManager.getBoundingBoxes().size() > 0)
+  {
+    QMessageBox::StandardButton ret = QMessageBox::warning(this, "Warning",
+                 tr("Some of your work might no be saved. Are you sure to restart ?\n"),
+                 QMessageBox::Yes | QMessageBox::Save| QMessageBox::Cancel,
+                 QMessageBox::Yes);
+    if (ret == QMessageBox::Save)
+    {
+        saveBoundingBoxDataset();
+    }
+    else if (ret == QMessageBox::Cancel)
+    {
+      return;
+    }
+  }
+  // Need to force the singletons to release
+  BoundingBoxManager::releaseInstance();
+  ClassesManager::releaseInstance();
+  LidarFrameManager::releaseInstance();
+  TimeStepsManager::releaseInstance();
+  QApplication::exit(RESTART_CODE);
 }
 
 

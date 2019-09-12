@@ -10,6 +10,12 @@ LidarFrameManager& LidarFrameManager::getInstance() {
   return *m_instance;
 }
 
+void LidarFrameManager::releaseInstance()
+{
+  if (m_instance)
+    m_instance.reset();
+}
+
 void LidarFrameManager::addFrame(const LidarFrame &frame)
 {
   m_frames.emplace_back(frame);

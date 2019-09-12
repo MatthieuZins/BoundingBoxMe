@@ -9,14 +9,18 @@ MainWindow* mainWindowPtr = nullptr;
 
 int main(int argc, char *argv[])
 {
-  QApplication a(argc, argv);
-  qInstallMessageHandler(messageHandler);
+  int exitCode = RESTART_CODE;
+  while (exitCode == RESTART_CODE)
+  {
+    QApplication a(argc, argv);
+    qInstallMessageHandler(messageHandler);
+    MainWindow w;
+    mainWindowPtr = &w;
+    w.initialize();
 
-  MainWindow w;
-  mainWindowPtr = &w;
-  w.initialize();
+    w.show();
 
-  w.show();
-
-  return a.exec();
+    exitCode = a.exec();
+  }
+  return exitCode;
 }

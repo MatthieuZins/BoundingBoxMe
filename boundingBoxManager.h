@@ -11,6 +11,7 @@ class BoundingBoxManager
 
 public:
   static BoundingBoxManager& getInstance();
+  static void releaseInstance();
   ~BoundingBoxManager() = default;
 
 

@@ -15,6 +15,12 @@ BoundingBoxManager& BoundingBoxManager::getInstance()
   return *m_instance;
 }
 
+void BoundingBoxManager::releaseInstance()
+{
+  if (m_instance)
+    m_instance.reset();
+}
+
 
 /// This function try to add a new bounding box
 /// if the instance id is already existing, then we add the pose and the frames interval

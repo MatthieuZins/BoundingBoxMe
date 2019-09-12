@@ -15,6 +15,12 @@ TimeStepsManager &TimeStepsManager::getInstance(size_t size)
   return *m_instance;
 }
 
+void TimeStepsManager::releaseInstance()
+{
+  if (m_instance)
+    m_instance.reset();
+}
+
 void TimeStepsManager::setModeAll()
 {
   m_first = 0;

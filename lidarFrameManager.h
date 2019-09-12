@@ -8,6 +8,7 @@ class LidarFrameManager
 
 public:
   static LidarFrameManager& getInstance();
+  static void releaseInstance();
   ~LidarFrameManager() = default;
 
   void addFrame(const LidarFrame& frame);

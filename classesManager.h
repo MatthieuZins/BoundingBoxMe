@@ -39,6 +39,7 @@ class ClassesManager
 
 public:
   static ClassesManager& getInstance();
+  static void releaseInstance();
   ~ClassesManager() = default;
 
   bool loadFromYaml(const std::string& filename);

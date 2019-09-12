@@ -18,6 +18,12 @@ ClassesManager& ClassesManager::getInstance()
   return *m_instance;
 }
 
+void ClassesManager::releaseInstance()
+{
+  if (m_instance)
+    m_instance.reset();
+}
+
 bool ClassesManager::loadFromYaml(const std::string &filename)
 {
   try

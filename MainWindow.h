@@ -27,6 +27,8 @@
 #include "boundingBoxManager.h"
 #include "vtkBoundingBoxManipulatorWidget.h"
 
+#define RESTART_CODE 3
+
 namespace Ui {
   class MainWindow;
 }
@@ -89,6 +91,9 @@ public slots:
 
   // Override closeEvent to offer a last chance of saving the work
   void closeEvent(QCloseEvent *event) override;
+
+  // Restart application
+  void restart();
 
 private:
   Ui::MainWindow *ui;

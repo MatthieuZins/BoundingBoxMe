@@ -8,6 +8,7 @@ class TimeStepsManager
 
 public:
   static TimeStepsManager& getInstance(size_t size=0);
+  static void releaseInstance();
   ~TimeStepsManager() = default;
 
   void initializeSize(size_t size);
