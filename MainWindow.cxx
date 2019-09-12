@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
+#include <vtkRenderWindowInteractor.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkNamedColors.h>
 #include <vtkCamera.h>

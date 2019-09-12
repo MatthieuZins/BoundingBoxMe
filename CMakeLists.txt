@@ -21,7 +21,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # VTK dependancy
-find_package(VTK REQUIRED)
+find_package(VTK 8.1.1 REQUIRED)
 include(${VTK_USE_FILE})
 
 # YAML-cpp
