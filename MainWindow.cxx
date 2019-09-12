@@ -171,7 +171,8 @@ void MainWindow::update()
   {
     for (int i = first_frame; i <= last_frame; ++i)
     {
-      m_renderer->AddActor(m_pcActors[i]);
+      if (i >= 0 && i < m_pcActors.size())
+        m_renderer->AddActor(m_pcActors[i]);
     }
   }
   else if (skip_mode == 1 || skip_mode == 2)
@@ -179,24 +180,29 @@ void MainWindow::update()
     int incr = (3 - skip_mode) * 2;
     for (int i = first_frame; i <= last_frame; i += incr)
     {
-      m_renderer->AddActor(m_pcActors[i]);
+      if (i >= 0 && i < m_pcActors.size())
+        m_renderer->AddActor(m_pcActors[i]);
     }
   }
   else if (skip_mode == 3)
   {
     for (int i = first_frame; i <= last_frame; ++i)
     {
-      m_renderer->AddActor(m_pcActors[i]);
+      if (i >= 0 && i < m_pcActors.size())
+        m_renderer->AddActor(m_pcActors[i]);
     }
 
     for (int i = first_frame; i <= last_frame; i += 4)
     {
-      m_renderer->RemoveActor(m_pcActors[i]);
+      if (i >= 0 && i < m_pcActors.size())
+        m_renderer->RemoveActor(m_pcActors[i]);
     }
   }
   // Force to display the first and last frames
-  m_renderer->AddActor(m_pcActors[last_frame]);
-  m_renderer->AddActor(m_pcActors[first_frame]);
+  if (last_frame >= 0 && last_frame < m_pcActors.size())
+    m_renderer->AddActor(m_pcActors[last_frame]);
+  if (first_frame >= 0 && first_frame < m_pcActors.size())
+    m_renderer->AddActor(m_pcActors[first_frame]);
 
   // Display bounding boxes
   for (int i = 0; i < m_bbActors.size(); ++i)
@@ -411,74 +417,86 @@ void MainWindow::openLidarDataset()
   auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
 //  QString fileName("/home/matthieu/dev/BoundingBoxMe/small_dataset/frame.vtp.series");
 
-  if (loadLidarDataSet(fileName.toStdString()))
+  if (fileName.size() > 0)
   {
-    m_timeStepsManager.initializeSize(m_lidarFramesManager.getNbFrames());
-    m_timeStepsManager.setModeSingle(0);
-
-    // Update vtk stuff
-    auto pointsToRender = m_lidarFramesManager.getFramesPoints();
-
-    auto lookupTable = vtkSmartPointer<vtkColorTransferFunction>::New();
-    lookupTable->SetColorSpaceToDiverging();
-    lookupTable->AddRGBPoint(0, 0.23137254902000001, 0.298039215686, 0.75294117647100001);
-    lookupTable->AddRGBPoint(127, 0.86499999999999999, 0.86499999999999999, 0.86499999999999999);
-    lookupTable->AddRGBPoint(255, 0.70588235294099999, 0.015686274509800001, 0.149019607843);
-    lookupTable->Build();
-
-
-    for (auto* pts : pointsToRender)
+    if (loadLidarDataSet(fileName.toStdString()))
     {
-      auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-      mapper->SetLookupTable(lookupTable);
-      mapper->SetScalarModeToUsePointFieldData();
-      mapper->SetColorModeToMapScalars();
-      mapper->SetUseLookupTableScalarRange(1);
-      auto vertexFilter = vtkSmartPointer<vtkVertexGlyphFilter>::New();
-      auto actor = vtkSmartPointer<vtkActor>::New();
-      m_pcMappers.emplace_back(mapper);
-      m_pcVertexGlyphFilters.emplace_back(vertexFilter);
-      m_pcActors.emplace_back(actor);
-      vertexFilter->SetInputData(pts);
-      mapper->SetInputConnection(vertexFilter->GetOutputPort());
-      mapper->SelectColorArray("intensity");    // TODO: check if exists
-      mapper->ScalarVisibilityOn();
-      actor->SetMapper(mapper);
-      actor->GetProperty()->SetPointSize(2);
-    }
+      m_timeStepsManager.initializeSize(m_lidarFramesManager.getNbFrames());
+      m_timeStepsManager.setModeSingle(0);
 
-    ui->groupBox_TimeSteps_Manager->updateTimeStepsBounds(0, m_lidarFramesManager.getNbFrames());
-    update();
+      // Update vtk stuff
+      auto pointsToRender = m_lidarFramesManager.getFramesPoints();
+
+      auto lookupTable = vtkSmartPointer<vtkColorTransferFunction>::New();
+      lookupTable->SetColorSpaceToDiverging();
+      lookupTable->AddRGBPoint(0, 0.23137254902000001, 0.298039215686, 0.75294117647100001);
+      lookupTable->AddRGBPoint(127, 0.86499999999999999, 0.86499999999999999, 0.86499999999999999);
+      lookupTable->AddRGBPoint(255, 0.70588235294099999, 0.015686274509800001, 0.149019607843);
+      lookupTable->Build();
+
+
+      for (auto* pts : pointsToRender)
+      {
+        auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+        mapper->SetLookupTable(lookupTable);
+        mapper->SetScalarModeToUsePointFieldData();
+        mapper->SetColorModeToMapScalars();
+        mapper->SetUseLookupTableScalarRange(1);
+        auto vertexFilter = vtkSmartPointer<vtkVertexGlyphFilter>::New();
+        auto actor = vtkSmartPointer<vtkActor>::New();
+        m_pcMappers.emplace_back(mapper);
+        m_pcVertexGlyphFilters.emplace_back(vertexFilter);
+        m_pcActors.emplace_back(actor);
+        vertexFilter->SetInputData(pts);
+        mapper->SetInputConnection(vertexFilter->GetOutputPort());
+        mapper->SelectColorArray("intensity");    // TODO: check if exists
+        mapper->ScalarVisibilityOn();
+        actor->SetMapper(mapper);
+        actor->GetProperty()->SetPointSize(2);
+      }
+
+      ui->groupBox_TimeSteps_Manager->updateTimeStepsBounds(0, m_lidarFramesManager.getNbFrames());
+      update();
+      ui->actionOpen->setDisabled(true);
+    }
   }
 }
 
 void MainWindow::loadBoundingBoxDataset()
 {
+  if (ui->actionOpen->isEnabled())
+  {
+    qWarning() << "You need to load the the lidar dataset first\n";
+    return;
+  }
   auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
 //  QString fileName("/home/matthieu/dev/BoundingBoxMe/build/test/bb.series");
-
-  if (loadBBoxDataSet(fileName.toStdString()))
+  if (fileName.size() > 0)
   {
-    // create the corresponding actors (one per BBox)
-    const auto& BBoxes = m_boundingBoxManager.getBoundingBoxes();
-
-    for (auto bbPtr : BBoxes)
+    if (loadBBoxDataSet(fileName.toStdString()))
     {
-      auto source = vtkSmartPointer<vtkBoundingBoxSource>::New();
-      auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-      auto actor = vtkSmartPointer<vtkActor>::New();
-      m_bbSources.emplace_back(source);
-      m_bbMappers.emplace_back(mapper);
-      m_bbActors.emplace_back(actor);
+      // create the corresponding actors (one per BBox)
+      const auto& BBoxes = m_boundingBoxManager.getBoundingBoxes();
 
-      mapper->SetInputConnection(source->GetOutputPort());
-      actor->SetMapper(mapper);
-      actor->GetProperty()->SetOpacity(m_boundingBoxOpacity);
-      actor->GetProperty()->SetAmbient(1.0);
-      m_renderer->AddActor(actor);
+      for (auto bbPtr : BBoxes)
+      {
+        auto source = vtkSmartPointer<vtkBoundingBoxSource>::New();
+        auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+        auto actor = vtkSmartPointer<vtkActor>::New();
+        m_bbSources.emplace_back(source);
+        m_bbMappers.emplace_back(mapper);
+        m_bbActors.emplace_back(actor);
+
+        mapper->SetInputConnection(source->GetOutputPort());
+        actor->SetMapper(mapper);
+        actor->GetProperty()->SetOpacity(m_boundingBoxOpacity);
+        actor->GetProperty()->SetAmbient(1.0);
+        m_renderer->AddActor(actor);
+      }
+      ui->actionOpenBBox->setDisabled(true);
+      update();
     }
   }
-  update();
 }
 
 void MainWindow::saveBoundingBoxDataset()
