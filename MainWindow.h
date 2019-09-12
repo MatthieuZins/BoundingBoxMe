@@ -95,6 +95,10 @@ public slots:
   // Restart application
   void restart();
 
+  // Clear logger
+  void clearLogger();
+
+
 private:
   Ui::MainWindow *ui;
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;

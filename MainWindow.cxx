@@ -97,6 +97,7 @@ MainWindow::MainWindow(QWidget *parent) :
   QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveBoundingBoxDataset()));
   QObject::connect(ui->actionOpenBBox, SIGNAL(triggered()), this, SLOT(loadBoundingBoxDataset()));
   QObject::connect(ui->actionRestart, SIGNAL(triggered()), this, SLOT(restart()));
+  QObject::connect(ui->pushButton_Clear_Logger, SIGNAL(clicked(bool)), this, SLOT(clearLogger()));
 
 
   /// Setup the time for AutoSave
@@ -326,7 +327,6 @@ void MainWindow::disableBoxWidget()
 
 void MainWindow::editBoundingBox(int index)
 {
-  std::cout << "EDIT BBOox" << std::endl;
   if (index >= 0)
   {
     auto *bb = m_boundingBoxManager.getBoundingBoxFromIndex(index);
@@ -421,6 +421,8 @@ void MainWindow::openLidarDataset()
   {
     if (loadLidarDataSet(fileName.toStdString()))
     {
+      qInfo() << "Successfully loaded Lidar dataset:\t\t" << fileName;
+
       m_timeStepsManager.initializeSize(m_lidarFramesManager.getNbFrames());
       m_timeStepsManager.setModeSingle(0);
 
@@ -475,6 +477,7 @@ void MainWindow::loadBoundingBoxDataset()
   {
     if (loadBBoxDataSet(fileName.toStdString()))
     {
+      qInfo() << "Successfully loaded BBox dataset:\t\t" << fileName;
       // create the corresponding actors (one per BBox)
       const auto& BBoxes = m_boundingBoxManager.getBoundingBoxes();
 
@@ -509,8 +512,9 @@ void MainWindow::saveBoundingBoxDataset()
     filename.replace_extension("series");
     m_autoSaveOutputFile = filename.generic_string();
     m_autoSaveOn = true;
-    statusBar()->showMessage(QString::fromStdString("Auto save: " + m_autoSaveOutputFile));
     writeBBoxDataSet(m_autoSaveOutputFile);
+    statusBar()->showMessage(QString::fromStdString("Auto save: " + m_autoSaveOutputFile));
+    qInfo() << "Successfully saved BBox dataset:\t\t" << QString::fromStdString(m_autoSaveOutputFile);
   }
 }
 
@@ -569,6 +573,11 @@ void MainWindow::restart()
   LidarFrameManager::releaseInstance();
   TimeStepsManager::releaseInstance();
   QApplication::exit(RESTART_CODE);
+}
+
+void MainWindow::clearLogger()
+{
+  ui->textBrowser_logger->clear();
 }
 
 

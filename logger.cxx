@@ -33,6 +33,10 @@ void messageHandler(QtMsgType type, const QMessageLogContext &context, const QSt
   out.append(msg);
   out.append("</span>");
 
+  // Filter out some types of messages
+  if (type == QtDebugMsg)
+    return;
+
   if (mainWindowPtr)
     mainWindowPtr->displayLog(out);
 }

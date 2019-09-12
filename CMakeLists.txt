@@ -85,3 +85,9 @@ target_link_libraries(BoundingBoxMe PRIVATE
 
 
 
+#install(
+#  TARGET BoundingBoxMe
+#  EXPORT MyPackTargets
+#  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#  )
+

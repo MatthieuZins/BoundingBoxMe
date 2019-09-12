@@ -161,7 +161,7 @@
    <property name="minimumSize">
     <size>
      <width>200</width>
-     <height>100</height>
+     <height>131</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -169,6 +169,9 @@
      <width>524287</width>
      <height>524287</height>
     </size>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
    </property>
    <property name="floating">
     <bool>false</bool>
@@ -188,6 +191,22 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignRight">
+      <widget class="QPushButton" name="pushButton_Clear_Logger">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>Clear</string>
        </property>
       </widget>
      </item>
