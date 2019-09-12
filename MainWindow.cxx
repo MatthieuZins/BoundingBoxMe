@@ -249,7 +249,6 @@ MainWindow::MainWindow(QWidget *parent) :
   // Renderer 2
   auto style2d = vtkSmartPointer<vtkInteractorStyleImage>::New();
   style2d->SetDefaultRenderer(m_renderer2);
-//  style4->setMainWindow(this);
 
   m_renderWindow->AddRenderer(m_renderer2);
   m_renderer2->SetUseDepthPeeling(true);
@@ -317,6 +316,11 @@ MainWindow::MainWindow(QWidget *parent) :
   callback2->setRenderers(m_renderer, m_renderer2, m_renderer3, m_renderer4);
   callback2->SetVolumeInteractorStyle(style3d);
   ui->qvtkWidget->GetInteractor()->AddObserver(vtkCommand::MouseMoveEvent, callback2);
+
+
+  QPixmap pm("../0000000000.png");
+  ui->label_Frame->setScaledContents(true);
+  ui->label_Frame->setPixmap(pm.scaledToWidth(300, Qt::SmoothTransformation));
 }
 
 MainWindow::~MainWindow()
