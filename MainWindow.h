@@ -102,9 +102,8 @@ public slots:
 private:
   Ui::MainWindow *ui;
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;
-  vtkSmartPointer<vtkRenderer> m_renderer;
-  vtkSmartPointer<vtkAxesActor> m_axes;
-  vtkSmartPointer<vtkOrientationMarkerWidget> m_axesWidget;
+  vtkSmartPointer<vtkRenderer> m_renderer, m_renderer2, m_renderer3, m_renderer4;
+  vtkSmartPointer<vtkOrientationMarkerWidget> m_axesWidget, m_axesWidget2, m_axesWidget3, m_axesWidget4;
 
   std::vector<vtkSmartPointer<vtkPolyDataMapper>> m_pcMappers;
   std::vector<vtkSmartPointer<vtkActor>> m_pcActors;
@@ -132,12 +131,22 @@ private:
   // Cosmetic Parameters
   double m_boundingBoxOpacity = 0.5;
   const std::string m_backgroundColor = "#202333";
+  const std::string m_backgroundColorSideViews = "#182030";
+
+  double m_sideViewerHeight = 0.4;
 
   // Auto saving Parameters
   std::string m_autoSaveOutputFile = "";
   int m_autoSaveFreq_msec = 120000;       // 3 minutes
   bool m_autoSaveOn = false;
   std::unique_ptr<QTimer> m_autoSaveTimer = nullptr;
+
+
+  /// Helper functions to safely add/remove an actor of a pointcloud/BBox actor in all the renderers
+  void safeAddLidarActor(int index);
+  void safeAddBBoxActor(int index);
+  void safeRemoveLidarActor(int index);
+  void safeRemoveBBoxActor(int index);
 };
 
 
@@ -149,6 +158,51 @@ inline void MainWindow::setFastRenderingThreshold(int th)
 inline void MainWindow::setSkipFramesMode(int mode)
 {
   m_skipFramesMode = mode;
+}
+
+
+inline void MainWindow::safeAddLidarActor(int index)
+{
+  if (index >= 0 && index < m_pcActors.size())
+  {
+    m_renderer->AddActor(m_pcActors[index]);
+    m_renderer2->AddActor(m_pcActors[index]);
+    m_renderer3->AddActor(m_pcActors[index]);
+    m_renderer4->AddActor(m_pcActors[index]);
+  }
+}
+
+inline void MainWindow::safeAddBBoxActor(int index)
+{
+  if (index >= 0 && index < m_bbActors.size())
+  {
+    m_renderer->AddActor(m_bbActors[index]);
+    m_renderer2->AddActor(m_bbActors[index]);
+    m_renderer3->AddActor(m_bbActors[index]);
+    m_renderer4->AddActor(m_bbActors[index]);
+  }
+}
+
+inline void MainWindow::safeRemoveLidarActor(int index)
+{
+  if (index >= 0 && index < m_pcActors.size())
+  {
+    m_renderer->RemoveActor(m_pcActors[index]);
+    m_renderer2->RemoveActor(m_pcActors[index]);
+    m_renderer3->RemoveActor(m_pcActors[index]);
+    m_renderer4->RemoveActor(m_pcActors[index]);
+  }
+}
+
+inline void MainWindow::safeRemoveBBoxActor(int index)
+{
+  if (index >= 0 && index < m_bbActors.size())
+  {
+    m_renderer->RemoveActor(m_bbActors[index]);
+    m_renderer2->RemoveActor(m_bbActors[index]);
+    m_renderer3->RemoveActor(m_bbActors[index]);
+    m_renderer4->RemoveActor(m_bbActors[index]);
+  }
 }
 
 #endif // MAINWINDOW_H

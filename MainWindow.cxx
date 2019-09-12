@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
+#include <vtkInteractorStyleImage.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkNamedColors.h>
@@ -37,6 +38,103 @@
 #include "vtkEigenUtils.h"
 #include "datasetHelper.h"
 #include "vtkBoundingBoxSource.h"
+
+
+
+
+//Callback for automatic change of interaction styles
+class vtkVolumeInteractionCallback : public vtkCommand
+{
+public:
+
+  static vtkVolumeInteractionCallback *New() {
+    return new vtkVolumeInteractionCallback;
+  }
+
+
+  void SetInteractor(vtkRenderWindowInteractor *interactor) {
+    this->Interactor = interactor;
+  }
+
+  vtkRenderWindowInteractor *GetInteractor() {
+    return this->Interactor;
+  }
+
+  void SetVolumeInteractorStyle(vtkSmartPointer<KeyPressInteractorStyle> m) {
+    this-> style3d = m;
+  }
+
+  void SetImageInteractorStyle( vtkSmartPointer<vtkInteractorStyleImage> m) {
+    this->style2d = m;
+  }
+
+  void setRenderers(vtkRenderer* renderer3d, vtkRenderer* renderer2d_2,
+                    vtkRenderer* renderer2d_3,vtkRenderer* renderer2d_4){
+    m_renderer3d = renderer3d;
+    m_renderer2d_2 = renderer2d_2;
+    m_renderer2d_3 = renderer2d_3;
+    m_renderer2d_4 = renderer2d_4;
+  }
+
+  virtual void Execute(vtkObject *, unsigned long event, void *)
+  {
+    vtkRenderWindowInteractor *interactor = this->GetInteractor();
+
+    int lastPos[2];
+    interactor->GetLastEventPosition(lastPos);
+    int currPos[2];
+    interactor->GetEventPosition(currPos);
+    double port[4];
+
+
+    if (event == vtkCommand::MouseMoveEvent)
+    {
+       vtkRenderer *renderer = interactor->FindPokedRenderer(currPos[0], currPos[1]);
+      if (renderer == m_renderer3d)
+      {
+        interactor->SetInteractorStyle(style3d);
+      }
+      else if (renderer == m_renderer2d_2)
+      {
+        interactor->SetInteractorStyle(style2d);
+        style2d->SetDefaultRenderer(renderer);
+      }
+      else if (renderer == m_renderer2d_3)
+      {
+        interactor->SetInteractorStyle(style2d);
+        style2d->SetDefaultRenderer(renderer);
+      }
+      else if (renderer == m_renderer2d_4)
+      {
+        interactor->SetInteractorStyle(style2d);
+        style2d->SetDefaultRenderer(renderer);
+      }
+
+      vtkInteractorStyle *style = vtkInteractorStyle::SafeDownCast(interactor->GetInteractorStyle());
+      if (style)
+      {
+        style->OnMouseMove();
+      }
+    }
+  }
+
+private:
+  vtkVolumeInteractionCallback() = default;
+
+  // Pointer to the interactor
+  vtkRenderWindowInteractor *Interactor = nullptr;
+  //pointer to interactor volume style
+  vtkSmartPointer<KeyPressInteractorStyle> style3d = nullptr;
+  //pointer to interactor image style
+  vtkSmartPointer<vtkInteractorStyleImage> style2d = nullptr;
+ //pointer to image renderer
+  vtkRenderer *m_renderer3d = nullptr;
+  vtkRenderer *m_renderer2d_2 = nullptr;
+  vtkRenderer *m_renderer2d_3 = nullptr;
+  vtkRenderer *m_renderer2d_4 = nullptr;
+};
+
+
 
 class vtkMyCallback : public vtkCommand
 {
@@ -83,8 +181,13 @@ MainWindow::MainWindow(QWidget *parent) :
   m_boundingBoxManager(BoundingBoxManager::getInstance()),
   m_renderWindow(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New()),
   m_renderer(vtkSmartPointer<vtkRenderer>::New()),
-  m_axes(vtkSmartPointer<vtkAxesActor>::New()),
+  m_renderer2(vtkSmartPointer<vtkRenderer>::New()),
+  m_renderer3(vtkSmartPointer<vtkRenderer>::New()),
+  m_renderer4(vtkSmartPointer<vtkRenderer>::New()),
   m_axesWidget(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
+  m_axesWidget2(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
+  m_axesWidget3(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
+  m_axesWidget4(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
   m_boxWidget(vtkSmartPointer<vtkBoundingBoxManipulatorWidget>::New()),
   ui(new Ui::MainWindow)
 {
@@ -106,24 +209,27 @@ MainWindow::MainWindow(QWidget *parent) :
   m_autoSaveTimer->start(m_autoSaveFreq_msec);
 
 
-  vtkNew<vtkNamedColors> colors;
   this->ui->qvtkWidget->SetRenderWindow(m_renderWindow);
 
-  vtkColor3ub col = colors->HTMLColorToRGB(m_backgroundColor);
+  vtkNew<vtkNamedColors> colors;
+  vtkColor3ub colBackground = colors->HTMLColorToRGB(m_backgroundColor);
+  vtkColor3ub colSideViews = colors->HTMLColorToRGB(m_backgroundColorSideViews);
+
+
+  // Main Renderer
   m_renderer->SetUseDepthPeeling(true);
-  m_renderer->SetBackground(static_cast<double>(col.GetRed()) / 255,
-                            static_cast<double>(col.GetGreen()) / 255,
-                            static_cast<double>(col.GetBlue()) / 255);
+  m_renderer->SetBackground(static_cast<double>(colBackground.GetRed()) / 255,
+                            static_cast<double>(colBackground.GetGreen()) / 255,
+                            static_cast<double>(colBackground.GetBlue()) / 255);
 
-  this->ui->qvtkWidget->GetRenderWindow()->AddRenderer(m_renderer);
-
+  m_renderWindow->AddRenderer(m_renderer);
+  m_renderer->SetViewport(0.0, m_sideViewerHeight, 1.0, 1.0);
   m_axesWidget->SetOutlineColor(0.9300, 0.5700, 0.1300);
-  m_axesWidget->SetOrientationMarker(m_axes);
+  m_axesWidget->SetOrientationMarker(vtkSmartPointer<vtkAxesActor>::New());
   m_axesWidget->SetInteractor(this->ui->qvtkWidget->GetInteractor());
   m_axesWidget->SetViewport(0.0, 0.0, 0.2, 0.2);
   m_axesWidget->SetEnabled(1);
   m_axesWidget->SetInteractive(0);
-
 
   auto callback = vtkSmartPointer<vtkMyCallback>::New();
   callback->setMainWindow(this);
@@ -132,13 +238,83 @@ MainWindow::MainWindow(QWidget *parent) :
   m_boxWidget->SetPlaceFactor(1.0);
   m_boxWidget->Off();
 
-  auto style3 = vtkSmartPointer<KeyPressInteractorStyle>::New();
-  style3->SetDefaultRenderer(m_renderer);
-  style3->setMainWindow(this);
-  ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style3);
+  auto style3d = vtkSmartPointer<KeyPressInteractorStyle>::New();
+  style3d->SetDefaultRenderer(m_renderer);
+  style3d->setMainWindow(this);
+  ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style3d);
 
-  vtkCamera *camera = m_renderer->GetActiveCamera();
-  camera->SetPosition(0.0, 0.0, 40.0);
+  m_renderer->GetActiveCamera()->SetPosition(0.0, 0.0, 40.0);
+
+
+  // Renderer 2
+  auto style2d = vtkSmartPointer<vtkInteractorStyleImage>::New();
+  style2d->SetDefaultRenderer(m_renderer2);
+//  style4->setMainWindow(this);
+
+  m_renderWindow->AddRenderer(m_renderer2);
+  m_renderer2->SetUseDepthPeeling(true);
+  m_renderer2->SetViewport(0, 0, 0.33, m_sideViewerHeight);
+  m_renderer2->SetBackground(static_cast<double>(colSideViews.GetRed()) / 255,
+                            static_cast<double>(colSideViews.GetGreen()) / 255,
+                            static_cast<double>(colSideViews.GetBlue()) / 255);
+  m_axesWidget2->SetOutlineColor(0.9300, 0.5700, 0.1300);
+  m_axesWidget2->SetOrientationMarker(vtkSmartPointer<vtkAxesActor>::New());
+  m_axesWidget2->SetInteractor(this->ui->qvtkWidget->GetInteractor());
+  m_axesWidget2->SetViewport(0.0, 0.0, 0.3, 0.3);
+  m_axesWidget2->SetEnabled(1);
+  m_axesWidget2->SetInteractive(0);
+  auto* cam2 = m_renderer2->GetActiveCamera();
+  cam2->SetPosition(40.0, 0.0, 0.0);
+  cam2->SetFocalPoint(0.0, 0.0, 0.0);
+  cam2->SetViewUp(0.0, 0.0, 1.0);
+  cam2->SetParallelProjection(true);
+
+
+  // Renderer 3
+  m_renderWindow->AddRenderer(m_renderer3);
+  m_renderer3->SetUseDepthPeeling(true);
+  m_renderer3->SetViewport(0.33, 0, 0.66, m_sideViewerHeight);
+  m_renderer3->SetBackground(static_cast<double>(colSideViews.GetRed()) / 255,
+                            static_cast<double>(colSideViews.GetGreen()) / 255,
+                            static_cast<double>(colSideViews.GetBlue()) / 255);
+  m_axesWidget3->SetOutlineColor(0.9300, 0.5700, 0.1300);
+  m_axesWidget3->SetOrientationMarker(vtkSmartPointer<vtkAxesActor>::New());
+  m_axesWidget3->SetInteractor(this->ui->qvtkWidget->GetInteractor());
+  m_axesWidget3->SetViewport(0.0, 0.0, 0.3, 0.3);
+  m_axesWidget3->SetEnabled(1);
+  m_axesWidget3->SetInteractive(0);
+  auto* cam3 = m_renderer3->GetActiveCamera();
+  cam3->SetPosition(0.0, 0.0, 40.0);
+  cam3->SetFocalPoint(0.0, 0.0, 0.0);
+  cam3->SetViewUp(0.0, 1.0, 0.0);
+  cam3->SetParallelProjection(true);
+
+  // Renderer 4
+  m_renderWindow->AddRenderer(m_renderer4);
+  m_renderer4->SetUseDepthPeeling(true);
+  m_renderer4->SetViewport(0.66, 0, 1.0, m_sideViewerHeight);
+  m_renderer4->SetBackground(static_cast<double>(colSideViews.GetRed()) / 255,
+                            static_cast<double>(colSideViews.GetGreen()) / 255,
+                            static_cast<double>(colSideViews.GetBlue()) / 255);
+  m_axesWidget4->SetOutlineColor(0.9300, 0.5700, 0.1300);
+  m_axesWidget4->SetOrientationMarker(vtkSmartPointer<vtkAxesActor>::New());
+  m_axesWidget4->SetInteractor(this->ui->qvtkWidget->GetInteractor());
+  m_axesWidget4->SetViewport(0.0, 0.0, 0.3, 0.3);
+  m_axesWidget4->SetEnabled(1);
+  m_axesWidget4->SetInteractive(0);
+  auto* cam4 = m_renderer4->GetActiveCamera();
+  cam4->SetPosition(0.0, 40.0, 0.0);
+  cam4->SetFocalPoint(0.0, 0.0, 0.0);
+  cam4->SetViewUp(0.0, 0.0, 1.0);
+  cam4->SetParallelProjection(true);
+
+  // call back to change style interaction according to the renderer
+  auto callback2 = vtkSmartPointer<vtkVolumeInteractionCallback>::New();
+  callback2->SetInteractor(ui->qvtkWidget->GetInteractor());
+  callback2->SetImageInteractorStyle(style2d);
+  callback2->setRenderers(m_renderer, m_renderer2, m_renderer3, m_renderer4);
+  callback2->SetVolumeInteractorStyle(style3d);
+  ui->qvtkWidget->GetInteractor()->AddObserver(vtkCommand::MouseMoveEvent, callback2);
 }
 
 MainWindow::~MainWindow()
@@ -158,7 +334,7 @@ void MainWindow::update()
   // first clean all actors
   for (unsigned int i = 0; i < m_lidarFramesManager.getNbFrames(); ++i)
   {
-    m_renderer->RemoveActor(m_pcActors[i]);
+    safeRemoveLidarActor(i);
   }
 
   // select skip mode
@@ -172,8 +348,7 @@ void MainWindow::update()
   {
     for (int i = first_frame; i <= last_frame; ++i)
     {
-      if (i >= 0 && i < m_pcActors.size())
-        m_renderer->AddActor(m_pcActors[i]);
+      safeAddLidarActor(i);
     }
   }
   else if (skip_mode == 1 || skip_mode == 2)
@@ -181,29 +356,24 @@ void MainWindow::update()
     int incr = (3 - skip_mode) * 2;
     for (int i = first_frame; i <= last_frame; i += incr)
     {
-      if (i >= 0 && i < m_pcActors.size())
-        m_renderer->AddActor(m_pcActors[i]);
+      safeAddLidarActor(i);
     }
   }
   else if (skip_mode == 3)
   {
     for (int i = first_frame; i <= last_frame; ++i)
     {
-      if (i >= 0 && i < m_pcActors.size())
-        m_renderer->AddActor(m_pcActors[i]);
+      safeAddLidarActor(i);
     }
 
     for (int i = first_frame; i <= last_frame; i += 4)
     {
-      if (i >= 0 && i < m_pcActors.size())
-        m_renderer->RemoveActor(m_pcActors[i]);
+      safeAddLidarActor(i);
     }
   }
   // Force to display the first and last frames
-  if (last_frame >= 0 && last_frame < m_pcActors.size())
-    m_renderer->AddActor(m_pcActors[last_frame]);
-  if (first_frame >= 0 && first_frame < m_pcActors.size())
-    m_renderer->AddActor(m_pcActors[first_frame]);
+  safeAddLidarActor(last_frame);
+  safeAddLidarActor(first_frame);
 
   // Display bounding boxes
   for (int i = 0; i < m_bbActors.size(); ++i)
@@ -232,11 +402,11 @@ void MainWindow::update()
       }
       m_bbActors[i]->SetUserMatrix(matrix);
 
-      m_renderer->AddActor(m_bbActors[i]);
+      safeAddBBoxActor(i);
     }
     else
     {
-      m_renderer->RemoveActor(m_bbActors[i]);
+      safeRemoveBBoxActor(i);
     }
   }
 
@@ -288,7 +458,7 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
   actor->SetUserMatrix(eigenIsometry3dToVtkMatrix4x4(pose));
   actor->GetProperty()->SetOpacity(m_boundingBoxOpacity);
   actor->GetProperty()->SetAmbient(1.0);
-  m_renderer->AddActor(actor);
+  m_renderer->AddActor(actor); //TODO: probably remove
 
   update();
   selectBoundingBox(actor);
@@ -454,7 +624,7 @@ void MainWindow::openLidarDataset()
         mapper->SelectColorArray("intensity");    // TODO: check if exists
         mapper->ScalarVisibilityOn();
         actor->SetMapper(mapper);
-        actor->GetProperty()->SetPointSize(2);
+        actor->GetProperty()->SetPointSize(1);
       }
 
       ui->groupBox_TimeSteps_Manager->updateTimeStepsBounds(0, m_lidarFramesManager.getNbFrames());
@@ -494,7 +664,7 @@ void MainWindow::loadBoundingBoxDataset()
         actor->SetMapper(mapper);
         actor->GetProperty()->SetOpacity(m_boundingBoxOpacity);
         actor->GetProperty()->SetAmbient(1.0);
-        m_renderer->AddActor(actor);
+        m_renderer->AddActor(actor);  //TODO: probably remove
       }
       ui->actionOpenBBox->setDisabled(true);
       update();

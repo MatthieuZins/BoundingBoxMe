@@ -87,8 +87,7 @@ void KeyPressInteractorStyle::OnLeftButtonDown()
     picker->Pick(pickPosition[0], pickPosition[1], 0, this->GetDefaultRenderer());
     if (picker->GetActor())
     {
-      if (m_mainWindowPtr)
-        m_mainWindowPtr->selectBoundingBox(picker->GetActor());
+      m_mainWindowPtr->selectBoundingBox(picker->GetActor());
     }
     else
     {
