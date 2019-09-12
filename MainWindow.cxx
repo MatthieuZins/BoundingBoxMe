@@ -250,8 +250,6 @@ void MainWindow::initialize()
   m_classesManager.loadFromYaml("../classes.yaml");
   ui->groupBox_BB_Information->updateAvailableClasses(m_classesManager.getAvailableClasses());
   m_timeStepsManager.setModeSingle(0);
-
-  openLidarDataset();
 }
 
 void MainWindow::displayLog(const QString& msg)
@@ -409,10 +407,8 @@ void MainWindow::updateBoundingBoxInstanceId(int index, unsigned int id)
 
 void MainWindow::openLidarDataset()
 {
-  std::cout << "open dataset" << std::endl;
-//  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
-  QString fileName("/home/matthieu/dev/BoundingBoxMe/small_dataset/frame.vtp.series");
-  std::cout << "selected file " << fileName.toStdString() << std::endl;
+  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
+//  QString fileName("/home/matthieu/dev/BoundingBoxMe/small_dataset/frame.vtp.series");
 
   if (loadLidarDataSet(fileName.toStdString()))
   {
