@@ -27,6 +27,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkPropPicker.h>
 #include <QDebug>
+#include <QMessageBox>
 #include <QFileDialog>
 #include <unsupported/Eigen/EulerAngles>
 #include <vtkMatrix4x4.h>
@@ -498,6 +499,30 @@ void MainWindow::autoSaveBoundingBoxDataset()
   if (m_autoSaveOn)
   {
     writeBBoxDataSet(m_autoSaveOutputFile);
+  }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+  if (m_boundingBoxManager.getBoundingBoxes().size() > 0)
+  {
+    QMessageBox::StandardButton resBtn =
+    QMessageBox::warning(this, "Warning",tr("Some of your work might no be saved. Are you sure to quit ?\n"),
+    QMessageBox::Yes | QMessageBox::Save| QMessageBox::Cancel,
+    QMessageBox::Yes);
+    if (resBtn == QMessageBox::Save)
+    {
+        event->ignore();
+        saveBoundingBoxDataset();
+    }
+    else if (resBtn == QMessageBox::Cancel)
+    {
+      event->ignore();
+    }
+    else
+    {
+        event->accept();
+    }
   }
 }
 

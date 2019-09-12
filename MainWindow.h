@@ -20,7 +20,7 @@
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkVertexGlyphFilter.h>
 #include <QTimer>
-
+#include <QCloseEvent>
 #include "classesManager.h"
 #include "lidarFrameManager.h"
 #include "timeStepsManager.h"
@@ -86,6 +86,9 @@ public slots:
   void loadBoundingBoxDataset();
   void saveBoundingBoxDataset();
   void autoSaveBoundingBoxDataset();
+
+  // Override closeEvent to offer a last chance of saving the work
+  void closeEvent(QCloseEvent *event) override;
 
 private:
   Ui::MainWindow *ui;
