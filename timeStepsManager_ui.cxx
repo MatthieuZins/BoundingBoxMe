@@ -48,6 +48,8 @@ void timeStepsManager_ui::selectModeAll()
   ui->spinBox_intervalFirst->setDisabled(true);
   ui->spinBox_intervalLast->setDisabled(true);
   ui->spinBox_singleFrame->setDisabled(true);
+  ui->pushButton_nextFrame->setDisabled(true);
+  ui->pushButton_previousFrame->setDisabled(true);
   auto *mainWindow = dynamic_cast<MainWindow*>(window());
   mainWindow->m_timeStepsManager.setModeAll();
   mainWindow->update();
@@ -58,6 +60,8 @@ void timeStepsManager_ui::selectModeSingle()
   ui->spinBox_intervalFirst->setDisabled(true);
   ui->spinBox_intervalLast->setDisabled(true);
   ui->spinBox_singleFrame->setEnabled(true);
+  ui->pushButton_nextFrame->setDisabled(false);
+  ui->pushButton_previousFrame->setDisabled(false);
 
   auto *mainWindow = dynamic_cast<MainWindow*>(window());
   auto val = ui->spinBox_singleFrame->value();
@@ -70,6 +74,8 @@ void timeStepsManager_ui::selectModeInterval()
   ui->spinBox_intervalFirst->setEnabled(true);
   ui->spinBox_intervalLast->setEnabled(true);
   ui->spinBox_singleFrame->setDisabled(true);
+  ui->pushButton_nextFrame->setDisabled(false);
+  ui->pushButton_previousFrame->setDisabled(false);
 
   auto *mainWindow = dynamic_cast<MainWindow*>(window());
   auto first = ui->spinBox_intervalFirst->value();
