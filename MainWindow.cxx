@@ -98,6 +98,7 @@ MainWindow::MainWindow(QWidget *parent) :
   this->ui->qvtkWidget->SetRenderWindow(m_renderWindow);
 
   vtkColor3ub col = colors->HTMLColorToRGB(m_backgroundColor);
+  m_renderer->SetUseDepthPeeling(true);
   m_renderer->SetBackground(static_cast<double>(col.GetRed()) / 255,
                             static_cast<double>(col.GetGreen()) / 255,
                             static_cast<double>(col.GetBlue()) / 255);
