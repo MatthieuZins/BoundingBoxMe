@@ -19,6 +19,7 @@
 #include <vtkAxesActor.h>
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkVertexGlyphFilter.h>
+#include <QTimer>
 
 #include "classesManager.h"
 #include "lidarFrameManager.h"
@@ -33,7 +34,6 @@ namespace Ui {
 class MainWindow : public QMainWindow
 {
   Q_OBJECT
-
 
 
 public:
@@ -85,6 +85,7 @@ public slots:
   void openLidarDataset();
   void loadBoundingBoxDataset();
   void saveBoundingBoxDataset();
+  void autoSaveBoundingBoxDataset();
 
 private:
   Ui::MainWindow *ui;
@@ -119,6 +120,12 @@ private:
   // Cosmetic Parameters
   double m_boundingBoxOpacity = 0.5;
   const std::string m_backgroundColor = "#202333";
+
+  // Auto saving Parameters
+  std::string m_autoSaveOutputFile = "";
+  int m_autoSaveFreq_msec = 120000;       // 3 minutes
+  bool m_autoSaveOn = false;
+  std::unique_ptr<QTimer> m_autoSaveTimer = nullptr;
 };
 
 

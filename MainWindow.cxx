@@ -86,6 +86,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
+  statusBar()->showMessage("Auto save disabled");
 
   tabifyDockWidget(ui->dockWidget_Display, ui->dockWidget_Manager);
 
@@ -93,9 +94,14 @@ MainWindow::MainWindow(QWidget *parent) :
   QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveBoundingBoxDataset()));
   QObject::connect(ui->actionOpenBBox, SIGNAL(triggered()), this, SLOT(loadBoundingBoxDataset()));
 
+
+  /// Setup the time for AutoSave
+  m_autoSaveTimer = std::make_unique<QTimer>(this);
+  QObject::connect(m_autoSaveTimer.get(), SIGNAL(timeout()), this, SLOT(autoSaveBoundingBoxDataset()));
+  m_autoSaveTimer->start(m_autoSaveFreq_msec);
+
+
   vtkNew<vtkNamedColors> colors;
-
-
   this->ui->qvtkWidget->SetRenderWindow(m_renderWindow);
 
   vtkColor3ub col = colors->HTMLColorToRGB(m_backgroundColor);
@@ -445,8 +451,8 @@ void MainWindow::openLidarDataset()
 
 void MainWindow::loadBoundingBoxDataset()
 {
-//  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
-  QString fileName("/home/matthieu/dev/BoundingBoxMe/build/test/bb.series");
+  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
+//  QString fileName("/home/matthieu/dev/BoundingBoxMe/build/test/bb.series");
 
   if (loadBBoxDataSet(fileName.toStdString()))
   {
@@ -474,14 +480,27 @@ void MainWindow::loadBoundingBoxDataset()
 
 void MainWindow::saveBoundingBoxDataset()
 {
-  std::cout << "Save bb dataset" << std::endl;
-//  auto fileName = QFileDialog::getSaveFileName(this, tr("Save BBox Dataset"), "./", tr("Series Files (*.series)"));
-  QString fileName("/home/matthieu/dev/BoundingBoxMe/build/test/bb.series");
-
-  std::cout << "selected file " << fileName.toStdString() << std::endl;
-
-  writeBBoxDataSet(fileName.toStdString());
+  m_autoSaveOutputFile = QFileDialog::getSaveFileName(this, tr("Save BBox Dataset"), "./", tr("Series Files (*.series)")).toStdString();
+  if (m_autoSaveOutputFile.size() > 0)
+  {
+    // force the extension
+    fs::path filename(m_autoSaveOutputFile);
+    filename.replace_extension("series");
+    m_autoSaveOutputFile = filename.generic_string();
+    m_autoSaveOn = true;
+    writeBBoxDataSet(m_autoSaveOutputFile);
+  }
 }
+
+void MainWindow::autoSaveBoundingBoxDataset()
+{
+  if (m_autoSaveOn)
+  {
+    statusBar()->showMessage(QString::fromStdString("Auto save: " + m_autoSaveOutputFile));
+    writeBBoxDataSet(m_autoSaveOutputFile);
+  }
+}
+
 
 void MainWindow::selectBoundingBox(vtkActor *bbActor)
 {

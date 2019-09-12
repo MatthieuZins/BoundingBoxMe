@@ -92,7 +92,6 @@ void KeyPressInteractorStyle::OnLeftButtonDown()
     }
     else
     {
-      qInfo() << "Unselect all";
       m_mainWindowPtr->disableBoxWidget();
     }
   }
