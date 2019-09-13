@@ -306,9 +306,10 @@ bool loadBBoxDataSet(const std::string &filename)
 
   std::unordered_map<BoundingBox::Id, std::shared_ptr<BoundingBox>> bbMap;
 
+  const int N = std::min(lidarFramesManager.getNbFrames(), listOfBBFilesAndTimes.size());
   try
   {
-    for (int frameId = 0; frameId < listOfBBFilesAndTimes.size(); ++frameId)
+    for (int frameId = 0; frameId < N ; ++frameId)
     {
       Eigen::Isometry3d lidarFramePose = lidarFramesManager.getFramePose(frameId);
       YAML::Node node = YAML::LoadFile(listOfBBFilesAndTimes[frameId].first);
@@ -343,6 +344,11 @@ bool loadBBoxDataSet(const std::string &filename)
   {
     qCritical() << "Error while loading the BBox dataset: " << QString::fromStdString(e.what());
     return false;
+  }
+
+  if (lidarFramesManager.getNbFrames() < listOfBBFilesAndTimes.size())
+  {
+    qWarning() << "Some BBox files were not loaded because they do not correspond to any lidar frame";
   }
 
   // fill the BBox Manager

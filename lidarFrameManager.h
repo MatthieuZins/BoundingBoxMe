@@ -19,7 +19,7 @@ public:
 
   double getFrameTimestamp(unsigned int frameId) const;
 
-  unsigned int getNbFrames() const {
+  size_t getNbFrames() const {
     return m_frames.size();
   }
 
