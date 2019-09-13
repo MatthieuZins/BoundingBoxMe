@@ -1,3 +1,20 @@
+#=========================================================================
+#
+# Copyright 2019 Kitware, Inc.
+# Author: Matthieu Zins
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#=========================================================================
+
 cmake_minimum_required(VERSION 3.10)
 
 project(BoundingBoxMe LANGUAGES CXX)
@@ -33,11 +50,11 @@ add_executable(BoundingBoxMe
     assets/resources.qrc
     boundingBox.h
     boundingBox.cxx
-    boundingBoxManager.h
-    boundingBoxManager.cxx
     boundingBoxInformation_ui.ui
     boundingBoxInformation_ui.cxx
     boundingBoxInformation_ui.h
+    boundingBoxManager.h
+    boundingBoxManager.cxx
     cameraFrame.cxx
     cameraFrame.h
     cameraFramesManager.cxx
@@ -57,9 +74,12 @@ add_executable(BoundingBoxMe
     lidarFrameManager.h
     logger.cxx
     logger.h
+    main.cxx
     MainWindow.cxx
     MainWindow.h
     MainWindow.ui
+    sideViewsInteractorStyle.cxx
+    sideViewsInteractorStyle.h
     timeStepsManager.h
     timeStepsManager.cxx
     timeStepsManager_ui.cxx
@@ -71,9 +91,6 @@ add_executable(BoundingBoxMe
     vtkEigenUtils.h
     vtkBoundingBoxSource.h
     vtkBoundingBoxSource.cxx
-    sideViewsInteractorStyle.cxx
-    sideViewsInteractorStyle.h
-    main.cxx
 )
 
 target_include_directories(BoundingBoxMe SYSTEM PRIVATE
@@ -88,12 +105,4 @@ target_link_libraries(BoundingBoxMe PRIVATE
   ${YAML_CPP_LIBRARIES}
   stdc++fs          # for std::filesystem
   )
-
-
-
-#install(
-#  TARGET BoundingBoxMe
-#  EXPORT MyPackTargets
-#  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#  )
 
