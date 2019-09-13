@@ -703,8 +703,8 @@ void MainWindow::updateBoundingBoxInstanceId(int index, unsigned int id)
 
 void MainWindow::openLidarDataset()
 {
-//  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
-  QString fileName("/home/matthieu/dev/BoundingBoxMe/small_dataset/frame.vtp.series");
+  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
+//  QString fileName("/home/matthieu/dev/BoundingBoxMe/small_dataset/frame.vtp.series");
 
   if (fileName.size() > 0)
   {
@@ -791,7 +791,8 @@ void MainWindow::loadBoundingBoxDataset()
   {
     if (loadBBoxDataSet(fileName.toStdString()))
     {
-      qInfo() << "Successfully loaded BBox dataset:\t\t" << fileName;
+      qInfo() << "Successfully loaded " << m_boundingBoxManager.getBoundingBoxes().size()
+              <<  "BBoxes from dataset:\t\t" << fileName;
       // create the corresponding actors (one per BBox)
       const auto& BBoxes = m_boundingBoxManager.getBoundingBoxes();
 

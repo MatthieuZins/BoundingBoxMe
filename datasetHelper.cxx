@@ -287,7 +287,7 @@ void writeBBoxDataSet(const std::string &filename)
         bbNode["selector"]["state"] = "dynamic";
       }
 
-      bbNode["selector"]["instance_id"] = bb->getInstanceId();
+      bbNode["id"] = bb->getInstanceId();
 
       ymlFile["objects"].push_back(bbNode);
     }
@@ -334,12 +334,22 @@ bool loadBBoxDataSet(const std::string &filename)
       for (size_t i = 0; i < objects.size(); ++i)
       {
         auto label = objects[i]["label"].as<std::string>();
+        auto instanceId = objects[i]["id"].as<unsigned int>();
+
         YAML::Node selector = objects[i]["selector"];
         auto center = selector["center"].as<std::vector<double>>();
         auto dimensions = selector["dimensions"].as<std::vector<double>>();
-        auto orientation = selector["orientation"].as<std::vector<double>>();
-        auto stateStr = selector["state"].as<std::string>();
-        auto instanceId = selector["instance_id"].as<unsigned int>();
+
+        std::vector<double> orientation = {0.0, 0.0, 0.0};
+        if (selector["orientation"])   // if the orientation is not defined in the file, the orientation is identity by default
+        {
+          orientation = selector["orientation"].as<std::vector<double>>();
+        }
+        std::string stateStr = "dynamic";   // if the state is not defined in the file, the object is dynamic by default
+        if (selector["state"])
+        {
+          stateStr = selector["state"].as<std::string>();
+        }
 
         BoundingBox::State state = BoundingBox::State::STATIC;
         if (stateStr == "dynamic")

@@ -24,7 +24,13 @@ BoundingBox::BoundingBox(BoundingBox::Id storingId, BoundingBox::Id instanceId,
   : m_storingId(storingId), m_instanceId(instanceId),
     m_class(classe), m_dimensions(dimensions), m_state(state)
 {
-
+  if (m_dimensions.x() < 1e-3 && m_dimensions.x() < 1e-3 && m_dimensions.x() < 1e-3)
+  {
+    qWarning() << "Too small BBox. Dimension reset";
+    m_dimensions.x() = 1.0;
+    m_dimensions.y() = 1.0;
+    m_dimensions.z() = 1.0;
+  }
 }
 
 

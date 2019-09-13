@@ -15,3 +15,5 @@ classes:
       color: [220, 220, 0]
     - name: person
       color: [220, 20, 60]
+    - name: unknown
+      color: [110, 110, 110]

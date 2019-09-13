@@ -103,8 +103,8 @@ public:
 
 private:
 
-  Id m_storingId;
-  Id m_instanceId;
+  Id m_storingId;     // storing id inside the vector of bounding boxes
+  Id m_instanceId;    // unique per object
 
   State m_state;
 

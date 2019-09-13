@@ -75,9 +75,19 @@ void BoundingBoxInformation_ui::updateInformation(BoundingBox *bb)
   ss.str("");
 
   auto frames = bb->getFrames();
-  for (int i = 0; i < frames.size() - 1;  ++i)
-    ss << frames[i] << ", ";
-  ss << frames.back();
+  if (frames.size() <= 5)
+  {
+    for (int i = 0; i < frames.size() - 1;  ++i)
+      ss << frames[i] << ", ";
+    ss << frames.back();
+  }
+  else  // limit the number of frame ids to display
+  {
+    ss << frames[0] << ",  "
+       <<frames[1] << ", ..., "
+       << frames[frames.size()-2] << ", "
+       << frames.back();
+  }
   ui->label_BB_Frames->setText(QString::fromStdString(ss.str()));
 
   auto state = bb->getState();
