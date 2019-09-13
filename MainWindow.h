@@ -28,6 +28,8 @@
 #include "timeStepsManager.h"
 #include "boundingBoxManager.h"
 #include "vtkBoundingBoxManipulatorWidget.h"
+#include "cameraFramesManager.h"
+
 
 #define RESTART_CODE 3
 
@@ -48,6 +50,7 @@ public:
   TimeStepsManager& m_timeStepsManager;
   ClassesManager& m_classesManager;
   BoundingBoxManager& m_boundingBoxManager;
+  CameraFramesManager& m_cameraFramesManager;
 
 
   void update();
@@ -89,9 +92,12 @@ public:
 
   void updateColorByArrays(const std::vector<std::string>& arrays);
 
+  void updateCameraFrameDisplayed();
+
 public slots:
   void openLidarDataset();
   void loadBoundingBoxDataset();
+  void loadCameraFramesDataset();
   void saveBoundingBoxDataset();
   void autoSaveBoundingBoxDataset();
 

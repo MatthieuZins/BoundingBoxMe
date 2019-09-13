@@ -189,6 +189,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_lidarFramesManager(LidarFrameManager::getInstance()),
   m_timeStepsManager(TimeStepsManager::getInstance(0)),
   m_boundingBoxManager(BoundingBoxManager::getInstance()),
+  m_cameraFramesManager(CameraFramesManager::getInstance()),
   m_renderWindow(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New()),
   m_renderer(vtkSmartPointer<vtkRenderer>::New()),
   m_renderer2(vtkSmartPointer<vtkRenderer>::New()),
@@ -225,6 +226,7 @@ MainWindow::MainWindow(QWidget *parent) :
   QObject::connect(ui->actionRestart, SIGNAL(triggered()), this, SLOT(restart()));
   QObject::connect(ui->pushButton_Clear_Logger, SIGNAL(clicked(bool)), this, SLOT(clearLogger()));
   QObject::connect(m_comboBox_ColorBy.get(), SIGNAL(activated(int)), this, SLOT(chooseColorArrayUsed(int)));
+  QObject::connect(ui->actionOpenCameraFrames, SIGNAL(triggered()), this, SLOT(loadCameraFramesDataset()));
 
 
   /// Setup the time for AutoSave
@@ -376,10 +378,6 @@ MainWindow::MainWindow(QWidget *parent) :
   callbackSwitchInteraction->SetVolumeInteractorStyle(style3d);
   ui->qvtkWidget->GetInteractor()->AddObserver(vtkCommand::MouseMoveEvent, callbackSwitchInteraction);
 
-
-  QPixmap pm("../0000000000.png");
-  ui->label_Frame->setScaledContents(true);
-  ui->label_Frame->setPixmap(pm.scaledToWidth(300, Qt::SmoothTransformation));
 }
 
 MainWindow::~MainWindow()
@@ -802,6 +800,27 @@ void MainWindow::loadBoundingBoxDataset()
   }
 }
 
+void MainWindow::loadCameraFramesDataset()
+{
+  if (ui->actionOpen->isEnabled())
+  {
+    qWarning() << "You need to load the the lidar dataset first\n";
+    return;
+  }
+  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Camera Dataset"), "../", tr("Series Files (*.series)"));
+//  QString fileName("/home/matthieu/dev/BoundingBoxMe/build/test/bb.series");
+  if (fileName.size() > 0)
+  {
+    if (loadCameraDataSet(fileName.toStdString()))
+    {
+      qInfo() << "Successfully loaded camera frames :\t\t" << fileName;
+      ui->actionOpenCameraFrames->setDisabled(true);
+    }
+  }
+  // display the frame
+  updateCameraFrameDisplayed();
+}
+
 void MainWindow::saveBoundingBoxDataset()
 {
   m_autoSaveOutputFile = QFileDialog::getSaveFileName(this, tr("Save BBox Dataset"), "./", tr("Series Files (*.series)")).toStdString();
@@ -897,6 +916,18 @@ void MainWindow::updateColorByArrays(const std::vector<std::string> &arrays)
     ++idx;
   }
   m_comboBox_ColorBy->setCurrentIndex(defaultIndex);
+}
+
+void MainWindow::updateCameraFrameDisplayed()
+{
+  auto [first, last] = m_timeStepsManager.getCurrentTimeInterval();
+  const auto& file = m_cameraFramesManager.getFrame(m_lidarFramesManager.getFrameTimestamp(first));
+  if (file.size() > 0)
+  {
+    QPixmap pm(file.c_str());
+    ui->label_Frame->setScaledContents(true);
+    ui->label_Frame->setPixmap(pm.scaledToWidth(300, Qt::SmoothTransformation));
+  }
 }
 
 

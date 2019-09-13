@@ -58,6 +58,7 @@
    <addaction name="actionSave"/>
    <addaction name="actionOpenBBox"/>
    <addaction name="actionRestart"/>
+   <addaction name="actionOpenCameraFrames"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="enabled">
@@ -307,6 +308,18 @@
    </property>
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open Bounding Box Dataset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </action>
+  <action name="actionOpenCameraFrames">
+   <property name="icon">
+    <iconset resource="assets/resources.qrc">
+     <normaloff>:/icon/image-open.svg</normaloff>:/icon/image-open.svg</iconset>
+   </property>
+   <property name="text">
+    <string>OpenCameraFrames</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Camera frames</string>
    </property>
   </action>
   <zorder>dockWidget_Manager</zorder>

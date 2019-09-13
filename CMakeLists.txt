@@ -38,6 +38,10 @@ add_executable(BoundingBoxMe
     boundingBoxInformation_ui.ui
     boundingBoxInformation_ui.cxx
     boundingBoxInformation_ui.h
+    cameraFrame.cxx
+    cameraFrame.h
+    cameraFramesManager.cxx
+    cameraFramesManager.h
     classesManager.cxx
     classesManager.h
     datasetHelper.cxx

@@ -53,6 +53,7 @@ void timeStepsManager_ui::selectModeAll()
   auto *mainWindow = dynamic_cast<MainWindow*>(window());
   mainWindow->m_timeStepsManager.setModeAll();
   mainWindow->update();
+  mainWindow->updateCameraFrameDisplayed();
 }
 
 void timeStepsManager_ui::selectModeSingle()
@@ -67,6 +68,7 @@ void timeStepsManager_ui::selectModeSingle()
   auto val = ui->spinBox_singleFrame->value();
   mainWindow->m_timeStepsManager.setModeSingle(val);
   mainWindow->update();
+  mainWindow->updateCameraFrameDisplayed();
 }
 
 void timeStepsManager_ui::selectModeInterval()
@@ -82,6 +84,7 @@ void timeStepsManager_ui::selectModeInterval()
   auto last = ui->spinBox_intervalLast->value();
   mainWindow->m_timeStepsManager.setModeInterval(first, last);
   mainWindow->update();
+  mainWindow->updateCameraFrameDisplayed();
 }
 
 void timeStepsManager_ui::changeSingleStep()

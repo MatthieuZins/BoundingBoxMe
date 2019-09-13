@@ -23,6 +23,7 @@
 #include "boundingBox.h"
 #include "timeStepsManager.h"
 #include "lidarFrameManager.h"
+#include "cameraFramesManager.h"
 #include <unsupported/Eigen/EulerAngles>
 
 
@@ -358,5 +359,31 @@ bool loadBBoxDataSet(const std::string &filename)
     listOfBBoxes.push_back(it->second);
     listOfBBoxes.back()->setStoringId(listOfBBoxes.size()-1);
   }
+  return true;
+}
+
+bool loadCameraDataSet(const std::string &filename)
+{
+  auto& lidarFramesManager = LidarFrameManager::getInstance();
+  auto& cameraFramesManager = CameraFramesManager::getInstance();
+
+  const auto& listOfImagesFilesAndTimes = loadSeriesFile(filename);
+
+  try
+  {
+    for (const auto& pairFileTime : listOfImagesFilesAndTimes)
+    {
+      std::string filename = pairFileTime.first;
+      double time = pairFileTime.second;
+      cameraFramesManager.addFrame(filename, time);
+    }
+  }
+  catch (std::exception& e)
+  {
+    qCritical() << "Error while loading the Camera dataset: " << QString::fromStdString(e.what());
+    return false;
+  }
+
+  cameraFramesManager.finalizeAddingFrames();
   return true;
 }

@@ -20,4 +20,6 @@ void writeBBoxDataSet(const std::string& filename);
 
 bool loadBBoxDataSet(const std::string& filename);
 
+bool loadCameraDataSet(const std::string& filename);
+
 #endif // DATASETHELPER_H

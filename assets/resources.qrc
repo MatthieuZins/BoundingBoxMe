@@ -7,5 +7,6 @@
     	<file>cube.svg</file>
     	<file>cube1.svg</file>
         <file>cube2.svg</file>
+        <file>image-open.svg</file>
     </qresource>
 </RCC>
