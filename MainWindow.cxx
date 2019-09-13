@@ -688,7 +688,7 @@ void MainWindow::openLidarDataset()
         m_pcActors.emplace_back(actor);
         vertexFilter->SetInputData(pts);
         mapper->SetInputConnection(vertexFilter->GetOutputPort());
-        mapper->SelectColorArray("intensity");    // TODO: check if exists
+//        mapper->SelectColorArray("intensity");    // TODO: check if exists
         mapper->ScalarVisibilityOn();
         actor->SetMapper(mapper);
         actor->GetProperty()->SetPointSize(1);
@@ -835,8 +835,16 @@ void MainWindow::chooseColorArrayUsed(int index)
 
 void MainWindow::updateColorByArrays(const std::vector<std::string> &arrays)
 {
+  int defaultIndex = 0;
+  size_t idx = 1;
   for (const auto& name : arrays)
+  {
+    if (name == "intensity" || name == "Intensity")
+      defaultIndex = idx;
     m_comboBox_ColorBy->addItem(QString::fromStdString(name));
+    ++idx;
+  }
+  m_comboBox_ColorBy->setCurrentIndex(defaultIndex);
 }
 
 
