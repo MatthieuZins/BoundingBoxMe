@@ -183,6 +183,7 @@ bool loadLidarDataSet(const std::string &filename)
     if (poses.size() != listOfFramesAndTimes.size())
     {
       qCritical() << "Erro opening the dataset: number of .vtp is different from number of poses";
+      return false;
     }
 
     auto& lidarFramesManager = LidarFrameManager::getInstance();

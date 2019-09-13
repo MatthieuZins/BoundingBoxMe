@@ -40,8 +40,12 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
       m_mainWindowPtr = ptr;
     }
 
+    void setRenderer(vtkRenderer* renderer) {
+      m_renderer = renderer;
+    }
 private:
     MainWindow* m_mainWindowPtr = nullptr;
+    vtkRenderer* m_renderer = nullptr;
     unsigned int m_nbClicks = 0;
     int m_previousPosition[2] = {0, 0};
     int m_maxSqDistFoDoubleClick = 25;

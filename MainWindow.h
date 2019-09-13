@@ -123,6 +123,9 @@ private:
   std::vector<vtkSmartPointer<vtkActor>> m_bbActors;
 
   vtkSmartPointer<vtkBoundingBoxManipulatorWidget> m_boxWidget;
+  vtkSmartPointer<vtkBoundingBoxManipulatorWidget> m_boxWidget2;
+  vtkSmartPointer<vtkBoundingBoxManipulatorWidget> m_boxWidget3;
+  vtkSmartPointer<vtkBoundingBoxManipulatorWidget> m_boxWidget4;
 
   std::unique_ptr<QComboBox> m_comboBox_ColorBy;
 

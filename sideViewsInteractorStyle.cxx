@@ -1,21 +1,4 @@
-//=========================================================================
-//
-// Copyright 2019 Kitware, Inc.
-// Author: Matthieu Zins
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//=========================================================================
-
-#include "keyPressInteractorStyle.h"
+#include "sideViewsInteractorStyle.h"
 
 #include <vtkObjectFactory.h>
 #include <vtkRendererCollection.h>
@@ -25,14 +8,12 @@
 #include <vtkPropPicker.h>
 #include <vtkSmartPointer.h>
 #include <QDebug>
-
 #include "MainWindow.h"
 
+vtkStandardNewMacro(SideViewsInteractorStyle);
 
-vtkStandardNewMacro(KeyPressInteractorStyle);
 
-
-void KeyPressInteractorStyle::OnKeyPress()
+void SideViewsInteractorStyle::OnKeyPress()
 {
   // Get the keypress
   vtkRenderWindowInteractor *rwi = this->Interactor;
@@ -60,11 +41,11 @@ void KeyPressInteractorStyle::OnKeyPress()
   }
 
   // Forward events
-  vtkInteractorStyleTrackballCamera::OnKeyPress();
+  vtkInteractorStyleImage::OnKeyPress();
   m_mainWindowPtr->forceRender();
 }
 
-void KeyPressInteractorStyle::OnLeftButtonDown()
+void SideViewsInteractorStyle::OnLeftButtonDown()
 {
   this->m_nbClicks++;
   int pickPosition[2];
@@ -107,5 +88,5 @@ void KeyPressInteractorStyle::OnLeftButtonDown()
 
 
   // Forward events
-  vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
+  vtkInteractorStyleImage::OnLeftButtonDown();
 }

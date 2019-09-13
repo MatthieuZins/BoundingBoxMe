@@ -41,7 +41,7 @@
 #include "datasetHelper.h"
 #include "vtkBoundingBoxSource.h"
 
-
+#include "sideViewsInteractorStyle.h"
 
 
 //Callback for automatic change of interaction styles
@@ -63,11 +63,16 @@ public:
   }
 
   void SetVolumeInteractorStyle(vtkSmartPointer<KeyPressInteractorStyle> m) {
-    this-> style3d = m;
+    this-> m_style3d = m;
   }
 
-  void SetImageInteractorStyle( vtkSmartPointer<vtkInteractorStyleImage> m) {
-    this->style2d = m;
+  void SetImageInteractorStyle(vtkSmartPointer<SideViewsInteractorStyle> style2,
+                               vtkSmartPointer<SideViewsInteractorStyle> style3,
+                               vtkSmartPointer<SideViewsInteractorStyle> style4)
+  {
+    m_style2d_2 = style2;
+    m_style2d_3 = style3;
+    m_style2d_4 = style4;
   }
 
   void setRenderers(vtkRenderer* renderer3d, vtkRenderer* renderer2d_2,
@@ -94,22 +99,22 @@ public:
        vtkRenderer *renderer = interactor->FindPokedRenderer(currPos[0], currPos[1]);
       if (renderer == m_renderer3d)
       {
-        interactor->SetInteractorStyle(style3d);
+        interactor->SetInteractorStyle(m_style3d);
       }
       else if (renderer == m_renderer2d_2)
       {
-        interactor->SetInteractorStyle(style2d);
-        style2d->SetDefaultRenderer(renderer);
+        interactor->SetInteractorStyle(m_style2d_2);
+        m_style2d_2->SetDefaultRenderer(renderer);
       }
       else if (renderer == m_renderer2d_3)
       {
-        interactor->SetInteractorStyle(style2d);
-        style2d->SetDefaultRenderer(renderer);
+        interactor->SetInteractorStyle(m_style2d_3);
+        m_style2d_3->SetDefaultRenderer(renderer);
       }
       else if (renderer == m_renderer2d_4)
       {
-        interactor->SetInteractorStyle(style2d);
-        style2d->SetDefaultRenderer(renderer);
+        interactor->SetInteractorStyle(m_style2d_4);
+        m_style2d_4->SetDefaultRenderer(renderer);
       }
 
       vtkInteractorStyle *style = vtkInteractorStyle::SafeDownCast(interactor->GetInteractorStyle());
@@ -126,9 +131,12 @@ private:
   // Pointer to the interactor
   vtkRenderWindowInteractor *Interactor = nullptr;
   //pointer to interactor volume style
-  vtkSmartPointer<KeyPressInteractorStyle> style3d = nullptr;
+  vtkSmartPointer<KeyPressInteractorStyle> m_style3d = nullptr;
   //pointer to interactor image style
-  vtkSmartPointer<vtkInteractorStyleImage> style2d = nullptr;
+  vtkSmartPointer<SideViewsInteractorStyle> m_style2d_2 = nullptr;
+  vtkSmartPointer<SideViewsInteractorStyle> m_style2d_3 = nullptr;
+  vtkSmartPointer<SideViewsInteractorStyle> m_style2d_4 = nullptr;
+
  //pointer to image renderer
   vtkRenderer *m_renderer3d = nullptr;
   vtkRenderer *m_renderer2d_2 = nullptr;
@@ -191,6 +199,9 @@ MainWindow::MainWindow(QWidget *parent) :
   m_axesWidget3(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
   m_axesWidget4(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
   m_boxWidget(vtkSmartPointer<vtkBoundingBoxManipulatorWidget>::New()),
+  m_boxWidget2(vtkSmartPointer<vtkBoundingBoxManipulatorWidget>::New()),
+  m_boxWidget3(vtkSmartPointer<vtkBoundingBoxManipulatorWidget>::New()),
+  m_boxWidget4(vtkSmartPointer<vtkBoundingBoxManipulatorWidget>::New()),
   m_comboBox_ColorBy(std::make_unique<QComboBox>()),
   ui(new Ui::MainWindow)
 {
@@ -251,17 +262,23 @@ MainWindow::MainWindow(QWidget *parent) :
   m_boxWidget->SetPlaceFactor(1.0);
   m_boxWidget->Off();
 
+
+
   auto style3d = vtkSmartPointer<KeyPressInteractorStyle>::New();
   style3d->SetDefaultRenderer(m_renderer);
   style3d->setMainWindow(this);
+  style3d->setRenderer(m_renderer);
   ui->qvtkWidget->GetInteractor()->SetInteractorStyle(style3d);
 
   m_renderer->GetActiveCamera()->SetPosition(0.0, 0.0, 40.0);
 
 
+
   // Renderer 2
-  auto style2d = vtkSmartPointer<vtkInteractorStyleImage>::New();
-  style2d->SetDefaultRenderer(m_renderer2);
+  auto style2d_2 = vtkSmartPointer<SideViewsInteractorStyle>::New();
+  style2d_2->SetDefaultRenderer(m_renderer2);
+  style2d_2->setMainWindow(this);
+  style2d_2->setRenderer(m_renderer2);
 
   m_renderWindow->AddRenderer(m_renderer2);
   m_renderer2->SetUseDepthPeeling(true);
@@ -281,8 +298,18 @@ MainWindow::MainWindow(QWidget *parent) :
   cam2->SetViewUp(0.0, 0.0, 1.0);
   cam2->SetParallelProjection(true);
   cam2->SetParallelScale(10.0);
+  auto callback2 = vtkSmartPointer<vtkMyCallback>::New();
+  callback2->setMainWindow(this);
+  m_boxWidget2->SetInteractor(m_renderWindow->GetInteractor());
+  m_boxWidget2->AddObserver(vtkCommand::InteractionEvent, callback2);
+  m_boxWidget2->SetPlaceFactor(1.0);
+  m_boxWidget2->Off();
 
   // Renderer 3
+  auto style2d_3 = vtkSmartPointer<SideViewsInteractorStyle>::New();
+  style2d_3->SetDefaultRenderer(m_renderer3);
+  style2d_3->setMainWindow(this);
+  style2d_3->setRenderer(m_renderer3);
   m_renderWindow->AddRenderer(m_renderer3);
   m_renderer3->SetUseDepthPeeling(true);
   m_renderer3->SetViewport(0.33, 0, 0.66, m_sideViewerHeight);
@@ -301,8 +328,18 @@ MainWindow::MainWindow(QWidget *parent) :
   cam3->SetViewUp(0.0, 1.0, 0.0);
   cam3->SetParallelProjection(true);
   cam3->SetParallelScale(20.0);
+  auto callback3 = vtkSmartPointer<vtkMyCallback>::New();
+  callback3->setMainWindow(this);
+  m_boxWidget3->SetInteractor(m_renderWindow->GetInteractor());
+  m_boxWidget3->AddObserver(vtkCommand::InteractionEvent, callback3);
+  m_boxWidget3->SetPlaceFactor(1.0);
+  m_boxWidget3->Off();
 
   // Renderer 4
+  auto style2d_4 = vtkSmartPointer<SideViewsInteractorStyle>::New();
+  style2d_4->SetDefaultRenderer(m_renderer4);
+  style2d_4->setMainWindow(this);
+  style2d_4->setRenderer(m_renderer4);
   m_renderWindow->AddRenderer(m_renderer4);
   m_renderer4->SetUseDepthPeeling(true);
   m_renderer4->SetViewport(0.66, 0, 1.0, m_sideViewerHeight);
@@ -321,14 +358,23 @@ MainWindow::MainWindow(QWidget *parent) :
   cam4->SetViewUp(0.0, 0.0, 1.0);
   cam4->SetParallelProjection(true);
   cam4->SetParallelScale(10.0);
+  auto callback4 = vtkSmartPointer<vtkMyCallback>::New();
+  callback4->setMainWindow(this);
+  m_boxWidget4->SetInteractor(m_renderWindow->GetInteractor());
+  m_boxWidget4->AddObserver(vtkCommand::InteractionEvent, callback4);
+  m_boxWidget4->SetPlaceFactor(1.0);
+  m_boxWidget4->Off();
+
+
+
 
   // call back to change style interaction according to the renderer
-  auto callback2 = vtkSmartPointer<vtkVolumeInteractionCallback>::New();
-  callback2->SetInteractor(ui->qvtkWidget->GetInteractor());
-  callback2->SetImageInteractorStyle(style2d);
-  callback2->setRenderers(m_renderer, m_renderer2, m_renderer3, m_renderer4);
-  callback2->SetVolumeInteractorStyle(style3d);
-  ui->qvtkWidget->GetInteractor()->AddObserver(vtkCommand::MouseMoveEvent, callback2);
+  auto callbackSwitchInteraction = vtkSmartPointer<vtkVolumeInteractionCallback>::New();
+  callbackSwitchInteraction->SetInteractor(ui->qvtkWidget->GetInteractor());
+  callbackSwitchInteraction->SetImageInteractorStyle(style2d_2, style2d_3, style2d_4);
+  callbackSwitchInteraction->setRenderers(m_renderer, m_renderer2, m_renderer3, m_renderer4);
+  callbackSwitchInteraction->SetVolumeInteractorStyle(style3d);
+  ui->qvtkWidget->GetInteractor()->AddObserver(vtkCommand::MouseMoveEvent, callbackSwitchInteraction);
 
 
   QPixmap pm("../0000000000.png");
@@ -515,6 +561,9 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
 
   update();
   selectBoundingBox(actor);
+
+  // if we add at least one BBox => disable the button load BBox to avoid strange behaviour
+  ui->actionOpenBBox->setDisabled(true);
 }
 
 void MainWindow::createNewBoundingBox(BoundingBox::State state)
@@ -545,6 +594,9 @@ void MainWindow::disableBoxWidget()
 {
   ui->groupBox_BB_Information->unselectBoundingBox();
   m_boxWidget->Off();
+  m_boxWidget2->Off();
+  m_boxWidget3->Off();
+  m_boxWidget4->Off();
   m_currentlyEditedBox = -1;
 }
 
@@ -637,8 +689,8 @@ void MainWindow::updateBoundingBoxInstanceId(int index, unsigned int id)
 
 void MainWindow::openLidarDataset()
 {
-  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
-//  QString fileName("/home/matthieu/dev/BoundingBoxMe/small_dataset/frame.vtp.series");
+//  auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
+  QString fileName("/home/matthieu/dev/BoundingBoxMe/small_dataset/frame.vtp.series");
 
   if (fileName.size() > 0)
   {
@@ -859,6 +911,19 @@ void MainWindow::selectBoundingBox(vtkActor *bbActor)
     m_boxWidget->PlaceWidget();
     m_boxWidget->On();
 
+    m_boxWidget2->SetProp3D(bbActor);
+    m_boxWidget2->PlaceWidget();
+    m_boxWidget2->On();
+
+    m_boxWidget3->SetProp3D(bbActor);
+    m_boxWidget3->PlaceWidget();
+    m_boxWidget3->On();
+
+    m_boxWidget4->SetProp3D(bbActor);
+    m_boxWidget4->PlaceWidget();
+    m_boxWidget4->On();
+
+
     std::vector<unsigned int> availableIds = { m_boundingBoxManager.getBoundingBoxFromIndex(idx)->getInstanceId() };
     const auto& framesOfPresence = m_boundingBoxManager.getBoundingBoxFromIndex(idx)->getFrames();
     for (int index = 0; index < m_bbActors.size(); ++index)
@@ -886,7 +951,6 @@ void MainWindow::selectBoundingBox(vtkActor *bbActor)
       }
     }
     this->ui->groupBox_BB_Information->updateAvailableInstanceIds(availableIds);
-
     this->ui->groupBox_BB_Information->updateInformation(m_boundingBoxManager.getBoundingBoxFromIndex(idx));
   }
 }

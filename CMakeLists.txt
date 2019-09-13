@@ -67,6 +67,8 @@ add_executable(BoundingBoxMe
     vtkEigenUtils.h
     vtkBoundingBoxSource.h
     vtkBoundingBoxSource.cxx
+    sideViewsInteractorStyle.cxx
+    sideViewsInteractorStyle.h
     main.cxx
 )
 
