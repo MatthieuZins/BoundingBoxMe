@@ -20,6 +20,7 @@
 
 #include <QMainWindow>
 
+#include <vtkCaptionActor2D.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkCamera.h>
 #include <vtkNamedColors.h>
@@ -144,6 +145,7 @@ private:
   std::vector<vtkSmartPointer<vtkCubeSource>> m_bbSources;
   std::vector<vtkSmartPointer<vtkPolyDataMapper>> m_bbMappers;
   std::vector<vtkSmartPointer<vtkActor>> m_bbActors;
+  std::vector<vtkSmartPointer<vtkCaptionActor2D>> m_bbCaptions;
 
   vtkSmartPointer<vtkBoundingBoxManipulatorWidget> m_boxWidget;
   vtkSmartPointer<vtkBoundingBoxManipulatorWidget> m_boxWidget2;
@@ -222,6 +224,7 @@ inline void MainWindow::safeAddBBoxActor(int index)
   if (index >= 0 && index < m_bbActors.size())
   {
     m_renderer->AddActor(m_bbActors[index]);
+    m_renderer->AddActor(m_bbCaptions[index]);
     m_renderer2->AddActor(m_bbActors[index]);
     m_renderer3->AddActor(m_bbActors[index]);
     m_renderer4->AddActor(m_bbActors[index]);
@@ -244,6 +247,7 @@ inline void MainWindow::safeRemoveBBoxActor(int index)
   if (index >= 0 && index < m_bbActors.size())
   {
     m_renderer->RemoveActor(m_bbActors[index]);
+    m_renderer->RemoveActor(m_bbCaptions[index]);
     m_renderer2->RemoveActor(m_bbActors[index]);
     m_renderer3->RemoveActor(m_bbActors[index]);
     m_renderer4->RemoveActor(m_bbActors[index]);

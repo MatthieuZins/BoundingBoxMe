@@ -18,6 +18,8 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
+#include <vtkTextProperty.h>
+#include <vtkCaptionActor2D.h>
 #include <vtkInteractorStyleImage.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkGenericOpenGLRenderWindow.h>
@@ -487,6 +489,9 @@ void MainWindow::update()
         matrix->SetElement(i, 2, matrix->GetElement(i, 2) * dimensions[2]);
       }
       m_bbActors[i]->SetUserMatrix(matrix);
+      m_bbCaptions[i]->SetAttachmentPoint(pose.translation().x(),
+                                          pose.translation().y(),
+                                          pose.translation().z());
 
       safeAddBBoxActor(i);
     }
@@ -569,10 +574,8 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
 
   mapper->SetInputConnection(source->GetOutputPort());
   actor->SetMapper(mapper);
-  actor->SetUserMatrix(eigenIsometry3dToVtkMatrix4x4(pose));
   actor->GetProperty()->SetOpacity(m_boundingBoxOpacity);
   actor->GetProperty()->SetAmbient(1.0);
-  m_renderer->AddActor(actor); //TODO: probably remove
 
   update();
   selectBoundingBox(actor);
@@ -627,6 +630,10 @@ void MainWindow::editBoundingBox(int index)
     Eigen::Isometry3d poseEigen = eigenIsometry3dFromVtkMatrix4x4(poseMatrix, &scaling);
     // Update scaling
     bb->setDimensions(scaling);
+    // Update the caption (update is not called, so we need to do it here)
+    m_bbCaptions[index]->SetAttachmentPoint(poseEigen.translation().x(),
+                                            poseEigen.translation().y(),
+                                            poseEigen.translation().z());
     if (bb->getState() == BoundingBox::State::STATIC)
     {
       // update the pose in all the frames where it is present
@@ -668,10 +675,11 @@ void MainWindow::deleteBoundingBox()
     if (isCompletelyRemoved)
     {
       // remove vtk stuff
-      m_renderer->RemoveActor(m_bbActors[m_currentlyEditedBox]);
+      safeRemoveBBoxActor(m_currentlyEditedBox);
       m_bbActors.erase (m_bbActors.begin() + m_currentlyEditedBox);
       m_bbMappers.erase(m_bbMappers.begin() + m_currentlyEditedBox);
       m_bbSources.erase(m_bbSources.begin() + m_currentlyEditedBox);
+      m_bbCaptions.erase(m_bbCaptions.begin() + m_currentlyEditedBox);
       m_currentlyEditedBox = -1;
     }
 
@@ -810,7 +818,15 @@ void MainWindow::loadBoundingBoxDataset()
         actor->SetMapper(mapper);
         actor->GetProperty()->SetOpacity(m_boundingBoxOpacity);
         actor->GetProperty()->SetAmbient(1.0);
-        m_renderer->AddActor(actor);  //TODO: probably remove
+
+        // Create a caption
+        auto caption = vtkSmartPointer<vtkCaptionActor2D>::New();
+        caption->SetCaption(std::to_string(bbPtr->getInstanceId()).c_str());
+        caption->BorderOff();
+        caption->GetCaptionTextProperty()->BoldOff();
+        caption->GetCaptionTextProperty()->ItalicOff();
+        caption->GetCaptionTextProperty()->ShadowOff();
+        m_bbCaptions.push_back(caption);
       }
       ui->actionOpenBBox->setDisabled(true);
       update();
