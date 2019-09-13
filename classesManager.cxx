@@ -30,7 +30,6 @@ bool ClassesManager::loadFromYaml(const std::string &filename)
   {
     YAML::Node file(YAML::LoadFile(filename));
     auto classes = file["classes"];
-    qInfo() << "Load classes:";
     for (auto cl : classes)
     {
       std::string name = cl["name"].as<std::string>();
@@ -41,11 +40,9 @@ bool ClassesManager::loadFromYaml(const std::string &filename)
       Colord colord(color);
       m_map[name] = color;
       m_mapd[name] = colord;
-      qInfo() << name.c_str() << color.r << " " << color.g << " " << color.b;
     }
   } catch (std::exception& e)
   {
-    std::cerr << "Error while loading the classes configuration file: " << e.what() << std::endl;
     return false;
   }
   return true;
@@ -57,6 +54,7 @@ std::vector<std::string> ClassesManager::getAvailableClasses() const
   for (const auto& cl : m_map)
     classes.emplace_back(cl.first);
   return classes;
+
 }
 
 ClassesManager::Color ClassesManager::getClassColor(const std::string &classe) const

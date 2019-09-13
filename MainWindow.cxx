@@ -450,7 +450,35 @@ void MainWindow::update()
 
 void MainWindow::initialize()
 {
-  m_classesManager.loadFromYaml("../classes.yaml");
+  // first try to load it where the executable is
+  if (!m_classesManager.loadFromYaml("classes.yaml"))
+  {
+    // if it failed, try to load it from the parent directory
+    if (!m_classesManager.loadFromYaml("../classes.yaml"))
+    {
+      bool ok = false;
+      while (!ok)
+      {
+        // if it failed, load it manually
+        auto fileName = QFileDialog::getOpenFileName(this, tr("Open Classe Config"), "../", tr("YAML (*.yaml *.yml *.YAML *.YML)")).toStdString();
+        ok = m_classesManager.loadFromYaml(fileName);
+        if (!ok)
+        {
+          QMessageBox::StandardButton ret = QMessageBox::warning(this, "Error",
+                       tr("Impossible to load the classes from this file.\n"),
+                       QMessageBox::Retry | QMessageBox::Close,
+                       QMessageBox::Retry);
+          if (ret == QMessageBox::Close)
+          {
+            exit(0);
+          }
+        }
+      }
+    }
+  }
+  qInfo() << "Successfully loaded classes:";
+  for (const auto& cl : m_classesManager.getAvailableClasses())
+    qInfo() << QString::fromStdString(cl);
   ui->groupBox_BB_Information->updateAvailableClasses(m_classesManager.getAvailableClasses());
   m_timeStepsManager.setModeSingle(0);
 }
