@@ -22,6 +22,7 @@
 #include <vtkVertexGlyphFilter.h>
 #include <QTimer>
 #include <QCloseEvent>
+#include <QComboBox>
 #include "classesManager.h"
 #include "lidarFrameManager.h"
 #include "timeStepsManager.h"
@@ -86,6 +87,8 @@ public:
 
   void setFocalPoint(double pt[3]);
 
+  void updateColorByArrays(const std::vector<std::string>& arrays);
+
 public slots:
   void openLidarDataset();
   void loadBoundingBoxDataset();
@@ -100,6 +103,9 @@ public slots:
 
   // Clear logger
   void clearLogger();
+
+  // Choose which array to use for coloring
+  void chooseColorArrayUsed(int index);
 
 
 private:
@@ -117,6 +123,8 @@ private:
   std::vector<vtkSmartPointer<vtkActor>> m_bbActors;
 
   vtkSmartPointer<vtkBoundingBoxManipulatorWidget> m_boxWidget;
+
+  std::unique_ptr<QComboBox> m_comboBox_ColorBy;
 
   int m_currentlyEditedBox = -1;
 

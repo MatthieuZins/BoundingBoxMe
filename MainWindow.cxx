@@ -15,6 +15,7 @@
 #include <vtkActorCollection.h>
 #include <vtkSphereSource.h>
 #include <vtkCubeSource.h>
+#include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
 #include <vtkRenderer.h>
@@ -30,6 +31,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkPropPicker.h>
 #include <QDebug>
+#include <QComboBox>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <unsupported/Eigen/EulerAngles>
@@ -189,18 +191,29 @@ MainWindow::MainWindow(QWidget *parent) :
   m_axesWidget3(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
   m_axesWidget4(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
   m_boxWidget(vtkSmartPointer<vtkBoundingBoxManipulatorWidget>::New()),
+  m_comboBox_ColorBy(std::make_unique<QComboBox>()),
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
   statusBar()->showMessage("Auto save disabled");
 
+
+  // Add values in the combo box
+  QLabel* label_ColorBy = new QLabel("Color By  ");
+  m_comboBox_ColorBy->addItem("Solid Color");
+  ui->mainToolBar->addSeparator();
+  ui->mainToolBar->addWidget(label_ColorBy);
+  ui->mainToolBar->addWidget(m_comboBox_ColorBy.get());
+
   tabifyDockWidget(ui->dockWidget_Display, ui->dockWidget_Manager);
 
+  // Handle connections
   QObject::connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openLidarDataset()));
   QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveBoundingBoxDataset()));
   QObject::connect(ui->actionOpenBBox, SIGNAL(triggered()), this, SLOT(loadBoundingBoxDataset()));
   QObject::connect(ui->actionRestart, SIGNAL(triggered()), this, SLOT(restart()));
   QObject::connect(ui->pushButton_Clear_Logger, SIGNAL(clicked(bool)), this, SLOT(clearLogger()));
+  QObject::connect(m_comboBox_ColorBy.get(), SIGNAL(activated(int)), this, SLOT(chooseColorArrayUsed(int)));
 
 
   /// Setup the time for AutoSave
@@ -380,6 +393,12 @@ void MainWindow::update()
   // Force to display the first and last frames
   safeAddLidarActor(last_frame);
   safeAddLidarActor(first_frame);
+
+  for (vtkPolyDataMapper *mapper : m_pcMappers)
+  {
+    mapper->SelectColorArray(m_comboBox_ColorBy->currentText().toStdString().c_str());
+    mapper->ScalarVisibilityOn();
+  }
 
   // Display bounding boxes
   for (int i = 0; i < m_bbActors.size(); ++i)
@@ -612,9 +631,23 @@ void MainWindow::openLidarDataset()
       lookupTable->AddRGBPoint(255, 0.70588235294099999, 0.015686274509800001, 0.149019607843);
       lookupTable->Build();
 
+      std::unordered_map<std::string, int> mapAvailableArrays;
 
       for (auto* pts : pointsToRender)
       {
+        for (int arrayId = 0; arrayId < pts->GetPointData()->GetNumberOfArrays(); ++arrayId)
+        {
+          vtkDataArray* array = pts->GetPointData()->GetArray(arrayId);
+          std::string arrayName(array->GetName());
+          if (mapAvailableArrays.find(arrayName) == mapAvailableArrays.end())
+          {
+            mapAvailableArrays[arrayName] = 1;
+          }
+          else
+          {
+            mapAvailableArrays[arrayName]++;
+          }
+        }
         auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
         mapper->SetLookupTable(lookupTable);
         mapper->SetScalarModeToUsePointFieldData();
@@ -632,6 +665,17 @@ void MainWindow::openLidarDataset()
         actor->SetMapper(mapper);
         actor->GetProperty()->SetPointSize(1);
       }
+
+      // keep only the arrays that are available in every point cloud
+      std::vector<std::string> goodArrays;
+      for (auto it = mapAvailableArrays.begin();  it != mapAvailableArrays.end(); ++it)
+      {
+        if (it->second == pointsToRender.size())
+        {
+          goodArrays.push_back(it->first);
+        }
+      }
+      updateColorByArrays(goodArrays);
 
       ui->groupBox_TimeSteps_Manager->updateTimeStepsBounds(0, m_lidarFramesManager.getNbFrames());
       update();
@@ -754,6 +798,17 @@ void MainWindow::restart()
 void MainWindow::clearLogger()
 {
   ui->textBrowser_logger->clear();
+}
+
+void MainWindow::chooseColorArrayUsed(int index)
+{
+  update();
+}
+
+void MainWindow::updateColorByArrays(const std::vector<std::string> &arrays)
+{
+  for (const auto& name : arrays)
+    m_comboBox_ColorBy->addItem(QString::fromStdString(name));
 }
 
 

@@ -200,8 +200,6 @@ bool loadLidarDataSet(const std::string &filename)
       transformFilter->SetTransform(transform);
       transformFilter->Update();
       lidarFramesManager.addFrame({i, transformFilter->GetOutput(), poses[i], listOfFramesAndTimes[i].second});
-      vtkPolyData* pd = transformFilter->GetOutput();
-      pd->GetPointData()->SetActiveScalars("intensity");
     }
     return true;
   }
