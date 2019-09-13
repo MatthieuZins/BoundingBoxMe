@@ -235,6 +235,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->mainToolBar->addWidget(m_comboBox_ColorBy.get());
 
   tabifyDockWidget(ui->dockWidget_Display, ui->dockWidget_Manager);
+  tabifyDockWidget(ui->dockWidget_Camera, ui->dockWidget_Logger);
 
   // Handle connections
   QObject::connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openLidarDataset()));
@@ -771,7 +772,7 @@ void MainWindow::openLidarDataset()
       }
       updateColorByArrays(goodArrays);
 
-      ui->groupBox_TimeSteps_Manager->updateTimeStepsBounds(0, m_lidarFramesManager.getNbFrames());
+      ui->groupBox_TimeSteps_Manager->updateTimeStepsBounds(0, m_lidarFramesManager.getNbFrames()-1);
       update();
       ui->actionOpen->setDisabled(true);
     }
@@ -786,7 +787,7 @@ void MainWindow::loadBoundingBoxDataset()
     return;
   }
   auto fileName = QFileDialog::getOpenFileName(this, tr("Open Lidar Dataset"), "../", tr("Series Files (*.series)"));
-//  QString fileName("/home/matthieu/dev/BoundingBoxMe/build/test/bb.series");
+//  QString fileName("/home/matthieu/dev/BoundingBoxMe/annotation_example/bb.series");
   if (fileName.size() > 0)
   {
     if (loadBBoxDataSet(fileName.toStdString()))

@@ -57,8 +57,8 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="actionOpenBBox"/>
-   <addaction name="actionRestart"/>
    <addaction name="actionOpenCameraFrames"/>
+   <addaction name="actionRestart"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="enabled">
@@ -181,7 +181,7 @@
     <string>Logger</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>8</number>
+    <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_2">
     <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -235,7 +235,10 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_Frames">
+  <widget class="QDockWidget" name="dockWidget_Camera">
+   <property name="windowTitle">
+    <string>Camera</string>
+   </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
@@ -250,7 +253,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Image</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -325,7 +328,7 @@
   <zorder>dockWidget_Manager</zorder>
   <zorder>dockWidget_Logger</zorder>
   <zorder>dockWidget_Display</zorder>
-  <zorder>dockWidget_Frames</zorder>
+  <zorder>dockWidget_Camera</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
