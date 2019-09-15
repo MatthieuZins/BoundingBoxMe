@@ -24,7 +24,7 @@
 #include <QDebug>
 #include <vtkXMLPolyDataReader.h>
 #include <vtkSmartPointer.h>
-#include <lidarFrameManager.h>
+#include "lidarFrameManager.h"
 #include <vtkDelimitedTextReader.h>
 #include <vtkTable.h>
 #include <vtkDoubleArray.h>

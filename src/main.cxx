@@ -18,7 +18,7 @@
 #include "MainWindow.h"
 #include <QApplication>
 
-#include <logger.h>
+#include "logger.h"
 
 // Global pointer to the mainwindow (used for logging)
 MainWindow* mainWindowPtr = nullptr;
