@@ -893,9 +893,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
   if (m_boundingBoxManager.getBoundingBoxes().size() > 0)
   {
     QMessageBox::StandardButton ret = QMessageBox::warning(this, "Warning",
-                 tr("Some of your work might no be saved. Are you sure to quit ?\n"),
-                 QMessageBox::Yes | QMessageBox::Save| QMessageBox::Cancel,
-                 QMessageBox::Yes);
+                 tr("Do you want to save your work ?\n"),
+                 QMessageBox::Discard | QMessageBox::Save| QMessageBox::Cancel,
+                 QMessageBox::Discard);
     if (ret == QMessageBox::Save)
     {
         saveBoundingBoxDataset();
@@ -917,9 +917,9 @@ void MainWindow::restart()
   if (m_boundingBoxManager.getBoundingBoxes().size() > 0)
   {
     QMessageBox::StandardButton ret = QMessageBox::warning(this, "Warning",
-                 tr("Some of your work might no be saved. Are you sure to restart ?\n"),
-                 QMessageBox::Yes | QMessageBox::Save| QMessageBox::Cancel,
-                 QMessageBox::Yes);
+                 tr("Do you want to save your work before restarting ?\n"),
+                 QMessageBox::Discard | QMessageBox::Save| QMessageBox::Cancel,
+                 QMessageBox::Discard);
     if (ret == QMessageBox::Save)
     {
         saveBoundingBoxDataset();
