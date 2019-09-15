@@ -577,6 +577,15 @@ void MainWindow::addBoundingBox(const Eigen::Isometry3d& pose, const Eigen::Vect
   actor->GetProperty()->SetOpacity(m_boundingBoxOpacity);
   actor->GetProperty()->SetAmbient(1.0);
 
+  // Create a caption
+  auto caption = vtkSmartPointer<vtkCaptionActor2D>::New();
+  caption->SetCaption(std::to_string(instanceId).c_str());
+  caption->BorderOff();
+  caption->GetCaptionTextProperty()->BoldOff();
+  caption->GetCaptionTextProperty()->ItalicOff();
+  caption->GetCaptionTextProperty()->ShadowOff();
+  m_bbCaptions.emplace_back(caption);
+
   update();
   selectBoundingBox(actor);
 
@@ -826,7 +835,7 @@ void MainWindow::loadBoundingBoxDataset()
         caption->GetCaptionTextProperty()->BoldOff();
         caption->GetCaptionTextProperty()->ItalicOff();
         caption->GetCaptionTextProperty()->ShadowOff();
-        m_bbCaptions.push_back(caption);
+        m_bbCaptions.emplace_back(caption);
       }
       ui->actionOpenBBox->setDisabled(true);
       update();
