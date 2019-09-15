@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
   int exitCode = RESTART_CODE;
   while (exitCode == RESTART_CODE)
   {
+    mainWindowPtr = nullptr;
     QApplication a(argc, argv);
     qInstallMessageHandler(messageHandler);
     MainWindow w;
