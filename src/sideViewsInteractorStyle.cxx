@@ -99,7 +99,7 @@ void SideViewsInteractorStyle::OnLeftButtonDown()
                                         m_renderer);
     double picked[3];
     this->Interactor->GetPicker()->GetPickPosition(picked);
-    m_mainWindowPtr->moveCamerasTo(picked);
+    m_mainWindowPtr->moveMainCameraTo(picked);
   }
 
 

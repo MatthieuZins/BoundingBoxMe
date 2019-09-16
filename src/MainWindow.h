@@ -106,7 +106,8 @@ public:
   void setFastRenderingThreshold(int th);
   void setSkipFramesMode(int mode);
 
-  void moveCamerasTo(double newFocalPoint[3]);
+  void moveMainCameraTo(double newFocalPoint[3]);
+  void moveSideCamerasTo(double newFocalPoint[3]);
 
   void updateColorByArrays(const std::vector<std::string>& arrays);
 
@@ -171,6 +172,7 @@ private:
   double m_boundingBoxOpacity = 0.5;
   const std::string m_backgroundColor = "#202333";
   const std::string m_backgroundColorSideViews = "#182030";
+  int m_PointSize = 1;
 
   double m_sideViewerHeight = 0.4;
 

@@ -775,7 +775,7 @@ void MainWindow::openLidarDataset()
 //        mapper->SelectColorArray("intensity");    // TODO: check if exists
         mapper->ScalarVisibilityOn();
         actor->SetMapper(mapper);
-        actor->GetProperty()->SetPointSize(1);
+        actor->GetProperty()->SetPointSize(m_PointSize);
       }
 
       // keep only the arrays that are available in every point cloud
@@ -997,8 +997,8 @@ void MainWindow::selectBoundingBox(vtkActor *bbActor)
     m_boxWidget4->PlaceWidget();
     m_boxWidget4->On();
 
-
-    std::vector<unsigned int> availableIds = { m_boundingBoxManager.getBoundingBoxFromIndex(idx)->getInstanceId() };
+    auto* bb = m_boundingBoxManager.getBoundingBoxFromIndex(idx);
+    std::vector<unsigned int> availableIds = { bb->getInstanceId() };
     const auto& framesOfPresence = m_boundingBoxManager.getBoundingBoxFromIndex(idx)->getFrames();
     for (int index = 0; index < m_bbActors.size(); ++index)
     {
@@ -1026,10 +1026,15 @@ void MainWindow::selectBoundingBox(vtkActor *bbActor)
     }
     this->ui->groupBox_BB_Information->updateAvailableInstanceIds(availableIds);
     this->ui->groupBox_BB_Information->updateInformation(m_boundingBoxManager.getBoundingBoxFromIndex(idx));
+
+    auto [first, last] = m_timeStepsManager.getCurrentTimeInterval();
+    auto frameId = bb->getFirstFrameOfPresenceInInterval(first, last);
+    Eigen::Vector3d pos = bb->getPose(frameId).translation();
+    moveSideCamerasTo(pos.data());
   }
 }
 
-void MainWindow::moveCamerasTo(double newFocalPoint[])
+void MainWindow::moveMainCameraTo(double newFocalPoint[])
 {
   // Adjust main renderer
   double currentCamPos[3];
@@ -1042,7 +1047,14 @@ void MainWindow::moveCamerasTo(double newFocalPoint[])
   newPos[2] = newFocalPoint[2] + (currentCamPos[2] - currentFocalPoint[2]);
   m_renderer->GetActiveCamera()->SetFocalPoint(newFocalPoint);
   m_renderer->GetActiveCamera()->SetPosition(newPos);
+}
 
+
+void MainWindow::moveSideCamerasTo(double newFocalPoint[])
+{
+  double currentCamPos[3];
+  double currentFocalPoint[3];
+  double newPos[3];
 
   // Adjust renderer 2
   m_renderer2->GetActiveCamera()->GetPosition(currentCamPos);
@@ -1071,5 +1083,4 @@ void MainWindow::moveCamerasTo(double newFocalPoint[])
   newPos[2] = newFocalPoint[2] + (currentCamPos[2] - currentFocalPoint[2]);
   m_renderer4->GetActiveCamera()->SetFocalPoint(newFocalPoint);
   m_renderer4->GetActiveCamera()->SetPosition(newPos);
-
 }
