@@ -106,7 +106,7 @@ public:
   void setFastRenderingThreshold(int th);
   void setSkipFramesMode(int mode);
 
-  void setFocalPoint(double pt[3]);
+  void moveCamerasTo(double newFocalPoint[3]);
 
   void updateColorByArrays(const std::vector<std::string>& arrays);
 
@@ -197,14 +197,6 @@ inline void MainWindow::setFastRenderingThreshold(int th)
 inline void MainWindow::setSkipFramesMode(int mode)
 {
   m_skipFramesMode = mode;
-}
-
-inline void MainWindow::setFocalPoint(double pt[])
-{
-  m_renderer->GetActiveCamera()->SetFocalPoint(pt);
-  m_renderer2->GetActiveCamera()->SetFocalPoint(pt);
-  m_renderer3->GetActiveCamera()->SetFocalPoint(pt);
-  m_renderer4->GetActiveCamera()->SetFocalPoint(pt);
 }
 
 

@@ -101,7 +101,8 @@ void KeyPressInteractorStyle::OnLeftButtonDown()
                                         m_renderer);
     double picked[3];
     this->Interactor->GetPicker()->GetPickPosition(picked);
-    m_mainWindowPtr->setFocalPoint(picked);
+
+    m_mainWindowPtr->moveCamerasTo(picked);
   }
 
 

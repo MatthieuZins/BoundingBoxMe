@@ -263,10 +263,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
   // Main Renderer
-  m_renderer->SetUseDepthPeeling(true);
   m_renderer->SetBackground(static_cast<double>(colBackground.GetRed()) / 255,
                             static_cast<double>(colBackground.GetGreen()) / 255,
                             static_cast<double>(colBackground.GetBlue()) / 255);
+  m_renderer->SetUseDepthPeeling(true);
 
   m_renderWindow->AddRenderer(m_renderer);
   m_renderer->SetViewport(0.0, m_sideViewerHeight, 1.0, 1.0);
@@ -1027,4 +1027,49 @@ void MainWindow::selectBoundingBox(vtkActor *bbActor)
     this->ui->groupBox_BB_Information->updateAvailableInstanceIds(availableIds);
     this->ui->groupBox_BB_Information->updateInformation(m_boundingBoxManager.getBoundingBoxFromIndex(idx));
   }
+}
+
+void MainWindow::moveCamerasTo(double newFocalPoint[])
+{
+  // Adjust main renderer
+  double currentCamPos[3];
+  m_renderer->GetActiveCamera()->GetPosition(currentCamPos);
+  double currentFocalPoint[3];
+  m_renderer->GetActiveCamera()->GetFocalPoint(currentFocalPoint);
+  double newPos[3];
+  newPos[0] = newFocalPoint[0] + (currentCamPos[0] - currentFocalPoint[0]);
+  newPos[1] = newFocalPoint[1] + (currentCamPos[1] - currentFocalPoint[1]);
+  newPos[2] = newFocalPoint[2] + (currentCamPos[2] - currentFocalPoint[2]);
+  m_renderer->GetActiveCamera()->SetFocalPoint(newFocalPoint);
+  m_renderer->GetActiveCamera()->SetPosition(newPos);
+
+
+  // Adjust renderer 2
+  m_renderer2->GetActiveCamera()->GetPosition(currentCamPos);
+  m_renderer2->GetActiveCamera()->GetFocalPoint(currentFocalPoint);
+  newPos[0] = newFocalPoint[0] + (currentCamPos[0] - currentFocalPoint[0]);
+  newPos[1] = newFocalPoint[1] + (currentCamPos[1] - currentFocalPoint[1]);
+  newPos[2] = newFocalPoint[2] + (currentCamPos[2] - currentFocalPoint[2]);
+  m_renderer2->GetActiveCamera()->SetFocalPoint(newFocalPoint);
+  m_renderer2->GetActiveCamera()->SetPosition(newPos);
+
+
+  // Adjust renderer 3
+  m_renderer3->GetActiveCamera()->GetPosition(currentCamPos);
+  m_renderer3->GetActiveCamera()->GetFocalPoint(currentFocalPoint);
+  newPos[0] = newFocalPoint[0] + (currentCamPos[0] - currentFocalPoint[0]);
+  newPos[1] = newFocalPoint[1] + (currentCamPos[1] - currentFocalPoint[1]);
+  newPos[2] = newFocalPoint[2] + (currentCamPos[2] - currentFocalPoint[2]);
+  m_renderer3->GetActiveCamera()->SetFocalPoint(newFocalPoint);
+  m_renderer3->GetActiveCamera()->SetPosition(newPos);
+
+  // Adjust renderer 4
+  m_renderer4->GetActiveCamera()->GetPosition(currentCamPos);
+  m_renderer4->GetActiveCamera()->GetFocalPoint(currentFocalPoint);
+  newPos[0] = newFocalPoint[0] + (currentCamPos[0] - currentFocalPoint[0]);
+  newPos[1] = newFocalPoint[1] + (currentCamPos[1] - currentFocalPoint[1]);
+  newPos[2] = newFocalPoint[2] + (currentCamPos[2] - currentFocalPoint[2]);
+  m_renderer4->GetActiveCamera()->SetFocalPoint(newFocalPoint);
+  m_renderer4->GetActiveCamera()->SetPosition(newPos);
+
 }
