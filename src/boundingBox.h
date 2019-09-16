@@ -18,6 +18,8 @@
 #ifndef BOUNDINGBOX_H
 #define BOUNDINGBOX_H
 
+#include <vector>
+
 #include <Eigen/Dense>
 
 #include <vtkMatrix4x4.h>

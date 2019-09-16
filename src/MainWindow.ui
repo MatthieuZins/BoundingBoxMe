@@ -262,7 +262,7 @@
   </widget>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="assets/resources.qrc">
+    <iconset resource="../assets/resources.qrc">
      <normaloff>:/icon/folder-open-solid.svg</normaloff>:/icon/folder-open-solid.svg</iconset>
    </property>
    <property name="text">
@@ -274,7 +274,7 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset resource="assets/resources.qrc">
+    <iconset resource="../assets/resources.qrc">
      <normaloff>:/icon/save-solid.svg</normaloff>:/icon/save-solid.svg</iconset>
    </property>
    <property name="text">
@@ -286,7 +286,7 @@
   </action>
   <action name="actionRestart">
    <property name="icon">
-    <iconset resource="assets/resources.qrc">
+    <iconset resource="../assets/resources.qrc">
      <normaloff>:/icon/redo-alt-solid.svg</normaloff>:/icon/redo-alt-solid.svg</iconset>
    </property>
    <property name="text">
@@ -303,7 +303,7 @@
   </action>
   <action name="actionOpenBBox">
    <property name="icon">
-    <iconset resource="assets/resources.qrc">
+    <iconset resource="../assets/resources.qrc">
      <normaloff>:/icon/box-open-solid.svg</normaloff>:/icon/box-open-solid.svg</iconset>
    </property>
    <property name="text">
@@ -315,7 +315,7 @@
   </action>
   <action name="actionOpenCameraFrames">
    <property name="icon">
-    <iconset resource="assets/resources.qrc">
+    <iconset resource="../assets/resources.qrc">
      <normaloff>:/icon/image-open.svg</normaloff>:/icon/image-open.svg</iconset>
    </property>
    <property name="text">
@@ -358,7 +358,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="assets/resources.qrc"/>
+  <include location="../assets/resources.qrc"/>
  </resources>
  <connections/>
 </ui>
