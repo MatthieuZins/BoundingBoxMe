@@ -670,6 +670,11 @@ void MainWindow::editBoundingBox(int index)
 //    m_bbActors[index]->GetProperty()->SetColor(col.r, col.g, col.b);
 
 //    m_renderer->Render();
+
+    auto [first, last] = m_timeStepsManager.getCurrentTimeInterval();
+    auto frameId = bb->getFirstFrameOfPresenceInInterval(first, last);
+    Eigen::Vector3d pos = bb->getPose(frameId).translation();
+    moveSideCamerasTo(pos.data());
   }
 }
 
