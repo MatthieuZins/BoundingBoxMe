@@ -55,9 +55,9 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionOpen"/>
-   <addaction name="actionSave"/>
    <addaction name="actionOpenBBox"/>
    <addaction name="actionOpenCameraFrames"/>
+   <addaction name="actionSave"/>
    <addaction name="actionRestart"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
