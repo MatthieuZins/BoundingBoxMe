@@ -38,6 +38,8 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen"/>
+    <addaction name="actionOpenBBox"/>
+    <addaction name="actionOpenCameraFrames"/>
     <addaction name="actionSave"/>
     <addaction name="actionRestart"/>
     <addaction name="actionQuit"/>
@@ -266,7 +268,7 @@
      <normaloff>:/icon/folder-open-solid.svg</normaloff>:/icon/folder-open-solid.svg</iconset>
    </property>
    <property name="text">
-    <string>Open</string>
+    <string>Open Lidar</string>
    </property>
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open Lidar Point Clouds dataset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -278,7 +280,7 @@
      <normaloff>:/icon/save-solid.svg</normaloff>:/icon/save-solid.svg</iconset>
    </property>
    <property name="text">
-    <string>Save</string>
+    <string>Save BBox</string>
    </property>
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save Bounding Box Dataset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -307,7 +309,7 @@
      <normaloff>:/icon/box-open-solid.svg</normaloff>:/icon/box-open-solid.svg</iconset>
    </property>
    <property name="text">
-    <string>OpenBBox</string>
+    <string>Open BBox</string>
    </property>
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open Bounding Box Dataset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
