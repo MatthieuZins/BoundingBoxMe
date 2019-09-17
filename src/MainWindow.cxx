@@ -457,11 +457,6 @@ void MainWindow::update()
   safeAddLidarActor(last_frame);
   safeAddLidarActor(first_frame);
 
-  for (vtkPolyDataMapper *mapper : m_pcMappers)
-  {
-    mapper->SelectColorArray(m_comboBox_ColorBy->currentText().toStdString().c_str());
-    mapper->ScalarVisibilityOn();
-  }
 
   // Display bounding boxes
   for (int i = 0; i < m_bbActors.size(); ++i)
@@ -769,7 +764,7 @@ void MainWindow::openLidarDataset()
         mapper->SetLookupTable(lookupTable);
         mapper->SetScalarModeToUsePointFieldData();
         mapper->SetColorModeToMapScalars();
-        mapper->SetUseLookupTableScalarRange(1);
+        mapper->SetUseLookupTableScalarRange(0);
         auto vertexFilter = vtkSmartPointer<vtkVertexGlyphFilter>::New();
         auto actor = vtkSmartPointer<vtkActor>::New();
         m_pcMappers.emplace_back(mapper);
@@ -777,8 +772,6 @@ void MainWindow::openLidarDataset()
         m_pcActors.emplace_back(actor);
         vertexFilter->SetInputData(pts);
         mapper->SetInputConnection(vertexFilter->GetOutputPort());
-//        mapper->SelectColorArray("intensity");    // TODO: check if exists
-        mapper->ScalarVisibilityOn();
         actor->SetMapper(mapper);
         actor->GetProperty()->SetPointSize(m_PointSize);
       }
@@ -793,6 +786,7 @@ void MainWindow::openLidarDataset()
         }
       }
       updateColorByArrays(goodArrays);
+      chooseColorArrayUsed(0);
 
       ui->groupBox_TimeSteps_Manager->updateTimeStepsBounds(0, m_lidarFramesManager.getNbFrames()-1);
       update();
@@ -949,7 +943,14 @@ void MainWindow::clearLogger()
 
 void MainWindow::chooseColorArrayUsed(int index)
 {
-  update();
+  for (vtkPolyDataMapper *mapper : m_pcMappers)
+  {
+    mapper->SelectColorArray(m_comboBox_ColorBy->currentText().toStdString().c_str());
+    mapper->SetColorModeToMapScalars();
+    mapper->ScalarVisibilityOn();
+    mapper->Update();
+  }
+  m_renderWindow->Render();
 }
 
 void MainWindow::updateColorByArrays(const std::vector<std::string> &arrays)

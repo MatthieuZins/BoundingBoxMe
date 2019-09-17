@@ -45,7 +45,6 @@ include(${VTK_USE_FILE})
 find_package(yaml-cpp REQUIRED)
 
 set(SRC_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src)
-message("losc = " ${SRC_DIRECTORY})
 
 
 # The main application
