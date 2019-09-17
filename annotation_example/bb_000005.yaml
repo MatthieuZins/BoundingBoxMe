@@ -1,4 +1,38 @@
 meta:
   date: N.A.
   source: N.A.
-objects: ~
+objects:
+  - label: bus
+    selector:
+      center:
+        - -3.236298708405752
+        - 0.67550428487195724
+        - -0.54614970752936109
+      dimensions:
+        - 1.4871919778102782
+        - 3.6222422388739304
+        - 1.7267970301180531
+      type: 3D bounding box
+      orientation:
+        - 3.1406172174718039
+        - 3.1413737887158453
+        - -3.1414947728350202
+      state: dynamic
+    id: 6
+  - label: traffic light
+    selector:
+      center:
+        - -5.917513540803566
+        - 1.678893134684633
+        - 0.26055989467042601
+      dimensions:
+        - 0.69109058597289419
+        - 0.95495472059485653
+        - 3.5495969546996351
+      type: 3D bounding box
+      orientation:
+        - 3.1406172174718039
+        - 3.1413737887158453
+        - -3.1414947728350202
+      state: static
+    id: 2
