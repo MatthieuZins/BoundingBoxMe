@@ -1,6 +1,6 @@
 # Bounding Box Me
 
-This tool enables you to annotate lidar point clouds with bounding boxes.
+This tool enables you to annotate lidar frames by creating bounding boxes around objects.
 
 ![Toolbar](doc/BoundingBoxMe.png)
 
@@ -65,6 +65,13 @@ The software has an automatic saving functionality. Once you have saved your wor
 
 ### Toolbar
 ![Toolbar](doc/Toolbar_help.png)
+
+### Tools tab
+
+![Toolbar](doc/tools_tab.png)
+
+You can choose to display a all the frames, a single frame or the frame in a specific interval. Below, you can see the information about the currently selected bounding box. You can also edit its id and class.
+
 
 ### Display tab
 

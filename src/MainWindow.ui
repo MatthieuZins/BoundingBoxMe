@@ -133,14 +133,21 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Press on 'q' to create a static BBox</string>
+        <string>Press on 'q' to create a static BBox.</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Press on 'd' to create a dynamic BBox</string>
+        <string>Press on 'd' to create a dynamic BBox.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Press &quot;Suppr&quot; to delete a BBox.</string>
        </property>
       </widget>
      </item>
