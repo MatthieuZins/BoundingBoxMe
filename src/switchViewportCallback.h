@@ -4,10 +4,9 @@
 #include <vtkCommand.h>
 #include <vtkSmartPointer.h>
 
-#include "mainViewInteractorStyle.h"
-#include "sideViewsInteractorStyle.h"
 
-
+class MainViewInteractorStyle;
+class SideViewsInteractorStyle;
 class vtkRenderer;
 class vtkRenderWindowInteractor;
 

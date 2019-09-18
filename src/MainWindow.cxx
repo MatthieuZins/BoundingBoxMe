@@ -66,40 +66,6 @@
 
 
 
-class vtkMyCallback : public vtkCommand
-{
-public:
-  static vtkMyCallback *New()
-  {
-    return new vtkMyCallback;
-  }
-  virtual void Execute( vtkObject *caller, unsigned long, void* )
-  {
-
-    vtkBoundingBoxManipulatorWidget *widget = vtkBoundingBoxManipulatorWidget::SafeDownCast(caller);
-
-    widget->GetTransform(0);  // this is just use to update the internal state of the widget
-
-    auto* actorToModify = vtkActor::SafeDownCast(widget->GetProp3D());
-
-    actorToModify->SetUserMatrix(widget->getPoseMatrix());
-    if (m_mainwindowPtr)
-    {
-      auto index = m_mainwindowPtr->findBoundingBoxFromActor(actorToModify);
-      if (index >= 0)
-      {
-        m_mainwindowPtr->editBoundingBox(index);
-      }
-    }
-  }
-
-  void setMainWindow(MainWindow* ptr) {
-    m_mainwindowPtr = ptr;
-  }
-private:
-  MainWindow* m_mainwindowPtr = nullptr;
-};
-
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -177,7 +143,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_axesWidget->SetEnabled(1);
   m_axesWidget->SetInteractive(0);
 
-  auto callback = vtkSmartPointer<vtkMyCallback>::New();
+  auto callback = vtkSmartPointer<BBoxManipulatorCallback>::New();
   callback->setMainWindow(this);
   m_boxWidget->SetInteractor(m_renderWindow->GetInteractor());
   m_boxWidget->AddObserver(vtkCommand::InteractionEvent, callback);
@@ -219,7 +185,7 @@ MainWindow::MainWindow(QWidget *parent) :
   cam2->SetViewUp(0.0, 0.0, 1.0);
   cam2->SetParallelProjection(true);
   cam2->SetParallelScale(10.0);
-  auto callback2 = vtkSmartPointer<vtkMyCallback>::New();
+  auto callback2 = vtkSmartPointer<BBoxManipulatorCallback>::New();
   callback2->setMainWindow(this);
   m_boxWidget2->SetInteractor(m_renderWindow->GetInteractor());
   m_boxWidget2->AddObserver(vtkCommand::InteractionEvent, callback2);
@@ -249,7 +215,7 @@ MainWindow::MainWindow(QWidget *parent) :
   cam3->SetViewUp(0.0, 1.0, 0.0);
   cam3->SetParallelProjection(true);
   cam3->SetParallelScale(20.0);
-  auto callback3 = vtkSmartPointer<vtkMyCallback>::New();
+  auto callback3 = vtkSmartPointer<BBoxManipulatorCallback>::New();
   callback3->setMainWindow(this);
   m_boxWidget3->SetInteractor(m_renderWindow->GetInteractor());
   m_boxWidget3->AddObserver(vtkCommand::InteractionEvent, callback3);
@@ -279,7 +245,7 @@ MainWindow::MainWindow(QWidget *parent) :
   cam4->SetViewUp(0.0, 0.0, 1.0);
   cam4->SetParallelProjection(true);
   cam4->SetParallelScale(10.0);
-  auto callback4 = vtkSmartPointer<vtkMyCallback>::New();
+  auto callback4 = vtkSmartPointer<BBoxManipulatorCallback>::New();
   callback4->setMainWindow(this);
   m_boxWidget4->SetInteractor(m_renderWindow->GetInteractor());
   m_boxWidget4->AddObserver(vtkCommand::InteractionEvent, callback4);
@@ -405,7 +371,6 @@ void MainWindow::update()
     }
   }
 
-  m_boxWidget->forceRepresentationToSurface();
   m_renderWindow->Render();
 }
 

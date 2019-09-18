@@ -3,6 +3,9 @@
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
 
+#include "mainViewInteractorStyle.h"
+#include "sideViewsInteractorStyle.h"
+
 
 void SwitchViewportCallback::Execute(vtkObject *, unsigned long event, void *)
 {
