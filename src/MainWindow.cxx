@@ -55,7 +55,7 @@
 #include <QFileDialog>
 #include <unsupported/Eigen/EulerAngles>
 #include <vtkMatrix4x4.h>
-#include "keyPressInteractorStyle.h"
+#include "mainViewInteractorStyle.h"
 #include "vtkEigenUtils.h"
 #include "datasetHelper.h"
 #include "vtkBoundingBoxSource.h"
@@ -81,7 +81,7 @@ public:
     return this->Interactor;
   }
 
-  void SetVolumeInteractorStyle(vtkSmartPointer<KeyPressInteractorStyle> m) {
+  void SetVolumeInteractorStyle(vtkSmartPointer<MainViewInteractorStyle> m) {
     this-> m_style3d = m;
   }
 
@@ -150,7 +150,7 @@ private:
   // Pointer to the interactor
   vtkRenderWindowInteractor *Interactor = nullptr;
   //pointer to interactor volume style
-  vtkSmartPointer<KeyPressInteractorStyle> m_style3d = nullptr;
+  vtkSmartPointer<MainViewInteractorStyle> m_style3d = nullptr;
   //pointer to interactor image style
   vtkSmartPointer<SideViewsInteractorStyle> m_style2d_2 = nullptr;
   vtkSmartPointer<SideViewsInteractorStyle> m_style2d_3 = nullptr;
@@ -286,7 +286,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 
-  auto style3d = vtkSmartPointer<KeyPressInteractorStyle>::New();
+  auto style3d = vtkSmartPointer<MainViewInteractorStyle>::New();
   style3d->SetDefaultRenderer(m_renderer);
   style3d->setMainWindow(this);
   style3d->setRenderer(m_renderer);

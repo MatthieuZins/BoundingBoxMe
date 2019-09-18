@@ -68,8 +68,8 @@ add_executable(BoundingBoxMe
     ${SRC_DIRECTORY}/displayManager_ui.cxx
     ${SRC_DIRECTORY}/displayManager_ui.h
     ${SRC_DIRECTORY}/displayManager_ui.ui
-    ${SRC_DIRECTORY}/keyPressInteractorStyle.cxx
-    ${SRC_DIRECTORY}/keyPressInteractorStyle.h
+    ${SRC_DIRECTORY}/mainViewInteractorStyle.cxx
+    ${SRC_DIRECTORY}/mainViewInteractorStyle.h
     ${SRC_DIRECTORY}/lidarFrame.cxx
     ${SRC_DIRECTORY}/lidarFrame.h
     ${SRC_DIRECTORY}/lidarFrameManager.cxx

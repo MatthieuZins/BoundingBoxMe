@@ -63,7 +63,6 @@ const BoundingBox* BoundingBoxManager::addBoundingBox(BoundingBox::Id id,
 
   if (existingBoundingBox)
   {
-    std::cout << "Add existing BBox!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
     // storing id does not change
     // instance id does not change
     // add the new frames and poses
