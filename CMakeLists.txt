@@ -82,6 +82,8 @@ add_executable(BoundingBoxMe
     ${SRC_DIRECTORY}/MainWindow.ui
     ${SRC_DIRECTORY}/sideViewsInteractorStyle.cxx
     ${SRC_DIRECTORY}/sideViewsInteractorStyle.h
+    ${SRC_DIRECTORY}/switchViewportCallback.cxx
+    ${SRC_DIRECTORY}/switchViewportCallback.h
     ${SRC_DIRECTORY}/timeStepsManager.h
     ${SRC_DIRECTORY}/timeStepsManager.cxx
     ${SRC_DIRECTORY}/timeStepsManager_ui.cxx

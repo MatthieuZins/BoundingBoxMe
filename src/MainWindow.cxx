@@ -62,106 +62,7 @@
 
 #include "sideViewsInteractorStyle.h"
 
-
-//Callback for automatic change of interaction styles
-class vtkVolumeInteractionCallback : public vtkCommand
-{
-public:
-
-  static vtkVolumeInteractionCallback *New() {
-    return new vtkVolumeInteractionCallback;
-  }
-
-
-  void SetInteractor(vtkRenderWindowInteractor *interactor) {
-    this->Interactor = interactor;
-  }
-
-  vtkRenderWindowInteractor *GetInteractor() {
-    return this->Interactor;
-  }
-
-  void SetVolumeInteractorStyle(vtkSmartPointer<MainViewInteractorStyle> m) {
-    this-> m_style3d = m;
-  }
-
-  void SetImageInteractorStyle(vtkSmartPointer<SideViewsInteractorStyle> style2,
-                               vtkSmartPointer<SideViewsInteractorStyle> style3,
-                               vtkSmartPointer<SideViewsInteractorStyle> style4)
-  {
-    m_style2d_2 = style2;
-    m_style2d_3 = style3;
-    m_style2d_4 = style4;
-  }
-
-  void setRenderers(vtkRenderer* renderer3d, vtkRenderer* renderer2d_2,
-                    vtkRenderer* renderer2d_3,vtkRenderer* renderer2d_4){
-    m_renderer3d = renderer3d;
-    m_renderer2d_2 = renderer2d_2;
-    m_renderer2d_3 = renderer2d_3;
-    m_renderer2d_4 = renderer2d_4;
-  }
-
-  virtual void Execute(vtkObject *, unsigned long event, void *)
-  {
-    vtkRenderWindowInteractor *interactor = this->GetInteractor();
-
-    int lastPos[2];
-    interactor->GetLastEventPosition(lastPos);
-    int currPos[2];
-    interactor->GetEventPosition(currPos);
-    double port[4];
-
-
-    if (event == vtkCommand::MouseMoveEvent)
-    {
-       vtkRenderer *renderer = interactor->FindPokedRenderer(currPos[0], currPos[1]);
-      if (renderer == m_renderer3d)
-      {
-        interactor->SetInteractorStyle(m_style3d);
-      }
-      else if (renderer == m_renderer2d_2)
-      {
-        interactor->SetInteractorStyle(m_style2d_2);
-        m_style2d_2->SetDefaultRenderer(renderer);
-      }
-      else if (renderer == m_renderer2d_3)
-      {
-        interactor->SetInteractorStyle(m_style2d_3);
-        m_style2d_3->SetDefaultRenderer(renderer);
-      }
-      else if (renderer == m_renderer2d_4)
-      {
-        interactor->SetInteractorStyle(m_style2d_4);
-        m_style2d_4->SetDefaultRenderer(renderer);
-      }
-
-      vtkInteractorStyle *style = vtkInteractorStyle::SafeDownCast(interactor->GetInteractorStyle());
-      if (style)
-      {
-        style->OnMouseMove();
-      }
-    }
-  }
-
-private:
-  vtkVolumeInteractionCallback() = default;
-
-  // Pointer to the interactor
-  vtkRenderWindowInteractor *Interactor = nullptr;
-  //pointer to interactor volume style
-  vtkSmartPointer<MainViewInteractorStyle> m_style3d = nullptr;
-  //pointer to interactor image style
-  vtkSmartPointer<SideViewsInteractorStyle> m_style2d_2 = nullptr;
-  vtkSmartPointer<SideViewsInteractorStyle> m_style2d_3 = nullptr;
-  vtkSmartPointer<SideViewsInteractorStyle> m_style2d_4 = nullptr;
-
- //pointer to image renderer
-  vtkRenderer *m_renderer3d = nullptr;
-  vtkRenderer *m_renderer2d_2 = nullptr;
-  vtkRenderer *m_renderer2d_3 = nullptr;
-  vtkRenderer *m_renderer2d_4 = nullptr;
-};
+#include "switchViewportCallback.h"
 
 
 
@@ -174,8 +75,7 @@ public:
   }
   virtual void Execute( vtkObject *caller, unsigned long, void* )
   {
-    // Here we use the vtkBoxWidget to transform the underlying coneActor
-    // (by manipulating its transformation matrix).
+
     vtkBoundingBoxManipulatorWidget *widget = vtkBoundingBoxManipulatorWidget::SafeDownCast(caller);
 
     widget->GetTransform(0);  // this is just use to update the internal state of the widget
@@ -390,11 +290,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
   // call back to change style interaction according to the renderer
-  auto callbackSwitchInteraction = vtkSmartPointer<vtkVolumeInteractionCallback>::New();
+  auto callbackSwitchInteraction = vtkSmartPointer<SwitchViewportCallback>::New();
   callbackSwitchInteraction->SetInteractor(ui->qvtkWidget->GetInteractor());
-  callbackSwitchInteraction->SetImageInteractorStyle(style2d_2, style2d_3, style2d_4);
+  callbackSwitchInteraction->Set2DInteractorStyle(style2d_2, style2d_3, style2d_4);
   callbackSwitchInteraction->setRenderers(m_renderer, m_renderer2, m_renderer3, m_renderer4);
-  callbackSwitchInteraction->SetVolumeInteractorStyle(style3d);
+  callbackSwitchInteraction->Set3DInteractorStyle(style3d);
   ui->qvtkWidget->GetInteractor()->AddObserver(vtkCommand::MouseMoveEvent, callbackSwitchInteraction);
 
 }
