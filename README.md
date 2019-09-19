@@ -13,7 +13,7 @@ This tool enables you to annotate lidar frames by creating bounding boxes around
 Bounding Box Me has the following dependencies:
 
 - Eigen3 (tested with version 3.3.4)
-- VTK (>= 8.1.1)
+- VTK (>= 8.2.0)
 - yaml-cpp
 - Qt (tested with 5.9, 5.11 and 5.12)
 
