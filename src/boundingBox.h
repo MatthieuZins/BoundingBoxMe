@@ -24,6 +24,7 @@
 
 #include <vtkMatrix4x4.h>
 #include <vtkSmartPointer.h>
+#include <QDebug>
 
 
 /// This class represents a bounding box
@@ -177,6 +178,11 @@ inline Eigen::Vector3d BoundingBox::getDimensions() const
 
 inline void BoundingBox::setDimensions(const Eigen::Vector3d &dims)
 {
+  if (dims.x() < 1e-3 && dims.y() < 1e-3 && dims.z() < 1e-3)
+  {
+    qWarning() << "Too small BBox. Ignoring";
+    return;
+  }
   m_dimensions = dims;
 }
 

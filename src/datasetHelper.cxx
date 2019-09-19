@@ -364,6 +364,7 @@ bool loadBBoxDataSet(const std::string &filename)
           bbMap[instanceId] = std::make_shared<BoundingBox>(0, instanceId, label, Eigen::Vector3d(dimensions[0], dimensions[1], dimensions[2]), state);
         }
         bbMap[instanceId]->addPresenceInFrame(pose, frameId);
+        bbMap[instanceId]->setDimensions(Eigen::Vector3d(dimensions[0], dimensions[1], dimensions[2]));
       }
     }
   }
