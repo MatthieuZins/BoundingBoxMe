@@ -44,7 +44,12 @@ void SideViewsInteractorStyle::OnKeyPress()
   else if (key == "Delete")
   {
     qInfo() << "Remove bounding box";
-    m_mainWindowPtr->deleteBoundingBox();
+    m_mainWindowPtr->deleteBoundingBox(false);
+  }
+  else if (key == "x" || key == "X")
+  {
+    qInfo() << "Remove bounding box in all frames";
+    m_mainWindowPtr->deleteBoundingBox(true);
   }
   else if (key == "q" || key == "Q")
   {

@@ -98,7 +98,7 @@ public:
   // edit only the BBox pose and dimensions
   void editBoundingBox(int index);
 
-  void deleteBoundingBox();
+  void deleteBoundingBox(bool allFrames);
 
   void updateBoundingBoxInstanceId(int index, unsigned int id);
 

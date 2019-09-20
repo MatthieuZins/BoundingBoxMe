@@ -62,7 +62,7 @@ example_data/
 ```
 
 
-You can add a new bounding box using 'q' (for a static BBox) or 'd' (for a dynamic one).
+You can add a new bounding box using **"q"** (for a static BBox) or **"d"** (for a dynamic one).
 To create a BBox around a specific point, double-click on it before pressing 'q' or 'd'.
 
 The software has an automatic saving functionality. Once you have saved your work, it will be saved automatically every 3 minutes.
@@ -76,6 +76,8 @@ The software has an automatic saving functionality. Once you have saved your wor
 
 You can choose to display a all the frames, a single frame or the frame in a specific interval. Below, you can see the information about the currently selected bounding box. You can also edit its id and class.
 
+You can add a new static BBox with **"q"** or a new dynamic BBox with **"d"**.
+You can remove a BBox from one frame with **"Suppr"** or completely an object with **"x"**.
 
 ### Display tab
 

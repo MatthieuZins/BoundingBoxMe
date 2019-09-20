@@ -673,13 +673,20 @@ void MainWindow::editBoundingBox(int index)
   }
 }
 
-void MainWindow::deleteBoundingBox()
+void MainWindow::deleteBoundingBox(bool allFrames)
 {
   if (m_currentlyEditedBox >= 0)
   {
-    auto currentFramesInterval = m_timeStepsManager.getCurrentTimeInterval();
+    std::pair<int, int> framesIntervalToDelete = m_timeStepsManager.getCurrentTimeInterval();
+    if (allFrames)
+    {
+      auto framesOfPresence = m_boundingBoxManager.getBoundingBoxFromIndex(m_currentlyEditedBox)->getFrames();
+      framesIntervalToDelete.first = *std::min_element(framesOfPresence.begin(), framesOfPresence.end());
+      framesIntervalToDelete.second = *std::max_element(framesOfPresence.begin(), framesOfPresence.end());
+    }
+
     // bb manager delete bb
-    bool isCompletelyRemoved = m_boundingBoxManager.deleteBoundingBox(m_currentlyEditedBox, currentFramesInterval);
+    bool isCompletelyRemoved = m_boundingBoxManager.deleteBoundingBox(m_currentlyEditedBox, framesIntervalToDelete);
 
     if (isCompletelyRemoved)
     {
@@ -707,13 +714,14 @@ void MainWindow::updateBoundingBoxInstanceId(int index, unsigned int id)
     {
       const auto& poses = bb->getPoses();
       const auto& frames = bb->getFrames();
+      // transfer all presences to targetBBox
       for (int i = 0; i < poses.size(); ++i)
       {
         bbTarget->addPresenceInFrame(poses[i], frames[i]);
       }
 
       auto newSelectedActor = m_bbActors[bbTarget->getStoringId()];
-      deleteBoundingBox();
+      deleteBoundingBox(false); // delete the current BBox because it is now in target
       selectBoundingBox(newSelectedActor);
     }
   }

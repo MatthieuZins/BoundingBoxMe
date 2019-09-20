@@ -147,7 +147,14 @@
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Press &quot;Suppr&quot; to delete a BBox.</string>
+        <string>Press 'Suppr' to delete a BBox in the current frames.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Press 'x' to delete a BBox in all frames.</string>
        </property>
       </widget>
      </item>
