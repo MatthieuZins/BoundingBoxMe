@@ -68,8 +68,8 @@ add_executable(BoundingBoxMe
     ${SRC_DIRECTORY}/displayManager_ui.cxx
     ${SRC_DIRECTORY}/displayManager_ui.h
     ${SRC_DIRECTORY}/displayManager_ui.ui
-    ${SRC_DIRECTORY}/keyPressInteractorStyle.cxx
-    ${SRC_DIRECTORY}/keyPressInteractorStyle.h
+    ${SRC_DIRECTORY}/mainViewInteractorStyle.cxx
+    ${SRC_DIRECTORY}/mainViewInteractorStyle.h
     ${SRC_DIRECTORY}/lidarFrame.cxx
     ${SRC_DIRECTORY}/lidarFrame.h
     ${SRC_DIRECTORY}/lidarFrameManager.cxx
@@ -82,6 +82,8 @@ add_executable(BoundingBoxMe
     ${SRC_DIRECTORY}/MainWindow.ui
     ${SRC_DIRECTORY}/sideViewsInteractorStyle.cxx
     ${SRC_DIRECTORY}/sideViewsInteractorStyle.h
+    ${SRC_DIRECTORY}/switchViewportCallback.cxx
+    ${SRC_DIRECTORY}/switchViewportCallback.h
     ${SRC_DIRECTORY}/timeStepsManager.h
     ${SRC_DIRECTORY}/timeStepsManager.cxx
     ${SRC_DIRECTORY}/timeStepsManager_ui.cxx

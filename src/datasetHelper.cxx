@@ -188,11 +188,6 @@ bool loadLidarDataSet(const std::string &filename)
   fs::path name = path.filename();
   fs::path posesFile = directory / name.replace_extension("poses");
 
-  std::cout << "Load DataSet\n";
-  std::cout << "Series file: " << filename << "\n";
-  std::cout << "Poses file: " << posesFile.generic_string() << "\n";
-
-
   auto listOfFramesAndTimes = loadSeriesFile(filename);
   if (listOfFramesAndTimes.size() > 0)
   {

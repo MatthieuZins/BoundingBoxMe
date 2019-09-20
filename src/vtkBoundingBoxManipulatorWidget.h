@@ -19,11 +19,37 @@
 #define VTKBOUNDINGBOXMANIPULATORWIDGET_H
 
 #include "vtkInteractionWidgetsModule.h"
-#include <vtkBoxWidget.h>
-#include <vtkMatrix4x4.h>
-#include <vtkSmartPointer.h>
-#include <vtkProperty.h>
 
+#include <vtkBoxWidget.h>
+#include <vtkCommand.h>
+#include <vtkProperty.h>
+#include <vtkSmartPointer.h>
+
+
+class MainWindow;
+class vtkMatrix4x4;
+
+/// This class is a callback which is called when the BBox manipulator has changed
+class BBoxManipulatorCallback : public vtkCommand
+{
+public:
+  static BBoxManipulatorCallback *New() {
+    return new BBoxManipulatorCallback;
+  }
+
+  virtual void Execute( vtkObject *caller, unsigned long, void* );
+
+
+  void setMainWindow(MainWindow* ptr) {
+    m_mainwindowPtr = ptr;
+  }
+
+private:
+  MainWindow* m_mainwindowPtr = nullptr;
+};
+
+
+/// This class is a specialization of the vtkBoxWidget adapted for our needs
 class VTKINTERACTIONWIDGETS_EXPORT vtkBoundingBoxManipulatorWidget : public vtkBoxWidget
 {
 public:
@@ -39,8 +65,6 @@ public:
   // For this widget getPoseMatrix should be used instead
   virtual void GetTransform(vtkTransform *t) override {}
 
-  void forceRepresentationToSurface();
-
   // This method returns the current pose of the widget (in world coordinates)
   vtkSmartPointer<vtkMatrix4x4> getPoseMatrix();
 
@@ -49,10 +73,5 @@ protected:
   ~vtkBoundingBoxManipulatorWidget() = default;
 };
 
-
-inline void vtkBoundingBoxManipulatorWidget::forceRepresentationToSurface()
-{
-  this->GetFaceProperty()->SetRepresentationToSurface();
-}
 
 #endif // VTKBOUNDINGBOXMANIPULATORWIDGET_H

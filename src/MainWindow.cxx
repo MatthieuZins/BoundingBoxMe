@@ -55,150 +55,16 @@
 #include <QFileDialog>
 #include <unsupported/Eigen/EulerAngles>
 #include <vtkMatrix4x4.h>
-#include "keyPressInteractorStyle.h"
+#include "mainViewInteractorStyle.h"
 #include "vtkEigenUtils.h"
 #include "datasetHelper.h"
 #include "vtkBoundingBoxSource.h"
 
 #include "sideViewsInteractorStyle.h"
 
-
-//Callback for automatic change of interaction styles
-class vtkVolumeInteractionCallback : public vtkCommand
-{
-public:
-
-  static vtkVolumeInteractionCallback *New() {
-    return new vtkVolumeInteractionCallback;
-  }
+#include "switchViewportCallback.h"
 
 
-  void SetInteractor(vtkRenderWindowInteractor *interactor) {
-    this->Interactor = interactor;
-  }
-
-  vtkRenderWindowInteractor *GetInteractor() {
-    return this->Interactor;
-  }
-
-  void SetVolumeInteractorStyle(vtkSmartPointer<KeyPressInteractorStyle> m) {
-    this-> m_style3d = m;
-  }
-
-  void SetImageInteractorStyle(vtkSmartPointer<SideViewsInteractorStyle> style2,
-                               vtkSmartPointer<SideViewsInteractorStyle> style3,
-                               vtkSmartPointer<SideViewsInteractorStyle> style4)
-  {
-    m_style2d_2 = style2;
-    m_style2d_3 = style3;
-    m_style2d_4 = style4;
-  }
-
-  void setRenderers(vtkRenderer* renderer3d, vtkRenderer* renderer2d_2,
-                    vtkRenderer* renderer2d_3,vtkRenderer* renderer2d_4){
-    m_renderer3d = renderer3d;
-    m_renderer2d_2 = renderer2d_2;
-    m_renderer2d_3 = renderer2d_3;
-    m_renderer2d_4 = renderer2d_4;
-  }
-
-  virtual void Execute(vtkObject *, unsigned long event, void *)
-  {
-    vtkRenderWindowInteractor *interactor = this->GetInteractor();
-
-    int lastPos[2];
-    interactor->GetLastEventPosition(lastPos);
-    int currPos[2];
-    interactor->GetEventPosition(currPos);
-    double port[4];
-
-
-    if (event == vtkCommand::MouseMoveEvent)
-    {
-       vtkRenderer *renderer = interactor->FindPokedRenderer(currPos[0], currPos[1]);
-      if (renderer == m_renderer3d)
-      {
-        interactor->SetInteractorStyle(m_style3d);
-      }
-      else if (renderer == m_renderer2d_2)
-      {
-        interactor->SetInteractorStyle(m_style2d_2);
-        m_style2d_2->SetDefaultRenderer(renderer);
-      }
-      else if (renderer == m_renderer2d_3)
-      {
-        interactor->SetInteractorStyle(m_style2d_3);
-        m_style2d_3->SetDefaultRenderer(renderer);
-      }
-      else if (renderer == m_renderer2d_4)
-      {
-        interactor->SetInteractorStyle(m_style2d_4);
-        m_style2d_4->SetDefaultRenderer(renderer);
-      }
-
-      vtkInteractorStyle *style = vtkInteractorStyle::SafeDownCast(interactor->GetInteractorStyle());
-      if (style)
-      {
-        style->OnMouseMove();
-      }
-    }
-  }
-
-private:
-  vtkVolumeInteractionCallback() = default;
-
-  // Pointer to the interactor
-  vtkRenderWindowInteractor *Interactor = nullptr;
-  //pointer to interactor volume style
-  vtkSmartPointer<KeyPressInteractorStyle> m_style3d = nullptr;
-  //pointer to interactor image style
-  vtkSmartPointer<SideViewsInteractorStyle> m_style2d_2 = nullptr;
-  vtkSmartPointer<SideViewsInteractorStyle> m_style2d_3 = nullptr;
-  vtkSmartPointer<SideViewsInteractorStyle> m_style2d_4 = nullptr;
-
- //pointer to image renderer
-  vtkRenderer *m_renderer3d = nullptr;
-  vtkRenderer *m_renderer2d_2 = nullptr;
-  vtkRenderer *m_renderer2d_3 = nullptr;
-  vtkRenderer *m_renderer2d_4 = nullptr;
-};
-
-
-
-class vtkMyCallback : public vtkCommand
-{
-public:
-  static vtkMyCallback *New()
-  {
-    return new vtkMyCallback;
-  }
-  virtual void Execute( vtkObject *caller, unsigned long, void* )
-  {
-    // Here we use the vtkBoxWidget to transform the underlying coneActor
-    // (by manipulating its transformation matrix).
-    vtkBoundingBoxManipulatorWidget *widget = vtkBoundingBoxManipulatorWidget::SafeDownCast(caller);
-
-    widget->GetTransform(0);  // this is just use to update the internal state of the widget
-
-    auto* actorToModify = vtkActor::SafeDownCast(widget->GetProp3D());
-
-    actorToModify->SetUserMatrix(widget->getPoseMatrix());
-    if (m_mainwindowPtr)
-    {
-      auto index = m_mainwindowPtr->findBoundingBoxFromActor(actorToModify);
-      if (index >= 0)
-      {
-        m_mainwindowPtr->editBoundingBox(index);
-      }
-    }
-  }
-
-  void setMainWindow(MainWindow* ptr) {
-    m_mainwindowPtr = ptr;
-  }
-private:
-  MainWindow* m_mainwindowPtr = nullptr;
-};
 
 
 
@@ -277,7 +143,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_axesWidget->SetEnabled(1);
   m_axesWidget->SetInteractive(0);
 
-  auto callback = vtkSmartPointer<vtkMyCallback>::New();
+  auto callback = vtkSmartPointer<BBoxManipulatorCallback>::New();
   callback->setMainWindow(this);
   m_boxWidget->SetInteractor(m_renderWindow->GetInteractor());
   m_boxWidget->AddObserver(vtkCommand::InteractionEvent, callback);
@@ -286,7 +152,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 
-  auto style3d = vtkSmartPointer<KeyPressInteractorStyle>::New();
+  auto style3d = vtkSmartPointer<MainViewInteractorStyle>::New();
   style3d->SetDefaultRenderer(m_renderer);
   style3d->setMainWindow(this);
   style3d->setRenderer(m_renderer);
@@ -319,7 +185,7 @@ MainWindow::MainWindow(QWidget *parent) :
   cam2->SetViewUp(0.0, 0.0, 1.0);
   cam2->SetParallelProjection(true);
   cam2->SetParallelScale(10.0);
-  auto callback2 = vtkSmartPointer<vtkMyCallback>::New();
+  auto callback2 = vtkSmartPointer<BBoxManipulatorCallback>::New();
   callback2->setMainWindow(this);
   m_boxWidget2->SetInteractor(m_renderWindow->GetInteractor());
   m_boxWidget2->AddObserver(vtkCommand::InteractionEvent, callback2);
@@ -349,7 +215,7 @@ MainWindow::MainWindow(QWidget *parent) :
   cam3->SetViewUp(0.0, 1.0, 0.0);
   cam3->SetParallelProjection(true);
   cam3->SetParallelScale(20.0);
-  auto callback3 = vtkSmartPointer<vtkMyCallback>::New();
+  auto callback3 = vtkSmartPointer<BBoxManipulatorCallback>::New();
   callback3->setMainWindow(this);
   m_boxWidget3->SetInteractor(m_renderWindow->GetInteractor());
   m_boxWidget3->AddObserver(vtkCommand::InteractionEvent, callback3);
@@ -379,7 +245,7 @@ MainWindow::MainWindow(QWidget *parent) :
   cam4->SetViewUp(0.0, 0.0, 1.0);
   cam4->SetParallelProjection(true);
   cam4->SetParallelScale(10.0);
-  auto callback4 = vtkSmartPointer<vtkMyCallback>::New();
+  auto callback4 = vtkSmartPointer<BBoxManipulatorCallback>::New();
   callback4->setMainWindow(this);
   m_boxWidget4->SetInteractor(m_renderWindow->GetInteractor());
   m_boxWidget4->AddObserver(vtkCommand::InteractionEvent, callback4);
@@ -390,11 +256,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
   // call back to change style interaction according to the renderer
-  auto callbackSwitchInteraction = vtkSmartPointer<vtkVolumeInteractionCallback>::New();
+  auto callbackSwitchInteraction = vtkSmartPointer<SwitchViewportCallback>::New();
   callbackSwitchInteraction->SetInteractor(ui->qvtkWidget->GetInteractor());
-  callbackSwitchInteraction->SetImageInteractorStyle(style2d_2, style2d_3, style2d_4);
+  callbackSwitchInteraction->Set2DInteractorStyle(style2d_2, style2d_3, style2d_4);
   callbackSwitchInteraction->setRenderers(m_renderer, m_renderer2, m_renderer3, m_renderer4);
-  callbackSwitchInteraction->SetVolumeInteractorStyle(style3d);
+  callbackSwitchInteraction->Set3DInteractorStyle(style3d);
   ui->qvtkWidget->GetInteractor()->AddObserver(vtkCommand::MouseMoveEvent, callbackSwitchInteraction);
 
 }
@@ -505,7 +371,6 @@ void MainWindow::update()
     }
   }
 
-  m_boxWidget->forceRepresentationToSurface();
   m_renderWindow->Render();
 }
 

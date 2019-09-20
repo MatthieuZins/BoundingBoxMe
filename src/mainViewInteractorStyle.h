@@ -23,14 +23,14 @@
 class MainWindow;
 
 // Define interaction style
-class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
+class MainViewInteractorStyle : public vtkInteractorStyleTrackballCamera
 {
   public:
-    static KeyPressInteractorStyle* New();
-    vtkTypeMacro(KeyPressInteractorStyle, vtkInteractorStyleTrackballCamera);
+    static MainViewInteractorStyle* New();
+    vtkTypeMacro(MainViewInteractorStyle, vtkInteractorStyleTrackballCamera);
 
-    KeyPressInteractorStyle() = default;
-    ~KeyPressInteractorStyle() = default;
+    MainViewInteractorStyle() = default;
+    ~MainViewInteractorStyle() = default;
 
     virtual void OnKeyPress();
 

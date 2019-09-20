@@ -18,17 +18,34 @@
 #include "vtkBoundingBoxManipulatorWidget.h"
 
 #include <vtkActor.h>
+#include <vtkDoubleArray.h>
 #include <vtkMatrix4x4.h>
 #include <vtkObjectFactory.h>
 #include <vtkPoints.h>
-#include <vtkDataArray.h>
-#include <vtkDoubleArray.h>
-#include <vtkMath.h>
-#include <vtkTransform.h>
-#include <vtkSmartPointer.h>
 
-#include<Eigen/Dense>
-#include <unsupported/Eigen/EulerAngles>
+#include "MainWindow.h"
+
+void BBoxManipulatorCallback::Execute(vtkObject *caller, unsigned long, void *)
+{
+
+  vtkBoundingBoxManipulatorWidget *widget = vtkBoundingBoxManipulatorWidget::SafeDownCast(caller);
+
+  widget->GetTransform(0);  // this is just use to update the internal state of the widget
+
+  auto* actorToModify = vtkActor::SafeDownCast(widget->GetProp3D());
+
+  actorToModify->SetUserMatrix(widget->getPoseMatrix());
+  if (m_mainwindowPtr)
+  {
+    auto index = m_mainwindowPtr->findBoundingBoxFromActor(actorToModify);
+    if (index >= 0)
+    {
+      m_mainwindowPtr->editBoundingBox(index);
+    }
+  }
+}
+
+
 
 vtkStandardNewMacro(vtkBoundingBoxManipulatorWidget);
 
@@ -124,3 +141,4 @@ vtkSmartPointer<vtkMatrix4x4> vtkBoundingBoxManipulatorWidget::getPoseMatrix()
 
   return poseMatrix;
 }
+

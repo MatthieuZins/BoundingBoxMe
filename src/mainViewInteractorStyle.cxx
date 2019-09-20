@@ -15,7 +15,7 @@
 // limitations under the License.
 //=========================================================================
 
-#include "keyPressInteractorStyle.h"
+#include "mainViewInteractorStyle.h"
 
 #include <vtkObjectFactory.h>
 #include <vtkRendererCollection.h>
@@ -29,10 +29,10 @@
 #include "MainWindow.h"
 
 
-vtkStandardNewMacro(KeyPressInteractorStyle);
+vtkStandardNewMacro(MainViewInteractorStyle);
 
 
-void KeyPressInteractorStyle::OnKeyPress()
+void MainViewInteractorStyle::OnKeyPress()
 {
   // Get the keypress
   vtkRenderWindowInteractor *rwi = this->Interactor;
@@ -69,7 +69,7 @@ void KeyPressInteractorStyle::OnKeyPress()
   m_mainWindowPtr->forceRender();
 }
 
-void KeyPressInteractorStyle::OnLeftButtonDown()
+void MainViewInteractorStyle::OnLeftButtonDown()
 {
   this->m_nbClicks++;
   int pickPosition[2];
